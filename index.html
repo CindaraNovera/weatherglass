@@ -245,6 +245,15 @@
     .daily-detail-grid strong{font-size:17px;font-weight:650;margin-top:7px}
     .daily-detail-grid small{font-size:10px;color:#bbcedd;line-height:1.5;margin-top:7px}
     @media(max-width:430px){.daily-detail-grid{gap:8px}.daily-detail-grid strong{font-size:15px}.day-expand-hint{font-size:10px}}
+
+    .forecast-change-disclosure{margin-top:20px;border-top:1px solid #ffffff22;padding-top:16px}
+    .forecast-change-disclosure>summary{font-size:14px;font-weight:650;cursor:pointer;color:#dffff4}
+    .change-note{font-size:12px;line-height:1.65;color:#d3e3ee;margin:12px 0}
+    .forecast-change-row{display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid #ffffff15;font-size:13px;line-height:1.6}
+    .forecast-change-row strong{font-size:14px}
+    .plan-insight-box{margin-top:16px;padding:18px;background:#16375355;border:1px solid #ffffff25;border-radius:16px}
+    .plan-insight-box strong{font-size:16px;color:#dbfff3}
+    .plan-insight-box p{font-size:13px;line-height:1.75;color:#d8e6f0;margin:10px 0 0}
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -277,7 +286,7 @@
 <label>Rain chance threshold<select id="rainThreshold"><option value="30">30%</option><option value="40" selected>40%</option><option value="50">50%</option><option value="60">60%</option></select></label>
 <button class="event-save" id="savePlanAlert" type="submit">Save &amp; check plan</button>
 </form>
-<div class="insight"><span class="insight-icon" aria-hidden="true">✧</span><div><div class="insight-title" id="planTitle">Choose a place and time</div><div class="insight-copy" id="planCopy">Save a plan to check the forecast for your chosen window.</div></div></div><div class="alert-saved" id="alertSaved" aria-live="polite">Plan alerts become eligible 10 days before your date. Background notifications are not connected yet.</div></article></section>
+<div class="insight"><span class="insight-icon" aria-hidden="true">✧</span><div><div class="insight-title" id="planTitle">Choose a place and time</div><div class="insight-copy" id="planCopy">Save a plan to check the forecast for your chosen window.</div></div></div><div id="planInsights" aria-live="polite"></div><div class="alert-saved" id="alertSaved" aria-live="polite">Plan alerts become eligible 10 days before your date. Background notifications are not connected yet.</div></article></section>
     <div class="layout">
       <section class="maincol">
         <article class="panel hero" id="widget-hero">
@@ -288,6 +297,7 @@
           <div class="panel-heading"><div><div class="heading">The forecast, in agreement</div><div class="subheading" id="consensusSubtitle">Loading independent weather models…</div></div><span class="confidence" id="confidenceBadge">● &nbsp;Checking agreement</span></div>
           <div class="consensus-row"><div class="metric"><div class="metriclabel">Consensus temperature</div><div class="metricvalue"><span id="consTemp">—</span>° <span id="consTempSpread">—</span></div><div class="metricnote" id="tempConsensusNote">Waiting for model forecasts</div><div class="spreadbar" id="tempSpreadBar"></div><div class="spreadlabels"><span id="tempSpreadLow">—</span><span>blend</span><span id="tempSpreadHigh">—</span></div></div><div class="metric"><div class="metriclabel">Rain chance · next 12h</div><div class="metricvalue"><span id="consRain">—</span><span style="font-size:14px">%</span></div><div class="metricnote" id="rainConsensusNote">Waiting for model forecasts</div><div id="rainBar" style="height:5px;border-radius:5px;background:linear-gradient(90deg,#78b4ed 20%,#ffffff12 20%);margin:17px 0 6px"></div><div class="spreadlabels"><span>Low</span><span>Moderate</span><span>High</span></div></div><div class="metric"><div class="metriclabel">Models aligned</div><div class="metricvalue"><span id="alignedCount">—</span> <span id="modelCount">of 3</span></div><div class="metricnote" id="alignmentNote">Agreement improves with more models</div><div class="spreadbar" id="alignmentBar" style="background:linear-gradient(90deg,#8edec8 0%,#ffffff15 0%)"></div><div class="spreadlabels"><span>Disagree</span><span>Strong consensus</span></div></div></div>
           <div class="source-strip"><div class="source-dots"><span class="dot e">E</span><span class="dot n">G</span><span class="dot i">I</span><span class="source-copy">ECMWF · NOAA GFS · DWD ICON</span></div><button class="textbtn" id="compareBtn">Compare sources&nbsp; ↗</button></div>
+          <details class="forecast-change-disclosure"><summary>What changed in the forecast?</summary><div id="forecastChanges" aria-live="polite">Waiting for live forecasts…</div></details>
         </article>
         <article class="panel section" id="widget-hourly"><div class="panel-heading"><div><div class="heading">Today, hour by hour</div><div class="subheading">Temperature and rain probability</div></div><div class="range" role="tablist"><button class="selected" data-range="Today">Today</button><button data-range="Tomorrow">Tomorrow</button><button data-range="10 days">10 days</button></div></div>
           <div class="chart"><svg viewBox="0 0 620 120" preserveAspectRatio="none" role="group" aria-label="Temperature line in degrees and precipitation probability bars in percent; shaded area shows model temperature range"><defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ddbc7" stop-opacity=".18"/><stop offset="1" stop-color="#8ddbc7" stop-opacity="0"/></linearGradient></defs><path class="chartgrid" d="M0 20H620M0 55H620M0 90H620"/><path class="rainbars" id="rainBars" d=""/><path class="chartfill" id="tempArea" d=""/><path id="modelRangeBand" fill="rgba(141,219,199,.22)" stroke="rgba(141,219,199,.52)" stroke-width="1" d=""/><path class="chartline" id="tempTrendLine" d=""/><circle id="chartMarker" cx="0" cy="0" r="4" fill="#e6fff5" stroke="#65af9e" stroke-width="2"/><g id="temperaturePoints"></g></svg><div class="chart-point-tooltip" id="chartPointTooltip" role="status" hidden></div></div><div class="charttemp" id="chartCurrent">Loading forecast…</div><div class="chartlabels" id="chartLabels"><span>Loading hours…</span></div><div class="chart-legend" aria-label="Chart legend"><span class="legend-item"><i class="legend-temp"></i>Temperature line (°)</span><span class="legend-item"><i class="legend-rain"></i>Rain chance bars (%)</span><span class="legend-item"><i class="legend-range"></i>Model temperature range</span></div></article>
@@ -662,6 +672,81 @@
       document.getElementById('temperaturePoints').innerHTML=available.map(p=>'<g class="temperature-point" data-index="'+p.i+'" tabindex="0" role="button" aria-label="'+labels[p.i]+': '+roundOrDash(p.v)+' degrees Fahrenheit, rain chance '+roundOrDash(rain[p.i])+' percent"><circle cx="'+x(p.i).toFixed(1)+'" cy="'+y(p.v).toFixed(1)+'" r="14" fill="transparent"/><circle class="temperature-dot" cx="'+x(p.i).toFixed(1)+'" cy="'+y(p.v).toFixed(1)+'" r="'+(p.i===cold.i||p.i===warm.i?4:3)+'" fill="#e6fff5" stroke="#388974" stroke-width="1.5"/></g>').join('');
       document.getElementById('chartPointTooltip').hidden=true;
     }
+
+    function forecastSignature(models){return models.map(m=>m.id).sort().join('|')}
+    function recordForecastSnapshot(key,payload,now=Date.now()){
+      const storageKey='weatherglass-history-v1';
+      let db;try{db=JSON.parse(localStorage.getItem(storageKey)||'{}')}catch{db={}}
+      if(!db||typeof db!=='object'||Array.isArray(db))db={};
+      const history=(Array.isArray(db[key])?db[key]:[]).filter(x=>x&&Number.isFinite(x.at)&&now-x.at>=0&&now-x.at<7*86400000);
+      const baseline=[...history].reverse().find(x=>now-x.at>=3600000)||null;
+      // Keep the first capture in each UTC hour so refreshing does not erase a baseline.
+      if(!history.some(x=>Math.floor(x.at/3600000)===Math.floor(now/3600000)))history.push({at:now,data:payload});
+      db[key]=history.slice(-48);
+      Object.keys(db).sort((a,b)=>(db[b]?.at||db[b]?.slice?.(-1)[0]?.at||0)-(db[a]?.at||db[a]?.slice?.(-1)[0]?.at||0)).slice(24).forEach(k=>delete db[k]);
+      let saved=true;try{localStorage.setItem(storageKey,JSON.stringify(db))}catch{saved=false}
+      return {baseline,saved};
+    }
+    function forecastDelta(now,before,unit){
+      if(!Number.isFinite(now)||!Number.isFinite(before))return 'Unavailable';
+      const delta=Math.round(now-before);
+      return (delta>0?'+':'')+delta+unit;
+    }
+    function recordedTime(at,zone){return new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:zone}).format(new Date(at))}
+    function renderForecastChanges(){
+      const root=document.getElementById('forecastChanges');root.replaceChildren();
+      const source=activeModels.find(m=>m.data.daily?.time);if(!source)return;
+      const data={};
+      source.data.daily.time.forEach(date=>{
+        const read=field=>mean(activeModels.map(m=>{const i=m.data.daily?.time?.indexOf(date);return i>=0?valueOf(m.data.daily,field,m.id)?.[i]:null}));
+        data[date]={high:read('temperature_2m_max'),low:read('temperature_2m_min'),rain:read('precipitation_probability_max')};
+      });
+      const key='daily|'+activeCoordinates.map(v=>v.toFixed(3)).join(',')+'|'+forecastSignature(activeModels);
+      const {baseline,saved}=recordForecastSnapshot(key,data);
+      const note=document.createElement('p');note.className='change-note';
+      if(!baseline){note.textContent=saved?'First comparison starts after another forecast check at least one hour later. History is saved on this device, separately for each location and model set.':'History could not be saved on this device. Enable browser storage to compare later forecasts.';root.append(note);return}
+      note.textContent='Compared with a forecast recorded '+recordedTime(baseline.at,activeTimezone)+' · same model feeds · on this device.';root.append(note);
+      let count=0;
+      Object.keys(data).slice(0,5).forEach(date=>{
+        const old=baseline.data?.[date];if(!old)return;count++;
+        const row=document.createElement('div');row.className='forecast-change-row';
+        const name=document.createElement('strong');name.textContent=new Intl.DateTimeFormat(undefined,{weekday:'short',month:'short',day:'numeric',timeZone:'UTC'}).format(new Date(date+'T12:00:00Z'));
+        const metrics=document.createElement('span');metrics.textContent='High '+forecastDelta(data[date].high,old.high,'°F')+' · Low '+forecastDelta(data[date].low,old.low,'°F')+' · Rain '+forecastDelta(data[date].rain,old.rain,' pp');row.append(name,metrics);root.append(row);
+      });
+      if(!count){const empty=document.createElement('p');empty.textContent='No matching dates in the earlier forecast yet.';root.append(empty)}
+      const foot=document.createElement('p');foot.className='change-note';foot.textContent='pp = percentage points. Rain compares daily peak probabilities; these are forecast revisions, not measured temperature changes. Refresh to check again; no background tracking yet.';root.append(foot);
+    }
+    function planWindowMetrics(models,date,start,end){
+      const source=models.find(m=>m.data.hourly?.time);if(!source)return null;
+      const times=source.data.hourly.time.filter(time=>time.slice(0,10)===date&&planTimeMinutes(time.slice(11,16))<end&&planTimeMinutes(time.slice(11,16))+60>start);
+      if(!times.length)return null;
+      const rows=times.map(time=>{const read=field=>mean(models.map(m=>{const i=m.data.hourly?.time?.indexOf(time);return i>=0?valueOf(m.data.hourly,field,m.id)?.[i]:null}));return {time,temp:read('temperature_2m'),rain:read('precipitation_probability'),gust:read('wind_gusts_10m')}});
+      const numbers=key=>rows.map(r=>r[key]).filter(Number.isFinite);
+      const temps=numbers('temp'),rain=numbers('rain'),gust=numbers('gust');
+      const complete=times.length===Math.ceil(end/60)-Math.floor(start/60)&&rows.every(r=>[r.temp,r.rain,r.gust].every(Number.isFinite));
+      return {complete,low:temps.length?Math.min(...temps):null,high:temps.length?Math.max(...temps):null,rain:rain.length?Math.max(...rain):null,gust:gust.length?Math.max(...gust):null};
+    }
+    function renderPlanInsights(plan,models,place){
+      const root=document.getElementById('planInsights');root.replaceChildren();
+      const start=planTimeMinutes(plan.start),end=planTimeMinutes(plan.end),current=planWindowMetrics(models,plan.date,start,end);if(!current)return;
+      const key='plan|'+Number(place.latitude).toFixed(3)+','+Number(place.longitude).toFixed(3)+'|'+plan.date+'|'+plan.start+'|'+plan.end+'|'+forecastSignature(models);
+      const {baseline,saved}=recordForecastSnapshot(key,current);
+      const add=(label,text)=>{const box=document.createElement('div');box.className='plan-insight-box';const heading=document.createElement('strong'),copy=document.createElement('p');heading.textContent=label;copy.textContent=text;box.append(heading,copy);root.append(box)};
+      add('What changed for this plan?',baseline?'Since '+recordedTime(baseline.at,plan.timezone)+': peak rain '+forecastDelta(current.rain,baseline.data?.rain,' pp')+', highest temperature '+forecastDelta(current.high,baseline.data?.high,'°F')+', peak gust '+forecastDelta(current.gust,baseline.data?.gust,' mph')+'. Compared for this exact date, time window and model set.':saved?'First forecast recorded. Check again at least one hour later to compare this exact time window.':'History could not be saved on this device.');
+      const duration=end-start,nowMinutes=planTimeMinutes(new Intl.DateTimeFormat('en-GB',{timeZone:plan.timezone,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date()));
+      const candidates=[];
+      for(let minute=6*60;minute+duration<=22*60;minute+=60){
+        if(plan.date===localCalendarDate(plan.timezone)&&minute<nowMinutes)continue;
+        const metrics=planWindowMetrics(models,plan.date,minute,minute+duration);
+        if(metrics?.complete&&metrics.high<90&&metrics.gust<25&&metrics.rain<plan.threshold)candidates.push({start:minute,end:minute+duration,...metrics});
+      }
+      candidates.sort((a,b)=>a.rain-b.rain||a.gust-b.gust||a.start-b.start);
+      const best=candidates[0],time=minute=>String(Math.floor(minute/60)).padStart(2,'0')+':'+String(minute%60).padStart(2,'0');
+      if(best)add('Best matching window to consider',time(best.start)+'–'+time(best.end)+' local time on '+plan.date+' · same '+duration+'-minute duration. Peak mean rain '+Math.round(best.rain)+'%, highest temperature '+Math.round(best.high)+'°F, peak mean gust '+Math.round(best.gust)+' mph. Ranked by lowest peak rain chance, then gusts, among complete windows from 6 AM–10 PM below your rain threshold, 90°F and 25 mph gusts. Your saved time stays unchanged.');
+      else add('Alternative windows','No complete window met the rain, temperature and gust criteria between 6 AM and 10 PM for this duration. This does not assess lightning, official alerts or all activity risks.');
+      const note=document.createElement('p');note.className='change-note';note.textContent='Forecast guidance, not a safety guarantee. pp = percentage points. Checks run while you use the app; background notifications are not connected.';root.append(note);
+    }
+
     function renderDaily(){
       if(!activeModels.length)return;
       const source=activeModels.find(m=>m.data.daily?.time);if(!source)return;
@@ -750,10 +835,10 @@
       const lunar=moonDescription();document.querySelector('.sunmoon-row .sunmoon:last-child span').textContent='Moon · '+lunar.label;document.querySelector('.sunmoon-row .sunmoon:last-child strong').textContent='☾  '+lunar.illumination+'% illuminated';
       const tz=models[0].data.timezone||undefined;document.getElementById('localDate').textContent=new Intl.DateTimeFormat(undefined,{weekday:'long',month:'long',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:tz}).format(new Date());
       document.getElementById('sourceFootnote').textContent='Forecasts shown are independent provider model outputs blended equally for this private prototype. The blend is not yet calibrated against local forecast history.';
-      renderDaily();renderLiveChart();renderWind();
+      renderDaily();renderLiveChart();renderWind();renderForecastChanges();
     }
     async function loadLocation(query){
-      const requestId=++locationRequest;++alertsRequest;document.getElementById('windContent').textContent='Loading wind forecast…';document.getElementById('alertsContent').textContent='Looking up location…';document.getElementById('previewStatus').textContent='LOOKING UP FORECAST';
+      const requestId=++locationRequest;++alertsRequest;document.getElementById('forecastChanges').textContent='Waiting for live forecasts for this location…';document.getElementById('windContent').textContent='Loading wind forecast…';document.getElementById('alertsContent').textContent='Looking up location…';document.getElementById('previewStatus').textContent='LOOKING UP FORECAST';
       document.getElementById('consensusSubtitle').textContent='Searching location and connecting model feeds…';
       try{
         const geo=await getJson(apiUrl('https://geocoding-api.open-meteo.com/v1/search',{name:query,count:5,language:'en',format:'json'}));
@@ -773,7 +858,7 @@
         if(!good.length)throw new Error('Forecast providers could not be reached');
         activeTimezone=good[0].data.timezone||activeTimezone;if(radarFrames.length)updateRadarFrame(radarFrameIndex);applyModels(good);applyAirQuality(airQuality);
         if(good.length<liveModels.length){document.getElementById('previewStatus').textContent='PARTIAL MODEL DATA';document.getElementById('consensusSubtitle').textContent=good.length+' of '+liveModels.length+' model feeds are available · blend uses available sources'}
-      }catch(error){if(requestId!==locationRequest)return;document.getElementById('windContent').textContent='Wind forecast unavailable. Try another location or refresh.';document.getElementById('previewStatus').textContent='LIVE DATA UNAVAILABLE';document.getElementById('consensusSubtitle').textContent=error.message+' · showing sample values';document.getElementById('dataAttribution').textContent='Sample values · forecast feeds temporarily unavailable'}
+      }catch(error){if(requestId!==locationRequest)return;document.getElementById('forecastChanges').textContent='Forecast changes unavailable while live feeds cannot be reached.';document.getElementById('windContent').textContent='Wind forecast unavailable. Try another location or refresh.';document.getElementById('previewStatus').textContent='LIVE DATA UNAVAILABLE';document.getElementById('consensusSubtitle').textContent=error.message+' · showing sample values';document.getElementById('dataAttribution').textContent='Sample values · forecast feeds temporarily unavailable'}
     }
 
     function finiteWind(v){return typeof v==='number'&&Number.isFinite(v)}
@@ -867,7 +952,7 @@
     }
     async function checkEventPlan(plan){
       const id=++eventPlanRequest,button=document.getElementById('savePlanAlert'),title=document.getElementById('planTitle'),copy=document.getElementById('planCopy'),status=document.getElementById('alertSaved');
-      button.disabled=true;title.textContent='Checking your plan…';copy.textContent=plan.location+' · '+plan.date+' · '+plan.start+'–'+plan.end;
+      document.getElementById('planInsights').replaceChildren();button.disabled=true;title.textContent='Checking your plan…';copy.textContent=plan.location+' · '+plan.date+' · '+plan.start+'–'+plan.end;
       try{
         if(plan.end<=plan.start)throw new Error('Choose an end time after the start time. This window uses one calendar date.');
         const geo=await getJson(apiUrl('https://geocoding-api.open-meteo.com/v1/search',{name:plan.location,count:5,language:'en',format:'json'}));if(id!==eventPlanRequest)return;
@@ -887,6 +972,7 @@
         const peakRain=rains.length?Math.max(...rains):null,peakGust=gusts.length?Math.max(...gusts):null,hot=temps.length?Math.max(...temps):null;
         title.textContent=peakRain!==null&&peakRain>=plan.threshold?'Rain may affect your plan':hot!==null&&hot>=90?'Heat may affect your plan':peakGust!==null&&peakGust>=25?'Gusts may affect your plan':'Forecast for your selected window';
         copy.textContent=plan.location+' · '+plan.date+' · '+plan.start+'–'+plan.end+' local time. '+(temps.length?roundOrDash(Math.min(...temps))+'–'+roundOrDash(Math.max(...temps))+'°F. ':'')+(peakRain!==null?'Peak model-mean rain chance '+roundOrDash(peakRain)+'%. ':'Rain probability unavailable. ')+(peakGust!==null?'Peak mean gust '+roundOrDash(peakGust)+' mph. ':'')+models.length+' model feeds. Hourly values overlap your chosen window; forecasts can change.';
+        renderPlanInsights(plan,models,place);
       }catch(error){if(id!==eventPlanRequest)return;title.textContent='Plan needs attention';copy.textContent=error.message;status.textContent='Alerts are eligible only within 10 days of your date. No background notifications are being sent.'}
       finally{if(id===eventPlanRequest)button.disabled=false}
     }
@@ -897,12 +983,12 @@
       edit.addEventListener('click',()=>{editingEventPlanId=plan.id;fillEventPlan(plan);checkEventPlan(plan)});
       remove.addEventListener('click',()=>{removedEventPlan=plan;eventPlans=eventPlans.filter(p=>p.id!==plan.id);writeStored(EVENT_PLANS_KEY,eventPlans);document.getElementById('planUndo').hidden=false;if(editingEventPlanId===plan.id)newEventPlan();renderSavedEventPlans()});actions.append(edit,remove);card.append(title,detail,status,actions);root.append(card)});
     }
-    function newEventPlan(){++eventPlanRequest;editingEventPlanId=null;fillEventPlan({});document.getElementById('savePlanAlert').disabled=false;document.getElementById('planTitle').textContent='Create a new plan';document.getElementById('planCopy').textContent='Choose your location, date and time, then save and check.';document.getElementById('alertSaved').textContent='Each plan has its own 10-day alert window. Background notifications are not connected yet.'}
+    function newEventPlan(){document.getElementById('planInsights').replaceChildren();++eventPlanRequest;editingEventPlanId=null;fillEventPlan({});document.getElementById('savePlanAlert').disabled=false;document.getElementById('planTitle').textContent='Create a new plan';document.getElementById('planCopy').textContent='Choose your location, date and time, then save and check.';document.getElementById('alertSaved').textContent='Each plan has its own 10-day alert window. Background notifications are not connected yet.'}
     document.getElementById('newEventPlan').addEventListener('click',newEventPlan);
     document.getElementById('undoEventPlan').addEventListener('click',()=>{if(removedEventPlan&&!eventPlans.some(p=>p.id===removedEventPlan.id)){eventPlans.push(removedEventPlan);writeStored(EVENT_PLANS_KEY,eventPlans)}removedEventPlan=null;document.getElementById('planUndo').hidden=true;renderSavedEventPlans()});
     const savedEventPlan=eventPlans[0];editingEventPlanId=savedEventPlan?.id||null;fillEventPlan(savedEventPlan||{});renderSavedEventPlans();
     document.getElementById('eventPlanForm').addEventListener('submit',e=>{e.preventDefault();checkEventPlan({activity:document.getElementById('eventActivity').value,location:document.getElementById('eventLocation').value.trim(),date:document.getElementById('eventDate').value,start:document.getElementById('eventStart').value,end:document.getElementById('eventEnd').value,threshold:Number(document.getElementById('rainThreshold').value)})});
-    document.getElementById('eventPlanForm').addEventListener('input',()=>{++eventPlanRequest;document.getElementById('savePlanAlert').disabled=false;document.getElementById('planTitle').textContent='Changes ready to check';document.getElementById('planCopy').textContent='Save and check to update the forecast for this location and window.';document.getElementById('alertSaved').textContent='Changes are not saved yet. Alerts become eligible 10 days before your date.'});
+    document.getElementById('eventPlanForm').addEventListener('input',()=>{document.getElementById('planInsights').replaceChildren();++eventPlanRequest;document.getElementById('savePlanAlert').disabled=false;document.getElementById('planTitle').textContent='Changes ready to check';document.getElementById('planCopy').textContent='Save and check to update the forecast for this location and window.';document.getElementById('alertSaved').textContent='Changes are not saved yet. Alerts become eligible 10 days before your date.'});
     if(savedEventPlan)checkEventPlan(savedEventPlan);
 
     document.querySelectorAll('[data-mobile-view]').forEach(button=>button.addEventListener('click',()=>{
