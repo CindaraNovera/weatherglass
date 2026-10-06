@@ -339,7 +339,29 @@
     @keyframes sky-windy-snow{to{transform:translate3d(-38vw,116vh,0)}}
     @keyframes sky-wind-flow{to{transform:translate3d(150vw,2vh,0)}}
     @media(prefers-reduced-motion:reduce){.weather-atmosphere *{animation:none!important;will-change:auto!important}.sky-clouds{transition:none}.sky-raindrop,.sky-snowflake{top:calc(var(--x)*.75)}.sky-wind-streak{left:30vw}}
-  </style>
+  
+    .daily-brief{padding:26px;position:relative;overflow:visible}
+    .brief-top{display:flex;justify-content:space-between;align-items:center;gap:16px}
+    .brief-top h2{font-size:23px;letter-spacing:-.5px;margin:8px 0 0}
+    .brief-emblem{font-size:36px;color:#f4d48c;text-shadow:0 2px 15px #f9c25a44}
+    .brief-message{font-size:21px;font-weight:550;line-height:1.5;letter-spacing:-.25px;margin:22px 0 14px}
+    .brief-facts{font-size:15px;font-weight:700;line-height:1.7;margin:0 0 8px}
+    .brief-meta,.brief-delivery{font-size:12px;line-height:1.6;opacity:.8}
+    .brief-actions{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-top:20px}
+    .brief-actions button{min-height:40px;padding:9px 14px;border-radius:14px}
+    .brief-settings{flex:1;min-width:160px}
+    .brief-settings summary{cursor:pointer;font-size:14px;font-weight:650;padding:11px 0}
+    .brief-preferences{display:grid;gap:10px;padding-top:10px}
+    .brief-preferences label{font-size:13px;font-weight:650}
+    .brief-preferences input,.brief-preferences select{width:100%;min-height:42px;padding:10px 12px;border:1px solid #ffffff35;border-radius:12px;background:var(--input-bg,#ffffff18);color:inherit;font:inherit;font-size:14px}
+    .brief-preferences select option{color:#1b334b;background:#f3f8ff}
+    .brief-preferences small{font-size:12px;line-height:1.5;opacity:.8}
+    .brief-delivery{border-top:1px solid #ffffff25;padding-top:14px;margin:20px 0 0}
+    .daily-brief[data-serious=true]{border-color:#f2b16499}
+    .daily-brief[data-serious=true] .brief-emblem{color:#ffd49a}
+    @media(max-width:600px){.daily-brief{padding:22px}.brief-message{font-size:20px}.brief-top h2{font-size:22px}}
+
+</style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/esri-leaflet@3.0.19/dist/esri-leaflet.js"></script>
@@ -376,6 +398,15 @@
 <div class="insight"><span class="insight-icon" aria-hidden="true">✧</span><div><div class="insight-title" id="planTitle">Choose a place and time</div><div class="insight-copy" id="planCopy">Save a plan to check the forecast for your chosen window.</div></div></div><div id="planInsights" aria-live="polite"></div><div class="alert-saved" id="alertSaved" aria-live="polite">Plan alerts become eligible 10 days before your date. Background notifications are not connected yet.</div></article></section>
     <div class="layout">
       <section class="maincol">
+
+        <article class="panel daily-brief" id="widget-brief" data-serious="false">
+          <div class="brief-top"><div><div class="eyebrow">THE DAILY GLASS</div><h2 id="briefHeading">Your daily brief</h2></div><span class="brief-emblem" aria-hidden="true">✦</span></div>
+          <p class="brief-message" id="briefText" aria-live="polite">Connecting today’s forecasts…</p>
+          <p class="brief-facts" id="briefFacts"></p><p class="brief-meta" id="briefMeta">Live forecast needed</p>
+          <div class="brief-actions"><button type="button" class="small-btn" id="briefAnother" disabled>Another take ↻</button><details class="brief-settings"><summary>Make it yours</summary><div class="brief-preferences"><label for="briefTone">Your forecast voice</label><select id="briefTone"><option value="plain">Straightforward</option><option value="warm">Warm &amp; friendly</option><option value="playful">Playful</option></select><label for="briefName">First name (optional)</label><input id="briefName" maxlength="32" autocomplete="given-name" placeholder="What should we call you?"><small id="briefSaveNote">Preferences stay on this device.</small><small>Serious weather always gets a clear, direct message.</small></div></details></div>
+          <p class="brief-delivery">Your brief lives here today. Scheduled daily notifications will come with delivery setup.</p>
+        </article>
+
         <article class="panel hero" id="widget-hero">
           <div class="hero-content"><div><div class="hero-place" id="heroPlace">Warner Robins</div><div class="eyebrow"><span id="dayLabel">Today</span> · right now</div><div class="temp"><span id="heroTemp">72</span><sup>°</sup></div><div class="condition" id="heroCondition">Partly cloudy</div><div class="highlow">H: <strong id="high">78°</strong> &nbsp; L: <strong id="low">64°</strong></div></div><div class="sun-icon" aria-hidden="true"><svg viewBox="0 0 160 160" fill="none"><path d="M35 89c5-12 16-18 29-16 6-18 30-26 45-11 8 7 11 15 11 24 16 0 24 11 24 23 0 13-11 23-24 23H43c-17 0-27-10-27-23 0-9 7-17 19-20Z" fill="#edf6ff" opacity=".6"/></svg></div></div>
           <div class="hero-foot"><div class="hero-detail"><svg class="detail-icon" viewBox="0 0 24 24" fill="none"><path d="M12 3v18m-7-9h14M5.6 5.6l12.8 12.8m0-12.8L5.6 18.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Feels like <strong id="feels">73°</strong></span></div><div class="hero-detail"><svg class="detail-icon" viewBox="0 0 24 24" fill="none"><path d="M12 3c2.2 3.7 6 7.8 6 12a6 6 0 0 1-12 0c0-4.2 3.8-8.3 6-12Z" stroke="currentColor" stroke-width="1.5"/><path d="M9 16c.4 1.2 1.2 1.8 2.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Humidity <strong id="humidity">68%</strong></span></div><div class="hero-detail"><svg class="detail-icon" viewBox="0 0 24 24" fill="none"><path d="M3 9h12a3 3 0 1 0-3-3M3 13h16a2.5 2.5 0 1 1-2.5 2.5M3 17h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Wind <strong id="wind">5 mph</strong></span></div><span class="updated">Conditions overview</span></div>
@@ -515,6 +546,7 @@
     // Product concept interactions: editable dashboard, radar canvas, and glanceable native widget previews.
     const widgetTitles={
       'widget-hero':'Current conditions',
+      'widget-brief':'Your daily brief',
       'widget-consensus':'Forecast consensus',
       'widget-hourly':'Hourly outlook',
       'widget-wind':'Wind & gusts',
@@ -526,9 +558,9 @@
     const defaultWidgetOrder=Object.keys(widgetTitles);
     let widgetOrder=readStored(widgetOrderKey,defaultWidgetOrder);
     widgetOrder=Array.isArray(widgetOrder)?[...new Set(widgetOrder.filter(id=>defaultWidgetOrder.includes(id)))]:[];
-    defaultWidgetOrder.forEach(id=>{if(!widgetOrder.includes(id))widgetOrder.push(id)});
+    defaultWidgetOrder.forEach(id=>{if(!widgetOrder.includes(id)){if(id==='widget-brief')widgetOrder.splice(widgetOrder.indexOf('widget-hero')+1,0,id);else widgetOrder.push(id)}});
     const storedColumns=readStored(widgetColumnsKey,{});
-    let widgetColumns=Object.fromEntries(widgetOrder.map((id,i)=>[id,storedColumns?.[id]==='left'||storedColumns?.[id]==='right'?storedColumns[id]:i<4?'left':'right']));
+    let widgetColumns=Object.fromEntries(widgetOrder.map((id,i)=>[id,storedColumns?.[id]==='left'||storedColumns?.[id]==='right'?storedColumns[id]:['widget-hero','widget-brief','widget-consensus','widget-hourly','widget-wind'].includes(id)?'left':'right']));
     const layoutList=document.getElementById('layoutList'),layoutBackdrop=document.getElementById('layoutBackdrop');
     function moveOrder(id,direction){
       const peers=widgetOrder.filter(x=>widgetColumns[x]===widgetColumns[id]),index=peers.indexOf(id),other=peers[index+direction];if(!other)return;
@@ -982,9 +1014,10 @@
       const lunar=moonDescription();document.querySelector('.sunmoon-row .sunmoon:last-child span').textContent='Moon · '+lunar.label;document.querySelector('.sunmoon-row .sunmoon:last-child strong').textContent='☾  '+lunar.illumination+'% illuminated';
       const tz=models[0].data.timezone||undefined;document.getElementById('localDate').textContent=new Intl.DateTimeFormat(undefined,{weekday:'long',month:'long',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:tz}).format(new Date());
       document.getElementById('sourceFootnote').textContent='Forecasts shown are independent provider model outputs blended equally for this private prototype. The blend is not yet calibrated against local forecast history.';
-      renderDaily();renderLiveChart();renderWind();renderForecastChanges();
+      renderDaily();renderLiveChart();renderWind();renderForecastChanges();briefModels=models;briefVariation=0;renderDailyBrief();
     }
     async function loadLocation(query){
+      briefModels=null;renderDailyBrief();
       const requestId=++locationRequest;++alertsRequest;document.getElementById('forecastChanges').textContent='Waiting for live forecasts for this location…';document.getElementById('windContent').textContent='Loading wind forecast…';document.getElementById('alertsContent').textContent='Looking up location…';document.getElementById('previewStatus').textContent='LOOKING UP FORECAST';
       document.getElementById('consensusSubtitle').textContent='Searching location and connecting model feeds…';
       try{
@@ -1007,6 +1040,95 @@
         if(good.length<liveModels.length){document.getElementById('previewStatus').textContent='PARTIAL MODEL DATA';document.getElementById('consensusSubtitle').textContent=good.length+' of '+liveModels.length+' model feeds are available · blend uses available sources'}
       }catch(error){if(requestId!==locationRequest)return;document.getElementById('forecastChanges').textContent='Forecast changes unavailable while live feeds cannot be reached.';document.getElementById('windContent').textContent='Wind forecast unavailable. Try another location or refresh.';document.getElementById('previewStatus').textContent='LIVE DATA UNAVAILABLE';document.getElementById('consensusSubtitle').textContent=error.message+' · showing sample values';document.getElementById('dataAttribution').textContent='Sample values · forecast feeds temporarily unavailable'}
     }
+
+    
+    const briefPreferenceKey='weatherglass-daily-brief-v1';
+    let briefPreferences=readStored(briefPreferenceKey,{tone:'warm',name:''});
+    if(!briefPreferences||typeof briefPreferences!=='object')briefPreferences={};
+    briefPreferences={tone:['plain','warm','playful'].includes(briefPreferences.tone)?briefPreferences.tone:'warm',name:typeof briefPreferences.name==='string'?briefPreferences.name.slice(0,32):''};
+    let briefModels=null,briefVariation=0,briefStorageOK=true;
+    const briefLines={
+      sunny:{warm:['A lovely excuse to take the scenic route.','Make a little room for fresh air today.','A good day to stop and smell the flowers.','Your lunch break deserves a little sky.','Take your coffee outside if you can.','Find a sunny spot and enjoy a slower moment.'],
+        playful:['The sofa has competition today.','The sun showed up. Your outdoor plans can too.','Today’s dress code: a little less couch.','Your houseplants are jealous of your outdoor options.','The sky has cleared its calendar for you.','An excellent day to pretend that walk is an adventure.']},
+      coldRain:{warm:['A warm drink and a dry layer will be welcome company.','Keep an umbrella and something cozy close by.','A good day for an indoor project and a warm cup.','Make your outdoor errands short and your warm breaks generous.','A raincoat earns its place by the door today.','A little extra comfort belongs on today’s agenda.'],
+        playful:['Your umbrella and your sweater have formed a team.','The weather has nominated soup for lunch.','Your nose would like a seat near the heater.','Outdoor errands: speed run. Cozy socks: extended edition.','The forecast is giving strong blanket energy.','Today, the raincoat gets employee of the month.']},
+      rain:{warm:['Leave room for a raincoat in your plans.','Keep your umbrella handy when heading out.','An indoor backup plan will be useful today.','A little flexibility will make the day easier.','Give your outdoor plans a sheltered alternative.','A book and a warm drink make a fine backup plan.'],
+        playful:['Your umbrella is ready for its main-character moment.','The sky is watering everything without asking.','Hair plans may need a backup plan.','Your raincoat finally has something on its calendar.','The plants ordered room service from the sky.','The weather would like to sponsor your indoor hobbies.']},
+      snow:{warm:['Bundle up, and check travel conditions before heading out.','A warm layer and a little extra time will help today.','Keep a cozy indoor alternative for your plans.','Watch for slippery surfaces when you head out.','Enjoy the wintry view from somewhere warm.','A slower pace makes sense in wintry weather.'],
+        playful:['The sky has switched to confetti mode. Watch your footing.','The snow is decorating; your boots are doing the practical work.','Your warm socks are suddenly a very sensible investment.','Winter has arrived without an appointment. Check travel conditions.','Today’s accessories include a coat with actual ambition.','The view may be pretty. The pavement still deserves respect.']},
+      cold:{warm:['Layer up before stepping out.','A warm layer makes fresh air more inviting.','Keep your outdoor breaks cozy and comfortable.','Start with a jacket and adjust as the day unfolds.','Make room for a warm drink between errands.','A little preparation makes a chilly day easier.'],
+        playful:['Your jacket has been waiting for this moment.','The forecast has promoted pockets to hand warmers.','A good day to dress like you believe the forecast.','Your sweater is taking attendance.','The air is crisp. Your laundry pile may contain the solution.','Today’s fashionable accessory: being warm.']},
+      warm:{warm:['Keep water handy and look for a comfortable shady spot.','A relaxed pace and a little shade will feel good.','Choose a cooler part of the day for outdoor plans.','Bring water when you head outside.','A shady lunch break sounds inviting.','Enjoy the warmth with a little room to cool off.'],
+        playful:['Your water bottle would like to come along.','Shade is the VIP section today.','The sun has turned up the thermostat.','An iced drink has a convincing case today.','Today’s outdoors come with a warm setting.','Your hat is applying for a promotion.']},
+      breezy:{warm:['An extra layer may make outdoor plans more comfortable.','Choose a sheltered spot for an outdoor break.','Keep an eye on the wind when planning time outside.','A light jacket could be good company today.','A sheltered walk may be the more comfortable option.','Give loose outdoor items a secure place.'],
+        playful:['Your hairstyle has a weather advisory of its own.','The breeze has opinions about your hat.','Secure the picnic napkins. They have travel ambitions.','The wind is auditioning for background music.','A jacket that zips is a solid plot twist.','Your umbrella may prefer a day off.']},
+      cloudy:{warm:['A little fresh air can still brighten your day.','A comfortable layer leaves your options open.','Make space for a short outdoor break if conditions suit.','Check the hourly outlook before making outdoor plans.','A quieter sky can make for an unhurried day.','A small change of scenery may be welcome today.'],
+        playful:['The sun is working behind the scenes.','The sky has chosen its soft-light filter.','The clouds are handling the mood lighting.','Today’s sky has gone with a minimalist color palette.','A good day to provide your own sparkle.','The clouds have booked the top floor.']}
+    };
+    function briefNumber(v){return typeof v==='number'&&Number.isFinite(v)?v:null}
+    function summarizeBrief(models,date){
+      const field=(m,key)=>{const d=m.data.daily,i=d?.time?.indexOf(date);return i>=0?briefNumber(valueOf(d,key,m.id)?.[i]):null};
+      const highs=models.map(m=>field(m,'temperature_2m_max')),lows=models.map(m=>field(m,'temperature_2m_min')),rains=models.map(m=>field(m,'precipitation_probability_max'));
+      const high=mean(highs),low=mean(lows),rain=mean(rains);
+      const codes=[],dailyCodes=[],gusts=[],feels=[];
+      models.forEach(m=>{
+        const d=m.data.daily,di=d?.time?.indexOf(date),dc=di>=0?valueOf(d,'weather_code',m.id)?.[di]:null;if(briefNumber(dc)!==null){codes.push(dc);dailyCodes.push(dc)}
+        const h=m.data.hourly;h?.time?.forEach((t,i)=>{if(t.slice(0,10)!==date)return;const c=valueOf(h,'weather_code',m.id)?.[i];if(briefNumber(c)!==null)codes.push(c);const g=briefNumber(valueOf(h,'wind_gusts_10m',m.id)?.[i]);if(g!==null)gusts.push(g);const f=briefNumber(valueOf(h,'apparent_temperature',m.id)?.[i]);if(f!==null)feels.push(f)});
+      });
+      const gust=gusts.length?Math.max(...gusts):null;
+      const storm=codes.some(c=>[95,96,99].includes(c)),ice=codes.some(c=>[56,57,66,67].includes(c));
+      const snow=codes.some(c=>[71,73,75,77,85,86].includes(c));
+      const risk=storm?'Thunderstorms appear in at least one forecast. Check the hourly outlook and official alerts before outdoor plans.':
+        ice?'Freezing precipitation appears in at least one forecast. Slippery conditions are possible; check official alerts and local travel information.':
+        high!==null&&(high>=95||feels.some(f=>f>=100))?'Very hot conditions are forecast. Plan cooler breaks and check official heat guidance.':
+        low!==null&&(low<=20||feels.some(f=>f<=10))?'Very cold conditions are forecast. Plan warm shelter and check official cold-weather guidance.':
+        gust!==null&&gust>=35?'Strong gusts appear in at least one forecast. Secure loose items and check official alerts before exposed outdoor activities.':null;
+      const wet=rain!==null&&rain>=50;
+      const bucket=snow?'snow':wet&&high!==null&&high<55?'coldRain':wet?'rain':high!==null&&high<50?'cold':high!==null&&high>=85?'warm':gust!==null&&gust>=20?'breezy':rain!==null&&rain<20&&dailyCodes.some(c=>[0,1,2].includes(c))?'sunny':'cloudy';
+      const description={sunny:'Sunshine is in the forecast.',coldRain:'A chilly day with a chance of precipitation.',rain:'Plan for a chance of precipitation today.',snow:'Snow appears in today’s forecast.',cold:'A chilly day is ahead.',warm:'A warm day is ahead.',breezy:'A breezy day is ahead.',cloudy:'Here’s your outlook for today.'}[bucket];
+      const facts='High '+roundOrDash(high)+'°F · Low '+roundOrDash(low)+'°F · Peak precipitation chance '+roundOrDash(rain)+'%.';
+      return {date,high,low,rain,gust,bucket,risk,description,facts,available:high!==null&&low!==null&&rain!==null};
+    }
+    function briefHash(value){let n=0;for(const c of value)n=(Math.imul(n,31)+c.charCodeAt(0))>>>0;return n}
+    function composeBrief(summary,preferences,city,alerts,variation=0){
+      const name=preferences.name?.trim(),greeting=name?name+', ':'';
+      const active=(alerts?.state==='ok'?alerts.alerts||[]:[]).filter(a=>{const end=a.ends||a.expires;return !end||!Number.isFinite(Date.parse(end))||Date.parse(end)>Date.now()});
+      const alert=active.sort((a,b)=>({Extreme:0,Severe:1,Moderate:2,Minor:3}[a.severity]??4)-({Extreme:0,Severe:1,Moderate:2,Minor:3}[b.severity]??4))[0];
+      if(alert)return {serious:true,heading:'Weather comes first',text:greeting+(alert.event||'An official weather alert')+' is active for this location. '+(alert.headline||'Read the official alert for details and instructions.'),footer:'Official alert takes priority over your selected tone.'};
+      if(!summary.available)return {serious:false,heading:'Your daily brief',text:'Today’s brief is unavailable while forecast details are incomplete.',footer:'Try refreshing the forecast.'};
+      if(summary.risk)return {serious:true,heading:'Plan with care today',text:greeting+summary.risk,footer:'Forecast caution · see Official weather alerts for issued warnings.'};
+      const tone=preferences.tone;
+      if(tone==='plain'||(alerts?.state!=='ok'&&activeCountry==='US'))return {serious:false,heading:'Your daily brief',text:greeting+summary.description,footer:alerts?.state==='ok'?'Straightforward outlook':activeCountry==='US'?'Checking official alerts · personality returns when alerts are verified.':'Today’s model outlook'};
+      const options=briefLines[summary.bucket][tone]||briefLines[summary.bucket].warm;
+      const line=options[(briefHash(city+'|'+summary.date+'|'+tone)+variation)%options.length];
+      return {serious:false,heading:'Your day, a little '+(tone==='playful'?'lighter':'warmer'),text:greeting+summary.description+' '+line,footer:'A '+(tone==='playful'?'playful':'warm')+' take on today’s model outlook'};
+    }
+    function briefLocalDate(){
+      const p=new Intl.DateTimeFormat('en-US',{timeZone:activeTimezone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()),v=Object.fromEntries(p.map(x=>[x.type,x.value]));return v.year+'-'+v.month+'-'+v.day;
+    }
+    function renderDailyBrief(){
+      const root=document.getElementById('widget-brief'),text=document.getElementById('briefText'),next=document.getElementById('briefAnother');
+      if(!briefModels){text.textContent='Connecting today’s forecasts…';document.getElementById('briefFacts').textContent='';document.getElementById('briefMeta').textContent='Live forecast needed';root.dataset.serious='false';next.disabled=true;return}
+      const summary=summarizeBrief(briefModels,briefLocalDate()),cached=alertCache.get(cityKey(activeCity)),alerts=cached&&Date.now()-(cached.at||0)<600000?cached:null;
+      const message=composeBrief(summary,briefPreferences,activeCity,alerts,briefVariation);
+      root.dataset.serious=String(message.serious);document.getElementById('briefHeading').textContent=message.heading;text.textContent=message.text;
+      document.getElementById('briefFacts').textContent=summary.available?summary.facts:'';
+      document.getElementById('briefMeta').textContent=activeCity.split(',')[0]+' · '+message.footer;
+      next.disabled=message.serious||!summary.available||briefPreferences.tone==='plain'||(alerts?.state!=='ok'&&activeCountry==='US');
+    }
+    function saveBriefPreferences(){
+      briefPreferences.tone=document.getElementById('briefTone').value;briefPreferences.name=document.getElementById('briefName').value.trim().slice(0,32);briefVariation=0;
+      try{localStorage.setItem(briefPreferenceKey,JSON.stringify(briefPreferences));briefStorageOK=true}catch{briefStorageOK=false}
+      document.getElementById('briefSaveNote').textContent=briefStorageOK?'Preferences saved on this device.':'Preferences apply now; this browser could not save them.';
+      renderDailyBrief();
+    }
+    document.getElementById('briefTone').value=briefPreferences.tone;
+    document.getElementById('briefName').value=briefPreferences.name;
+    document.getElementById('briefTone').addEventListener('change',saveBriefPreferences);
+    document.getElementById('briefName').addEventListener('change',saveBriefPreferences);
+    document.getElementById('briefAnother').addEventListener('click',()=>{briefVariation++;renderDailyBrief()});
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderDailyBrief()});
+    setInterval(()=>{if(!document.hidden&&briefModels)renderDailyBrief()},60000);
 
     function finiteWind(v){return typeof v==='number'&&Number.isFinite(v)}
     function renderWind(){
@@ -1035,6 +1157,7 @@
     }
     function alertMessage(text){const el=document.createElement('div');el.className='alerts-summary';el.textContent=text;return el}
     function renderAlerts(result){
+      renderDailyBrief();
       const root=document.getElementById('alertsContent');root.replaceChildren();document.getElementById('alertsLocation').textContent=activeCity;
       if(result.state!=='ok'){root.append(alertMessage(result.state==='unsupported'?'U.S. alerts only for now':'Official alerts unavailable'));document.getElementById('alertsChecked').textContent=result.state==='unsupported'?'International alert coverage will be added separately.':'Unable to verify active alerts. Refresh to try again.';return}
       const alerts=result.alerts.filter(a=>!a.ends&&!a.expires||Date.parse(a.ends||a.expires)>Date.now());
