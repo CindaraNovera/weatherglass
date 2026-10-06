@@ -592,6 +592,9 @@
       planTitle.textContent=rain<25?'A good window for your plans':'Rain may affect your plans';
       planCopy.textContent=rain<25?'Model-average rain chance peaks near '+roundOrDash(rain)+'% over the next 12 hours. Review source differences below before you head out.':'Model-average rain chance reaches '+roundOrDash(rain)+'% in the next 12 hours. Models do not always agree on timing; compare their hourly curves.';
       document.getElementById('sourceFootnote').textContent='Forecasts shown are independent provider model outputs blended equally for this private prototype. The blend is not yet calibrated against local forecast history.';
+      if(Number.isFinite(temp)&&temp>=90){planTitle.textContent='Heat may affect outdoor plans';planCopy.textContent='Model-average temperature is '+roundOrDash(temp)+'°F. Review feels-like temperature, UV and official alerts before choosing a time outdoors.'}
+      else if(Number.isFinite(wind)&&wind>=20){planTitle.textContent='Wind may affect outdoor plans';planCopy.textContent='Sustained model-average wind is '+roundOrDash(wind)+' mph. Check the wind card for gusts and quieter periods.'}
+      applyAlertPlanningNotice();
       renderDaily();renderLiveChart();renderWind();
     }
     async function loadLocation(query){
@@ -643,6 +646,7 @@
       document.getElementById('windSubtitle').textContent='Next 24 hours · '+activeCity.split(',')[0];
       const note=document.createElement('div');note.className='alerts-note';note.style.marginTop='10px';note.textContent='Peak mean gust '+roundOrDash(peak)+' mph · Available models blended equally; direction from '+source.label+'.';root.append(note);
     }
+    function applyAlertPlanningNotice(){const result=alertCache.get(cityKey(activeCity));if(result?.state!=='ok')return;const alert=result.alerts.find(a=>['Severe','Extreme'].includes(a.severity)&&(!a.ends&&!a.expires||Date.parse(a.ends||a.expires)>Date.now()));if(alert){document.getElementById('planTitle').textContent='Official alert may affect your plans';document.getElementById('planCopy').textContent=(alert.event||'Weather warning')+' is active for this location or its county/forecast zone. Review the affected area and official instructions in the alerts card.'}}
     function alertMessage(text){const el=document.createElement('div');el.className='alerts-summary';el.textContent=text;return el}
     function renderAlerts(result){
       const root=document.getElementById('alertsContent');root.replaceChildren();document.getElementById('alertsLocation').textContent=activeCity;
@@ -656,7 +660,7 @@
     async function loadCurrentAlerts(){
       const id=++alertsRequest,key=cityKey(activeCity),country=activeCountry,coords=[...activeCoordinates];document.getElementById('alertsLocation').textContent=activeCity;document.getElementById('alertsContent').replaceChildren(alertMessage('Checking official alerts…'));document.getElementById('alertsChecked').textContent='';
       const result=country!=='US'?{state:'unsupported',at:Date.now()}:await queryAlerts(coords).catch(()=>({state:'error',at:Date.now()}));
-      if(id!==alertsRequest)return;alertCache.set(key,result);renderAlerts(result);renderFavorites();
+      if(id!==alertsRequest)return;alertCache.set(key,result);renderAlerts(result);applyAlertPlanningNotice();renderFavorites();
     }
     async function syncFavoriteAlerts(){
       for(const name of favorites){const key=cityKey(name);if(key===cityKey(activeCity)||alertPending.has(key)||Date.now()-(alertCache.get(key)?.at||0)<300000)continue;
