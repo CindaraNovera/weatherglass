@@ -145,7 +145,7 @@
           <div id="dayRows"><div class="dayrow"><span class="dayname">Loading forecast…</span><span></span><span></span><span></span></div></div>
         </article>
         <article class="panel insights" id="widget-insights"><div class="panel-heading"><div><div class="heading">Plan around the weather</div><div class="subheading">Turn a forecast into a useful decision</div></div><span style="font-size:16px;color:#9ce4cd">✧</span></div><div class="insight"><span class="insight-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18m-7-9h14M5.6 5.6l12.8 12.8m0-12.8L5.6 18.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><div><div class="insight-title" id="planTitle">A good window for a walk</div><div class="insight-copy" id="planCopy">Late morning looks driest in this sample outlook. <strong>Rain timing varies by model after 4 PM.</strong> We’ll show why the blend lands where it does.</div></div></div><div style="margin-top:15px"><div class="metriclabel" style="margin-bottom:9px">What are you planning?</div><div class="suggestions plan-choices"><button class="selected" data-plan="Walk">Walk</button><button data-plan="Commute">Commute</button><button data-plan="Outdoor plans">Outdoor plans</button></div></div><div class="plan-alert"><label for="rainThreshold">Alert me if rain chance rises above</label><div><select id="rainThreshold" aria-label="Rain chance alert threshold"><option value="30">30%</option><option value="40" selected>40%</option><option value="50">50%</option><option value="60">60%</option></select><button class="textbtn" id="savePlanAlert">Save preference</button></div></div><div class="alert-saved" id="alertSaved" aria-live="polite">Rule preview saves on this device; push notifications come with the mobile app.</div></article>
-        <div class="bottom-note"><span id="dataAttribution">Connecting forecast feeds…</span><span>Forecast blend is a simple mean · radar remains a visual preview</span><a href="#" id="whyLink">How consensus works</a></div>
+        <div class="bottom-note"><span id="dataAttribution">Connecting forecast feeds…</span><span>Live NOAA/NWS radar · consensus is an equal-weight model blend</span><a href="#" id="whyLink">How consensus works</a></div>
       </aside>
     </div>
   </main>
@@ -171,7 +171,7 @@
     let favorites=readStored(FAVORITES_KEY,[]);
     if(!Array.isArray(favorites))favorites=[];
     favorites=favorites.filter(item=>typeof item==='string'&&item.trim());
-    let activeCity='Warner Robins, Georgia';let activeCoordinates=[32.613, -83.624],activeCountry='US';
+    let activeCity='Warner Robins, Georgia';let activeCoordinates=[32.613, -83.624],activeCountry='US',activeTimezone='America/New_York';
     try{activeCity=localStorage.getItem(ACTIVE_LOCATION_KEY)||activeCity}catch{}
     const now=new Date();
     const originalSunArtwork=document.querySelector('.sun-icon').innerHTML;
@@ -297,7 +297,7 @@
     const NOAA_RADAR_URL='https://mapservices.weather.noaa.gov/eventdriven/rest/services/radar/radar_base_reflectivity_time/ImageServer';
     let miniRadarMap=null,fullRadarMap=null,miniRadarLayer=null,fullRadarLayer=null;
     let miniRadarMarker=null,fullRadarMarker=null,radarFrames=[],radarFrameIndex=0,radarPlayTimer=null,radarCoverage=true;
-    function radarClock(time){return new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit'}).format(new Date(time))}
+    function radarClock(time){return new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit',timeZone:activeTimezone}).format(new Date(time))}
     function mapBase(map){L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19,attribution:'&copy; OpenStreetMap contributors &copy; CARTO'}).addTo(map)}
     function radarMapLayer(map){const layer=L.esri.imageMapLayer({url:NOAA_RADAR_URL,opacity:.82,useCors:true,attribution:'Radar: NOAA / NWS MRMS'});layer.on('load',()=>{const text=radarCoverage?'NOAA/NWS radar · recent composite':'NOAA radar coverage is currently limited to the U.S. and territories';document.getElementById('fullRadarStatus').textContent=text});layer.on('error',()=>{document.getElementById('fullRadarStatus').textContent='Radar is temporarily unavailable · try again shortly'});layer.addTo(map);return layer}
     function radarMarker(map){return L.circleMarker(activeCoordinates,{radius:6,color:'#edfff9',weight:2,fillColor:'#98efd7',fillOpacity:.9}).addTo(map)}
@@ -499,7 +499,7 @@
         const geo=await getJson(apiUrl('https://geocoding-api.open-meteo.com/v1/search',{name:query,count:5,language:'en',format:'json'}));
         if(requestId!==locationRequest)return;const results=(geo.results||[]).filter(r=>Number.isFinite(Number(r.latitude))&&Number.isFinite(Number(r.longitude)));
         if(!results.length)throw new Error('No matching city or postal code found');
-        const item=results.find(r=>r.country_code==='US')||results[0],label=niceLocation(item)||query;activeCoordinates=[Number(item.latitude),Number(item.longitude)];activeCountry=item.country_code||'';activeCity=label;cityName.textContent=label;refreshRadarLocation();
+        const item=results.find(r=>r.country_code==='US')||results[0],label=niceLocation(item)||query;activeCoordinates=[Number(item.latitude),Number(item.longitude)];activeCountry=item.country_code||'';activeTimezone=item.timezone||activeTimezone;activeCity=label;cityName.textContent=label;refreshRadarLocation();
         document.querySelector('.days .subheading').textContent='10-day model blend · '+label.split(',')[0];
         document.getElementById('detailLocationSub').textContent=label+' · live model blend snapshot';
         document.getElementById('dailySubtitle').textContent='Loading model outlook · '+label.split(',')[0];
@@ -510,7 +510,7 @@
         const good=settled.filter(x=>x.status==='fulfilled').map(x=>x.value);
         settled.forEach((x,i)=>{if(x.status==='rejected')setProviderStatus(liveModels[i],'error')});
         if(!good.length)throw new Error('Forecast providers could not be reached');
-        applyModels(good);applyAirQuality(airQuality);
+        activeTimezone=good[0].data.timezone||activeTimezone;if(radarFrames.length)updateRadarFrame(radarFrameIndex);applyModels(good);applyAirQuality(airQuality);
         if(good.length<liveModels.length){document.getElementById('previewStatus').textContent='PARTIAL MODEL DATA';document.getElementById('consensusSubtitle').textContent=good.length+' of '+liveModels.length+' model feeds are available · blend uses available sources'}
       }catch(error){if(requestId!==locationRequest)return;document.getElementById('previewStatus').textContent='LIVE DATA UNAVAILABLE';document.getElementById('consensusSubtitle').textContent=error.message+' · showing sample values';document.getElementById('dataAttribution').textContent='Sample values · forecast feeds temporarily unavailable'}
     }
