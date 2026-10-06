@@ -78,7 +78,7 @@
     @media(max-width:430px){.quicktools .tool-label{display:none}.quicktools .iconbtn{width:36px;padding:0;justify-content:center}.detail-card{padding:18px 16px}.detail-grid{gap:7px}.detail-metric{padding:11px}.detail-metric strong{font-size:15px}.widget-modal{padding:19px}.widget-preview{padding:12px;min-height:115px}.widget-big{font-size:30px}.radar-legend{left:14px}.radar-full .radar-controls{left:12px;right:12px}}
   
     .radar .mini-radar-map{position:absolute;inset:0;z-index:0}
-    .radar .leaflet-control-attribution{display:none}
+    .radar .leaflet-control-attribution{right:8px;bottom:56px;max-width:calc(100% - 16px);font-size:8px}
     .radar-mini-foot{position:absolute;z-index:3;left:13px;right:13px;bottom:12px;display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #ffffff1c;border-radius:12px;background:rgba(5,14,23,.76);backdrop-filter:blur(14px);font-size:9px;color:#d5e1e9}
     .radar-live-dot{color:#9ce9d1;font-size:8px;letter-spacing:.1em;font-weight:700}
     .radar-mini-foot #radarMiniTime{flex:1;color:#aab9c8}
@@ -298,7 +298,7 @@
     let miniRadarMap=null,fullRadarMap=null,miniRadarLayer=null,fullRadarLayer=null;
     let miniRadarMarker=null,fullRadarMarker=null,radarFrames=[],radarFrameIndex=0,radarPlayTimer=null,radarCoverage=true;
     function radarClock(time){return new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit',timeZone:activeTimezone}).format(new Date(time))}
-    function mapBase(map){L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19,attribution:'&copy; OpenStreetMap contributors &copy; CARTO'}).addTo(map)}
+    function mapBase(map){L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'}).addTo(map)}
     function radarMapLayer(map){const layer=L.esri.imageMapLayer({url:NOAA_RADAR_URL,opacity:.82,useCors:true,attribution:'Radar: NOAA / NWS MRMS'});layer.on('load',()=>{const text=radarCoverage?'NOAA/NWS radar · recent composite':'NOAA radar coverage is currently limited to the U.S. and territories';document.getElementById('fullRadarStatus').textContent=text});layer.on('error',()=>{document.getElementById('fullRadarStatus').textContent='Radar is temporarily unavailable · try again shortly'});layer.addTo(map);return layer}
     function radarMarker(map){return L.circleMarker(activeCoordinates,{radius:6,color:'#edfff9',weight:2,fillColor:'#98efd7',fillOpacity:.9}).addTo(map)}
     function refreshRadarLocation(){
