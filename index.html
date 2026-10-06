@@ -361,6 +361,19 @@
     .daily-brief[data-serious=true] .brief-emblem{color:#ffd49a}
     @media(max-width:600px){.daily-brief{padding:22px}.brief-message{font-size:20px}.brief-top h2{font-size:22px}}
 
+
+    .radar-provider-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;background:#ffffff08;border-top:1px solid #ffffff18;font-size:11px}
+    .radar-provider-row label,.full-radar-provider{display:flex;align-items:center;gap:8px}
+    .radar-provider-row select,.full-radar-provider select{border:1px solid #ffffff30;border-radius:9px;background:#193247;color:#eef8ff;font:inherit;padding:6px 9px}
+    .radar-provider-row select option,.full-radar-provider select option{background:#193247;color:#eef8ff}
+    #xweatherConnection{flex:1;font-size:10px;min-width:100px}
+    #checkXweather{padding:6px 10px;border-radius:9px;background:#ffffff15;color:inherit;font:inherit}
+    .full-radar-provider{padding:8px 12px;border-radius:13px;background:#0a192bd9;color:#e5f5ff;font-size:12px}
+    .xweather-legend-link{display:none;color:#c1f7ed;text-decoration:none;font-size:11px;line-height:2}
+    body[data-radar-provider=xweather] .legend-dots,body[data-radar-provider=xweather] .legend-labels{display:none}
+    body[data-radar-provider=xweather] .xweather-legend-link{display:block}
+    .radar-map-tools{flex-wrap:wrap}
+
 </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -425,6 +438,7 @@
         <article class="panel section" id="widget-wind"><div class="panel-heading"><div><div class="heading">Wind &amp; gusts</div><div class="subheading" id="windSubtitle">24-hour model forecast · mph</div></div></div><div id="windContent"><div class="alerts-summary">Connecting wind forecast…</div></div></article>
 
         <article class="panel radar" id="widget-radar"><div class="radar-head"><div><div class="heading">Radar · NOAA/NWS</div><div class="subheading" id="radarMiniStatus">Connecting to live U.S. radar…</div></div><button class="radar-open" id="openRadar" title="Open full-screen radar" aria-label="Open full-screen radar"><svg viewBox="0 0 24 24" fill="none"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+          <div class="radar-provider-row"><label>Radar source <select id="miniRadarProvider" aria-label="Small radar source"><option value="noaa">NOAA</option><option value="xweather" disabled>Xweather</option></select></label><span id="xweatherConnection" aria-live="polite">Checking Xweather…</span><button type="button" id="checkXweather">Check</button></div>
           <div class="mini-radar-map" id="miniRadarMap" role="img" aria-label="Live NOAA precipitation radar preview"></div><div class="mini-radar-timeline"><button type="button" id="playMiniRadar" aria-label="Play radar animation" data-playing="false">▶</button><input type="range" id="miniRadarScrubber" min="0" max="1" value="1" step="1" aria-label="Radar widget time"><button type="button" id="centerMiniRadar" aria-label="Recenter radar on selected location">⌖</button></div><div class="radar-mini-foot"><span class="radar-live-dot">NOAA RADAR</span><span id="radarMiniTime">Loading current radar…</span><div class="mini-map-mode" role="group" aria-label="Small radar map type"><button type="button" id="miniMapStreets" class="selected" aria-pressed="true">Map</button><button type="button" id="miniMapSatellite" aria-pressed="false">Sat</button></div><button type="button" id="openRadarMini">Full map&nbsp;↗</button></div>
         </article>
         <article class="panel days" id="widget-days"><div class="panel-heading"><div><div class="heading">The next few days</div><div class="subheading" id="dailySubtitle">Consensus outlook · Warner Robins</div></div><button class="iconbtn" id="moreDays" aria-label="Show more days" style="width:31px;height:31px">···</button></div>
@@ -451,8 +465,8 @@
       <div class="radar-top-actions"><button class="iconbtn" id="centerRadar" aria-label="Center map on selected location" title="Center on location">⌖</button><button class="iconbtn" id="closeRadar" aria-label="Close radar">✕</button></div>
     </div>
     <div id="fullRadarMap" aria-label="Interactive NOAA weather radar map"></div>
-    <div class="radar-map-tools"><div class="radar-map-mode" role="group" aria-label="Map type"><button id="radarMapStreets" class="selected" aria-pressed="true">Map</button><button id="radarMapSatellite" aria-pressed="false">Satellite</button></div><label class="radar-opacity"><span><span>Precipitation opacity</span><output id="radarOpacityValue">82%</output></span><input id="radarOpacity" type="range" min="0" max="100" value="82" step="1" aria-label="Radar precipitation opacity"></label></div>
-    <div class="radar-legend"><div>RADAR COLOR · REFLECTIVITY</div><div class="legend-dots"><i></i><i></i><i></i><i></i><i></i></div><div class="legend-labels"><span>Light</span><span>Moderate</span><span>Heavy</span><span>Intense</span></div><div class="radar-phase" id="radarPhase" data-kind="dry"><span>Forecast near location</span><strong id="radarPhaseType">Loading…</strong></div></div>
+    <div class="radar-map-tools"><label class="full-radar-provider">Radar source <select id="fullRadarProvider" aria-label="Full radar source"><option value="noaa">NOAA</option><option value="xweather" disabled>Xweather</option></select></label><div class="radar-map-mode" role="group" aria-label="Map type"><button id="radarMapStreets" class="selected" aria-pressed="true">Map</button><button id="radarMapSatellite" aria-pressed="false">Satellite</button></div><label class="radar-opacity"><span><span>Precipitation opacity</span><output id="radarOpacityValue">82%</output></span><input id="radarOpacity" type="range" min="0" max="100" value="82" step="1" aria-label="Radar precipitation opacity"></label></div>
+    <div class="radar-legend"><div>RADAR COLOR · REFLECTIVITY</div><div class="legend-dots"><i></i><i></i><i></i><i></i><i></i></div><a class="xweather-legend-link" href="https://www.xweather.com/docs/maps/reference/legends" target="_blank" rel="noreferrer">Xweather radar color legend ↗</a><div class="legend-labels"><span>Light</span><span>Moderate</span><span>Heavy</span><span>Intense</span></div><div class="radar-phase" id="radarPhase" data-kind="dry"><span>Forecast near location</span><strong id="radarPhaseType">Loading…</strong></div></div>
     <div class="radar-source">Radar: <a href="https://radar.weather.gov/" target="_blank" rel="noreferrer">NOAA / NWS MRMS</a></div>
     <div class="radar-controls"><button class="play" id="playFullRadar" aria-label="Play radar animation"><svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M6 3.5v13l10-6.5z"/></svg></button><input class="radar-slider" id="radarScrubber" type="range" min="0" max="1" value="1" step="1" aria-label="Radar time, recent past to latest"><span class="radartime" id="fullRadarTime">Loading…</span></div>
   </section>
@@ -616,9 +630,64 @@
     const NOAA_RADAR_URL='https://mapservices.weather.noaa.gov/eventdriven/rest/services/radar/radar_base_reflectivity_time/ImageServer';
     let miniRadarMap=null,fullRadarMap=null,miniRadarLayer=null,fullRadarLayer=null,miniBaseLayer=null,fullBaseLayer=null,miniLabelLayer=null,fullLabelLayer=null;
     let miniRadarMarker=null,fullRadarMarker=null,radarFrames=[],radarFrameIndex=0,radarPlayTimer=null,radarCoverage=true,basemapMode=readBasemapPreference(),radarOpacity=.82;
+
+    let radarProvider='noaa',radarProviderGeneration=0,xweatherConfigured=false,xweatherHadError=false;
+    function xweatherFrames(now=Date.now()){const end=Math.floor((now-300000)/300000)*300000;return Array.from({length:13},(_,i)=>end-(12-i)*300000)}
+    function xweatherTileURL(time){return '/api/radar/xweather/{z}/{x}/{y}/'+time+'.png'}
+    function radarStatusText(){
+      return radarProvider==='xweather'?(xweatherHadError?'Xweather tiles unavailable · try NOAA or check Raster Maps access':'Xweather radar · requested frame time shown'):
+        radarCoverage?'Live U.S. composite radar · NOAA/NWS':'NOAA coverage is limited to the U.S. and territories';
+    }
+    function renderRadarProvider(){
+      const xw=radarProvider==='xweather';document.body.dataset.radarProvider=radarProvider;
+      ['miniRadarProvider','fullRadarProvider'].forEach(id=>{document.getElementById(id).value=radarProvider;document.querySelector('#'+id+' option[value=xweather]').disabled=!xweatherConfigured});
+      document.querySelector('#widget-radar .heading').textContent='Radar · '+(xw?'Xweather':'NOAA/NWS');
+      document.querySelector('#widget-radar .radar-live-dot').textContent=xw?'XWEATHER RADAR':'NOAA RADAR';
+      document.getElementById('miniRadarMap').setAttribute('aria-label',xw?'Xweather precipitation radar preview':'NOAA precipitation radar preview');
+      document.getElementById('radarMiniStatus').textContent=radarStatusText();document.getElementById('fullRadarStatus').textContent=radarStatusText();
+      const source=document.querySelector('.radar-source');source.replaceChildren();source.append(document.createTextNode('Radar: '));const link=document.createElement('a');link.href=xw?'https://www.xweather.com/':'https://radar.weather.gov/';link.target='_blank';link.rel='noreferrer';link.textContent=xw?'© Xweather':'NOAA / NWS MRMS';source.append(link);
+      document.getElementById('xweatherConnection').textContent=xweatherConfigured?'Xweather ready · credentials stored on server':'Xweather not connected · using NOAA';
+    }
+    async function setRadarProvider(value){
+      const selected=value==='xweather'&&xweatherConfigured?'xweather':'noaa',generation=++radarProviderGeneration;
+      stopRadarPlayback();radarProvider=selected;xweatherHadError=false;
+      if(miniRadarLayer)miniRadarLayer.remove();if(fullRadarLayer)fullRadarLayer.remove();
+      miniRadarLayer=null;fullRadarLayer=null;
+      if(selected==='xweather')radarFrames=xweatherFrames();
+      else radarFrames=[];
+      radarCoverage=selected==='xweather'||activeCountry==='US';renderRadarProvider();
+      if(miniRadarMap)miniRadarLayer=radarMapLayer(miniRadarMap);
+      if(fullRadarMap)fullRadarLayer=radarMapLayer(fullRadarMap);
+      if(selected==='xweather')updateRadarFrame(radarFrames.length-1);
+      else await loadRadarTimeline(generation);
+      if(generation===radarProviderGeneration)writeStored('weatherglass-radar-provider-v1',selected);
+    }
+    async function connectXweather(){
+      const note=document.getElementById('xweatherConnection');note.textContent='Checking Xweather connection…';
+      try{
+        const response=await fetch('/api/radar/status',{cache:'no-store',signal:AbortSignal.timeout(10000)});if(!response.ok)throw new Error('status');
+        const result=await response.json();xweatherConfigured=result.configured===true;renderRadarProvider();
+        if(xweatherConfigured){const stored=readStored('weatherglass-radar-provider-v1',null);await setRadarProvider(stored==='noaa'?'noaa':'xweather')}
+        else if(radarProvider==='xweather')await setRadarProvider('noaa');
+      }catch{note.textContent='Unable to check Xweather · NOAA remains available'}
+    }
+    document.getElementById('miniRadarProvider').addEventListener('change',e=>setRadarProvider(e.target.value));
+    document.getElementById('fullRadarProvider').addEventListener('change',e=>setRadarProvider(e.target.value));
+    document.getElementById('checkXweather').addEventListener('click',connectXweather);
+
     function radarClock(time){return new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit',timeZone:activeTimezone}).format(new Date(time))}
     function mapBase(map){const satellite=basemapMode==='satellite',base=L.tileLayer(satellite?'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}':'https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:satellite?'Tiles &copy; Esri · Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community':'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'});base.addTo(map);if(map===miniRadarMap)miniLabelLayer=null;if(map===fullRadarMap)fullLabelLayer=null;if(satellite){if(!map.getPane('placeLabels')){map.createPane('placeLabels');map.getPane('placeLabels').style.zIndex='650';map.getPane('placeLabels').style.pointerEvents='none'}const labels=L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,pane:'placeLabels',attribution:'Place labels &copy; Esri'}).addTo(map);if(map===miniRadarMap)miniLabelLayer=labels;if(map===fullRadarMap)fullLabelLayer=labels}return base}
-    function radarMapLayer(map){const layer=L.esri.imageMapLayer({url:NOAA_RADAR_URL,opacity:radarOpacity,useCors:true,attribution:'Radar: NOAA / NWS MRMS'});layer.on('load',()=>{const text=radarCoverage?'NOAA/NWS radar · recent composite':'NOAA radar coverage is currently limited to the U.S. and territories';document.getElementById('fullRadarStatus').textContent=text});layer.on('error',()=>{document.getElementById('fullRadarStatus').textContent='Radar is temporarily unavailable · try again shortly'});layer.addTo(map);return layer}
+    function radarMapLayer(map){
+      if(radarProvider==='xweather'){
+        const time=radarFrames[radarFrameIndex]||xweatherFrames().at(-1);
+        const layer=L.tileLayer(xweatherTileURL(time),{maxNativeZoom:12,maxZoom:19,opacity:radarOpacity,attribution:'Radar &copy; <a href="https://www.xweather.com/" target="_blank" rel="noreferrer">Xweather</a>',keepBuffer:1,updateWhenIdle:true});
+        layer.on('tileerror',()=>{if(radarProvider!=='xweather')return;xweatherHadError=true;stopRadarPlayback();document.getElementById('radarMiniStatus').textContent=radarStatusText();document.getElementById('fullRadarStatus').textContent=radarStatusText()});
+        layer.addTo(map);return layer;
+      }
+      const layer=L.esri.imageMapLayer({url:NOAA_RADAR_URL,opacity:radarCoverage?radarOpacity:0,useCors:true,attribution:'Radar: NOAA / NWS MRMS'});
+      layer.on('load',()=>{if(radarProvider==='noaa')document.getElementById('fullRadarStatus').textContent=radarStatusText()});
+      layer.on('error',()=>{if(radarProvider==='noaa')document.getElementById('fullRadarStatus').textContent='NOAA radar is temporarily unavailable'});layer.addTo(map);return layer;
+    }
     function radarMarker(map){return L.circleMarker(activeCoordinates,{radius:6,color:'#edfff9',weight:2,fillColor:'#98efd7',fillOpacity:.9}).addTo(map)}
     function setBasemapMode(mode){basemapMode=mode==='satellite'?'satellite':'street';saveBasemapPreference(basemapMode);if(miniBaseLayer)miniBaseLayer.remove();if(fullBaseLayer)fullBaseLayer.remove();if(miniLabelLayer)miniLabelLayer.remove();if(fullLabelLayer)fullLabelLayer.remove();if(miniRadarMap)miniBaseLayer=mapBase(miniRadarMap);if(fullRadarMap)fullBaseLayer=mapBase(fullRadarMap);const street=document.getElementById('radarMapStreets'),satellite=document.getElementById('radarMapSatellite');if(street&&satellite){street.classList.toggle('selected',basemapMode==='street');satellite.classList.toggle('selected',basemapMode==='satellite');street.setAttribute('aria-pressed',String(basemapMode==='street'));satellite.setAttribute('aria-pressed',String(basemapMode==='satellite'))}const miniStreet=document.getElementById('miniMapStreets'),miniSatellite=document.getElementById('miniMapSatellite');if(miniStreet&&miniSatellite){miniStreet.classList.toggle('selected',basemapMode==='street');miniSatellite.classList.toggle('selected',basemapMode==='satellite');miniStreet.setAttribute('aria-pressed',String(basemapMode==='street'));miniSatellite.setAttribute('aria-pressed',String(basemapMode==='satellite'))}}
     function setRadarOpacity(value){radarOpacity=Math.max(0,Math.min(100,Number(value)||0))/100;if(miniRadarLayer)miniRadarLayer.setOpacity(radarCoverage?radarOpacity:0);if(fullRadarLayer)fullRadarLayer.setOpacity(radarCoverage?radarOpacity:0);const slider=document.getElementById('radarOpacity'),output=document.getElementById('radarOpacityValue');if(slider)slider.value=String(Math.round(radarOpacity*100));if(output)output.textContent=Math.round(radarOpacity*100)+'%'}
@@ -631,24 +700,26 @@
       if(miniRadarMap){miniRadarMap.setView(center,9);if(miniRadarMarker)miniRadarMarker.setLatLng(center)}
       if(fullRadarMap){fullRadarMap.setView(center,11);if(fullRadarMarker)fullRadarMarker.setLatLng(center)}
       const title=activeCity.split(',')[0],place=document.getElementById('radarCity');if(place)place.textContent=title;
-      radarCoverage=activeCountry==='US';
+      radarCoverage=radarProvider==='xweather'||activeCountry==='US';
       if(!radarCoverage){if(miniRadarLayer)miniRadarLayer.setOpacity(0);if(fullRadarLayer)fullRadarLayer.setOpacity(0);document.getElementById('radarMiniStatus').textContent='U.S. radar coverage only · map still available';document.getElementById('fullRadarStatus').textContent='NOAA radar coverage is currently limited to the U.S. and territories'}
-      else{if(miniRadarLayer)miniRadarLayer.setOpacity(radarOpacity);if(fullRadarLayer)fullRadarLayer.setOpacity(radarOpacity);document.getElementById('radarMiniStatus').textContent='Live U.S. composite radar · NOAA/NWS'}
+      else{if(miniRadarLayer)miniRadarLayer.setOpacity(radarOpacity);if(fullRadarLayer)fullRadarLayer.setOpacity(radarOpacity);document.getElementById('radarMiniStatus').textContent=radarStatusText()}
     }
     function updateRadarFrame(index){
       if(!radarFrames.length)return;
       radarFrameIndex=Math.max(0,Math.min(radarFrames.length-1,Number(index)||0));
       const slider=document.getElementById('radarScrubber');slider.max=String(radarFrames.length-1);slider.value=String(radarFrameIndex);const miniSlider=document.getElementById('miniRadarScrubber');miniSlider.max=slider.max;miniSlider.value=slider.value;
       const time=radarFrames[radarFrameIndex],latest=radarFrameIndex===radarFrames.length-1;
-      document.getElementById('fullRadarTime').textContent=(latest?'Latest · ':'')+radarClock(time);
-      document.getElementById('radarMiniTime').textContent=(latest?'Updated · ':'')+radarClock(time);
-      if(fullRadarLayer)fullRadarLayer.setTimeRange(new Date(time-150000),new Date(time+150000));
-      if(miniRadarLayer)miniRadarLayer.setTimeRange(new Date(time-150000),new Date(time+150000));
+      document.getElementById('fullRadarTime').textContent=(radarProvider==='xweather'?'Requested · ':latest?'Latest · ':'')+radarClock(time);
+      document.getElementById('radarMiniTime').textContent=(radarProvider==='xweather'?'Frame · ':latest?'Updated · ':'')+radarClock(time);
+      if(radarProvider==='xweather'){if(fullRadarLayer)fullRadarLayer.setUrl(xweatherTileURL(time));if(miniRadarLayer)miniRadarLayer.setUrl(xweatherTileURL(time))}
+      else{if(fullRadarLayer)fullRadarLayer.setTimeRange(new Date(time-150000),new Date(time+150000));if(miniRadarLayer)miniRadarLayer.setTimeRange(new Date(time-150000),new Date(time+150000))}
     }
-    async function loadRadarTimeline(){
+    async function loadRadarTimeline(generation=radarProviderGeneration){
+      if(radarProvider==='xweather'){radarFrames=xweatherFrames();updateRadarFrame(radarFrames.length-1);return}
       const fallbackEnd=Date.now()-5*60*1000,fallbackStart=fallbackEnd-4*60*60*1000;
-      try{const response=await fetch(NOAA_RADAR_URL+'?f=pjson',{cache:'no-store'});if(!response.ok)throw new Error('Metadata unavailable');const info=await response.json();const extent=info.timeInfo&&info.timeInfo.timeExtent;var start=extent&&Number(extent[0]),finish=extent&&Number(extent[1]);if(!Number.isFinite(start)||!Number.isFinite(finish))throw new Error('Radar timeline unavailable')}
+      try{const response=await fetch(NOAA_RADAR_URL+'?f=pjson',{cache:'no-store',signal:AbortSignal.timeout(10000)});if(!response.ok)throw new Error('Metadata unavailable');const info=await response.json();const extent=info.timeInfo&&info.timeInfo.timeExtent;var start=extent&&Number(extent[0]),finish=extent&&Number(extent[1]);if(!Number.isFinite(start)||!Number.isFinite(finish))throw new Error('Radar timeline unavailable')}
       catch(error){var start=fallbackStart,finish=fallbackEnd}
+      if(radarProvider!=='noaa'||generation!==radarProviderGeneration)return;
       const count=Math.max(1,Math.floor((finish-start)/(5*60*1000)));
       radarFrames=Array.from({length:count+1},(_,i)=>start+Math.round((finish-start)*i/count));
       updateRadarFrame(radarFrames.length-1);
@@ -1273,7 +1344,7 @@
     const previousSetCity=setCity;
     setCity=function(name){previousSetCity(name);document.getElementById('previewStatus').textContent='LOOKING UP FORECAST';loadLocation(name)};
     setCity(activeCity);
-    initMiniRadar();
+    initMiniRadar();connectXweather();
     function fitBrandTagline(){
       const name=document.querySelector('.brand-name'),copy=document.querySelector('.tagline-copy');
       copy.style.fontSize='14px';
