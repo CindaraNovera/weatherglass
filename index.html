@@ -178,6 +178,15 @@
 
     .saved-plans-head{display:flex;justify-content:space-between;align-items:center;margin-top:15px;font-size:13px}.saved-event-plans{display:grid;gap:9px;margin-top:9px}.saved-event-plan{padding:12px;border:1px solid var(--line);border-radius:14px;background:#ffffff07;font-size:12px}.saved-event-plan strong{display:block;font-size:13px;margin-bottom:6px}.saved-event-plan small{display:block;color:var(--muted);font-size:11px;margin-top:7px}.saved-plan-actions{display:flex;gap:8px;margin-top:9px}.saved-plan-actions button{background:#ffffff12;border:1px solid var(--line);padding:7px 10px;border-radius:8px;font-size:12px}.saved-plan-actions button:last-child{color:#ffd0c7}#planUndo{font-size:12px;padding-top:8px}.floating-nav{display:none}
     @media(max-width:760px){.shell{padding-bottom:calc(110px + env(safe-area-inset-bottom))}.floating-nav{display:flex;position:fixed;z-index:30;bottom:calc(14px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:440px;gap:4px;padding:8px;border-radius:25px;background:rgba(10,35,55,.78);border:1px solid #ffffff38;box-shadow:inset 0 1px 0 #ffffff30,0 12px 35px #001b3f55;backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px)}.floating-nav button{display:flex;flex:1;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-radius:17px;padding:8px 2px;background:transparent;color:#c2d5e4;font-size:10px}.floating-nav button[aria-current='page']{background:#c2ffee20;color:#c2ffee;box-shadow:inset 0 1px 0 #ffffff20}.floating-nav svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}#widget-hourly,#widget-insights,#locationDetails{scroll-margin-top:18px}.radar-full .radar-controls{bottom:calc(104px + env(safe-area-inset-bottom))}.radar-legend{bottom:170px}}
+
+    .layout[hidden],#plansView[hidden]{display:none}
+    #plansView{max-width:780px;margin:0 auto 20px}
+    #plansView .event-plan-form{grid-template-columns:1fr 1fr}
+    #plansView .event-save,#plansView .event-time-row{grid-column:1/-1}
+    #plansView .saved-event-plans{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+    .viewtabs{max-width:100%;overflow-x:auto}
+    .viewtabs button{white-space:nowrap}
+    @media(max-width:520px){#plansView .event-plan-form{grid-template-columns:1fr}#plansView .saved-event-plans{grid-template-columns:1fr}}
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -194,13 +203,23 @@
       <div class="loc-actions"><button class="iconbtn" id="favoriteBtn" aria-label="Save Warner Robins as a favorite" title="Save this location"><svg viewBox="0 0 24 24" fill="none"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></button><button class="iconbtn" id="searchBtn" aria-label="Change location" title="Change location"><svg viewBox="0 0 24 24" fill="none"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.6"/><path d="m16 16 4.2 4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button><button class="iconbtn" id="sourcesBtn" aria-label="View forecast sources" title="Forecast sources"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="7" r="2" fill="#122131" stroke="currentColor" stroke-width="1.5"/><circle cx="15" cy="12" r="2" fill="#122131" stroke="currentColor" stroke-width="1.5"/><circle cx="11" cy="17" r="2" fill="#122131" stroke="currentColor" stroke-width="1.5"/></svg></button></div>
     </div>
     <nav class="favoritebar" id="favoriteBar" aria-label="Favorite locations"><span class="favorite-label">MY PLACES</span><span class="favorite-empty" id="favoriteEmpty">Save this place with ☆ to keep it close.</span><button class="favorite-add" id="addFavoriteLocation"><span aria-hidden="true">＋</span> Add location</button></nav>
-    <div class="viewtabs" role="tablist" aria-label="Weather views"><button class="active" data-view="forecast" role="tab" aria-selected="true">Forecast</button><button data-view="radar" role="tab" aria-selected="false">Radar</button><button data-view="details" role="tab" aria-selected="false">Location details</button></div>
+    <div class="viewtabs" role="tablist" aria-label="Weather views"><button class="active" data-view="forecast" role="tab" aria-selected="true">Forecast</button><button data-view="radar" role="tab" aria-selected="false">Radar</button><button data-view="details" role="tab" aria-selected="false">Location details</button><button data-view="plans" role="tab" aria-selected="false" aria-controls="plansView">Plans</button></div>
     <section class="panel detail-card" id="locationDetails" aria-label="Detailed conditions for Warner Robins">
       <div class="panel-heading"><div><div class="heading">Conditions, beyond the temperature</div><div class="subheading" id="detailLocationSub">Warner Robins · model blend snapshot</div></div><span class="pill-note">Transparent · source-by-source</span></div>
       <div class="location-overview">A fuller picture of what the air feels like, how the sky is changing, and what to expect outdoors. Expanded measurements become live as forecast feeds are connected.</div>
       <div class="detail-grid"><div class="detail-metric"><span>Feels like</span><strong id="detailFeels">73°</strong><small>temperature adjusted for wind and humidity</small></div><div class="detail-metric"><span>Dew point</span><strong>64°</strong><small>slightly humid</small></div><div class="detail-metric"><span>Humidity</span><strong>68%</strong><small>relative humidity</small></div><div class="detail-metric"><span>Wind</span><strong>5 mph</strong><small>SW · gusts 9 mph</small></div><div class="detail-metric"><span>Pressure</span><strong>30.08 in</strong><small>steady · sea-level adjusted</small></div><div class="detail-metric"><span>Visibility</span><strong>10 mi</strong><small>good</small></div><div class="detail-metric"><span>UV index</span><strong id="detailUv">0 · Low</strong><small>sun protection not needed now</small></div><div class="detail-metric"><span>Air quality</span><strong>Good</strong><small>Air data loading…</small></div></div>
       <div class="sunmoon-row"><div class="sunmoon"><span>Sunrise / sunset</span><strong>7:32 AM · 7:14 PM</strong></div><div class="sunmoon"><span>Moon · waxing crescent</span><strong>☾ &nbsp; 28% illuminated</strong></div></div>
     </section>
+    <section id="plansView" hidden aria-label="Weather plans"><article class="panel insights" id="widget-insights"><div class="panel-heading"><div><div class="heading">Plan around the weather</div><div class="subheading">Your place, your date, your time</div></div><span style="font-size:16px;color:#9ce4cd">✧</span></div>
+<div class="saved-plans-head"><span>My plans</span><button type="button" class="textbtn" id="newEventPlan">＋ New plan</button></div><div id="savedEventPlans" class="saved-event-plans"></div><div id="planUndo" hidden><span>Plan removed.</span> <button type="button" class="textbtn" id="undoEventPlan">Undo</button></div><form id="eventPlanForm" class="event-plan-form">
+<label>Activity<select id="eventActivity"><option>Outdoor plans</option><option>Walk</option><option>Commute</option><option>Outdoor event</option><option>Travel</option></select></label>
+<label>Location<input id="eventLocation" list="eventPlaces" required placeholder="City or ZIP code" autocomplete="off"/><datalist id="eventPlaces"></datalist></label>
+<label>Date<input id="eventDate" type="date" required/></label>
+<div class="event-time-row"><label>From<input id="eventStart" type="time" value="09:00" required/></label><label>Until<input id="eventEnd" type="time" value="12:00" required/></label></div>
+<label>Rain chance threshold<select id="rainThreshold"><option value="30">30%</option><option value="40" selected>40%</option><option value="50">50%</option><option value="60">60%</option></select></label>
+<button class="event-save" id="savePlanAlert" type="submit">Save &amp; check plan</button>
+</form>
+<div class="insight"><span class="insight-icon" aria-hidden="true">✧</span><div><div class="insight-title" id="planTitle">Choose a place and time</div><div class="insight-copy" id="planCopy">Save a plan to check the forecast for your chosen window.</div></div></div><div class="alert-saved" id="alertSaved" aria-live="polite">Plan alerts become eligible 10 days before your date. Background notifications are not connected yet.</div></article></section>
     <div class="layout">
       <section class="maincol">
         <article class="panel hero" id="widget-hero">
@@ -225,16 +244,7 @@
         <article class="panel days" id="widget-days"><div class="panel-heading"><div><div class="heading">The next few days</div><div class="subheading" id="dailySubtitle">Consensus outlook · Warner Robins</div></div><button class="iconbtn" id="moreDays" aria-label="Show more days" style="width:31px;height:31px">···</button></div>
           <div id="dayRows"><div class="dayrow"><span class="dayname">Loading forecast…</span><span></span><span></span><span></span></div></div>
         </article>
-        <article class="panel insights" id="widget-insights"><div class="panel-heading"><div><div class="heading">Plan around the weather</div><div class="subheading">Your place, your date, your time</div></div><span style="font-size:16px;color:#9ce4cd">✧</span></div>
-<div class="saved-plans-head"><span>My plans</span><button type="button" class="textbtn" id="newEventPlan">＋ New plan</button></div><div id="savedEventPlans" class="saved-event-plans"></div><div id="planUndo" hidden><span>Plan removed.</span> <button type="button" class="textbtn" id="undoEventPlan">Undo</button></div><form id="eventPlanForm" class="event-plan-form">
-<label>Activity<select id="eventActivity"><option>Outdoor plans</option><option>Walk</option><option>Commute</option><option>Outdoor event</option><option>Travel</option></select></label>
-<label>Location<input id="eventLocation" list="eventPlaces" required placeholder="City or ZIP code" autocomplete="off"/><datalist id="eventPlaces"></datalist></label>
-<label>Date<input id="eventDate" type="date" required/></label>
-<div class="event-time-row"><label>From<input id="eventStart" type="time" value="09:00" required/></label><label>Until<input id="eventEnd" type="time" value="12:00" required/></label></div>
-<label>Rain chance threshold<select id="rainThreshold"><option value="30">30%</option><option value="40" selected>40%</option><option value="50">50%</option><option value="60">60%</option></select></label>
-<button class="event-save" id="savePlanAlert" type="submit">Save &amp; check plan</button>
-</form>
-<div class="insight"><span class="insight-icon" aria-hidden="true">✧</span><div><div class="insight-title" id="planTitle">Choose a place and time</div><div class="insight-copy" id="planCopy">Save a plan to check the forecast for your chosen window.</div></div></div><div class="alert-saved" id="alertSaved" aria-live="polite">Plan alerts become eligible 10 days before your date. Background notifications are not connected yet.</div></article>
+        
         <div class="bottom-note"><span id="dataAttribution">Connecting forecast feeds…</span><span>Live NOAA/NWS radar · consensus is an equal-weight model blend</span><a href="#" id="whyLink">How consensus works</a></div>
       </aside>
     </div>
@@ -354,8 +364,7 @@
       'widget-wind':'Wind & gusts',
       'widget-radar':'Radar map',
       'widget-alerts':'Official weather alerts',
-      'widget-days':'10-day outlook',
-      'widget-insights':'What changed / model insight'
+      'widget-days':'10-day outlook'
     };
     const widgetOrderKey='weatherglass-dashboard-order-v1';
     const defaultWidgetOrder=Object.keys(widgetTitles);
@@ -394,12 +403,16 @@
     document.querySelectorAll('#layoutBackdrop [data-close]').forEach(b=>b.addEventListener('click',saveWidgetOrder));
     document.getElementById('widgetButton').addEventListener('click',()=>document.getElementById('widgetBackdrop').classList.add('open'));
     document.querySelectorAll('#widgetBackdrop [data-close]').forEach(b=>b.addEventListener('click',()=>document.getElementById('widgetBackdrop').classList.remove('open')));
-    document.querySelectorAll('.viewtabs button').forEach(button=>button.addEventListener('click',()=>{
-      document.querySelectorAll('.viewtabs button').forEach(b=>{b.classList.toggle('active',b===button);b.setAttribute('aria-selected',String(b===button))});
-      if(button.dataset.view==='radar')openFullRadar();
-      else if(button.dataset.view==='details'){document.getElementById('locationDetails').classList.add('open');document.getElementById('locationDetails').scrollIntoView({behavior:'smooth',block:'start'})}
-      else document.getElementById('locationDetails').classList.remove('open');
-    }));
+    function setMainView(view){
+      closeFullRadar();document.getElementById('plansView').hidden=view!=='plans';
+      document.querySelector('.layout').hidden=view==='plans';
+      document.getElementById('locationDetails').classList.toggle('open',view==='details');
+      document.querySelectorAll('.viewtabs button').forEach(b=>{b.classList.toggle('active',b.dataset.view===view);b.setAttribute('aria-selected',String(b.dataset.view===view))});
+      const mobile=view==='details'?'more':view==='forecast'?'today':view;
+      document.querySelectorAll('[data-mobile-view]').forEach(b=>{if(b.dataset.mobileView===mobile)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+      if(view==='radar')openFullRadar();
+    }
+    document.querySelectorAll('.viewtabs button').forEach(button=>button.addEventListener('click',()=>setMainView(button.dataset.view)));
     const NOAA_RADAR_URL='https://mapservices.weather.noaa.gov/eventdriven/rest/services/radar/radar_base_reflectivity_time/ImageServer';
     let miniRadarMap=null,fullRadarMap=null,miniRadarLayer=null,fullRadarLayer=null,miniBaseLayer=null,fullBaseLayer=null,miniLabelLayer=null,fullLabelLayer=null;
     let miniRadarMarker=null,fullRadarMarker=null,radarFrames=[],radarFrameIndex=0,radarPlayTimer=null,radarCoverage=true,basemapMode=readBasemapPreference(),radarOpacity=.82;
@@ -765,12 +778,12 @@
     if(savedEventPlan)checkEventPlan(savedEventPlan);
 
     document.querySelectorAll('[data-mobile-view]').forEach(button=>button.addEventListener('click',()=>{
-      const view=button.dataset.mobileView;document.querySelectorAll('[data-mobile-view]').forEach(b=>{if(b===button)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
-      if(view==='radar'){openFullRadar();return}closeFullRadar();
-      if(view==='more'){document.getElementById('locationDetails').classList.add('open');document.getElementById('locationDetails').scrollIntoView({behavior:'smooth',block:'start'});return}
-      document.getElementById(view==='hourly'?'widget-hourly':view==='plans'?'widget-insights':'widget-hero').scrollIntoView({behavior:'smooth',block:'start'});
+      const view=button.dataset.mobileView;
+      setMainView(view==='plans'?'plans':view==='more'?'details':view==='radar'?'radar':'forecast');
+      if(view==='hourly'){document.querySelectorAll('[data-mobile-view]').forEach(b=>{if(b===button)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});document.getElementById('widget-hourly').scrollIntoView({behavior:'smooth',block:'start'})}
+      else if(view!=='radar')document.querySelector('.viewtabs').scrollIntoView({behavior:'smooth',block:'start'});
     }));
-    document.getElementById('closeRadar').addEventListener('click',()=>{document.querySelectorAll('[data-mobile-view]').forEach(b=>{if(b.dataset.mobileView==='today')b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')})});
+    document.getElementById('closeRadar').addEventListener('click',()=>setMainView('forecast'));
     const previousSetCity=setCity;
     setCity=function(name){previousSetCity(name);document.getElementById('previewStatus').textContent='LOOKING UP FORECAST';loadLocation(name)};
     setCity(activeCity);
