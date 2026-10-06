@@ -646,7 +646,7 @@
       document.getElementById('miniRadarMap').setAttribute('aria-label',xw?'Xweather precipitation radar preview':'NOAA precipitation radar preview');
       document.getElementById('radarMiniStatus').textContent=radarStatusText();document.getElementById('fullRadarStatus').textContent=radarStatusText();
       const source=document.querySelector('.radar-source');source.replaceChildren();source.append(document.createTextNode('Radar: '));const link=document.createElement('a');link.href=xw?'https://www.xweather.com/':'https://radar.weather.gov/';link.target='_blank';link.rel='noreferrer';link.textContent=xw?'© Xweather':'NOAA / NWS MRMS';source.append(link);
-      document.getElementById('xweatherConnection').textContent=xweatherConfigured?'Xweather ready · credentials stored on server':'Xweather not connected · using NOAA';
+      document.getElementById('xweatherConnection').textContent=xweatherConfigured?'Xweather credentials found on server':'Xweather not connected · using NOAA';
     }
     async function setRadarProvider(value){
       const selected=value==='xweather'&&xweatherConfigured?'xweather':'noaa',generation=++radarProviderGeneration;
@@ -681,9 +681,11 @@
       if(radarProvider==='xweather'){
         const time=radarFrames[radarFrameIndex]||xweatherFrames().at(-1);
         const layer=L.tileLayer(xweatherTileURL(time),{maxNativeZoom:12,maxZoom:19,opacity:radarOpacity,attribution:'Radar &copy; <a href="https://www.xweather.com/" target="_blank" rel="noreferrer">Xweather</a>',keepBuffer:1,updateWhenIdle:true});
-        layer.on('tileerror',()=>{if(radarProvider!=='xweather')return;xweatherHadError=true;stopRadarPlayback();document.getElementById('radarMiniStatus').textContent=radarStatusText();document.getElementById('fullRadarStatus').textContent=radarStatusText()});
+        layer.on('tileload',()=>{if(radarProvider==='xweather'&&!xweatherHadError)document.getElementById('xweatherConnection').textContent='Xweather radar connected'});
+        layer.on('tileerror',()=>{if(radarProvider!=='xweather')return;xweatherHadError=true;document.getElementById('xweatherConnection').textContent='Xweather image request failed';stopRadarPlayback();document.getElementById('radarMiniStatus').textContent=radarStatusText();document.getElementById('fullRadarStatus').textContent=radarStatusText()});
         layer.addTo(map);return layer;
       }
+      if(!L.esri){document.getElementById('radarMiniStatus').textContent='NOAA map library unavailable · checking Xweather';return null}
       const layer=L.esri.imageMapLayer({url:NOAA_RADAR_URL,opacity:radarCoverage?radarOpacity:0,useCors:true,attribution:'Radar: NOAA / NWS MRMS'});
       layer.on('load',()=>{if(radarProvider==='noaa')document.getElementById('fullRadarStatus').textContent=radarStatusText()});
       layer.on('error',()=>{if(radarProvider==='noaa')document.getElementById('fullRadarStatus').textContent='NOAA radar is temporarily unavailable'});layer.addTo(map);return layer;
@@ -725,7 +727,7 @@
       updateRadarFrame(radarFrames.length-1);
     }
     function initMiniRadar(){
-      if(!window.L||!L.esri){document.getElementById('radarMiniStatus').textContent='Interactive map could not load';return}
+      if(!window.L){document.getElementById('radarMiniStatus').textContent='Interactive map could not load';return}
       if(miniRadarMap)return;
       miniRadarMap=L.map('miniRadarMap',{zoomControl:true,scrollWheelZoom:true,dragging:true,doubleClickZoom:true,boxZoom:true,keyboard:true,touchZoom:true}).setView(activeCoordinates,9);
       miniBaseLayer=mapBase(miniRadarMap);miniRadarLayer=radarMapLayer(miniRadarMap);miniRadarMarker=radarMarker(miniRadarMap);
@@ -733,7 +735,7 @@
       loadRadarTimeline();
     }
     function initFullRadar(){
-      if(fullRadarMap||!window.L||!L.esri)return;
+      if(fullRadarMap||!window.L)return;
       fullRadarMap=L.map('fullRadarMap',{zoomControl:true,attributionControl:true,scrollWheelZoom:true}).setView(activeCoordinates,11);
       fullBaseLayer=mapBase(fullRadarMap);fullRadarLayer=radarMapLayer(fullRadarMap);fullRadarMarker=radarMarker(fullRadarMap);
       if(radarFrames.length)updateRadarFrame(radarFrameIndex);
