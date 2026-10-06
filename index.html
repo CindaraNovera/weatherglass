@@ -317,10 +317,10 @@
       'widget-hero':'Current conditions',
       'widget-consensus':'Forecast consensus',
       'widget-hourly':'Hourly outlook',
+      'widget-wind':'Wind & gusts',
       'widget-radar':'Radar map',
       'widget-alerts':'Official weather alerts',
       'widget-days':'10-day outlook',
-      'widget-wind':'Wind & gusts',
       'widget-insights':'What changed / model insight'
     };
     const widgetOrderKey='weatherglass-dashboard-order-v1';
@@ -351,8 +351,8 @@
     }
     function applyWidgetOrder(){
       const main=document.querySelector('.maincol'),side=document.querySelector('.sidecol');
-      widgetOrder.slice(0,3).forEach(id=>main.append(document.getElementById(id)));
-      widgetOrder.slice(3).forEach(id=>side.append(document.getElementById(id)));
+      widgetOrder.slice(0,4).forEach(id=>main.append(document.getElementById(id)));
+      widgetOrder.slice(4).forEach(id=>side.append(document.getElementById(id)));
     }
     function saveWidgetOrder(){applyWidgetOrder();writeStored(widgetOrderKey,widgetOrder);layoutBackdrop.classList.remove('open')}
     applyWidgetOrder();
