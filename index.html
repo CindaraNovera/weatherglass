@@ -76,7 +76,34 @@
     .alert-saved{font-size:9px;color:#718398;margin-top:8px}
     @media(max-width:760px){.detail-grid{grid-template-columns:repeat(2,1fr)}.widget-preview-grid{grid-template-columns:1fr 1fr}.viewtabs{margin-bottom:12px}.radar-full-top{padding-left:17px;padding-right:17px}}
     @media(max-width:430px){.quicktools .tool-label{display:none}.quicktools .iconbtn{width:36px;padding:0;justify-content:center}.detail-card{padding:18px 16px}.detail-grid{gap:7px}.detail-metric{padding:11px}.detail-metric strong{font-size:15px}.widget-modal{padding:19px}.widget-preview{padding:12px;min-height:115px}.widget-big{font-size:30px}.radar-legend{left:14px}.radar-full .radar-controls{left:12px;right:12px}}
+  
+    .radar .mini-radar-map{position:absolute;inset:0;z-index:0}
+    .radar .leaflet-control-attribution{display:none}
+    .radar-mini-foot{position:absolute;z-index:3;left:13px;right:13px;bottom:12px;display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #ffffff1c;border-radius:12px;background:rgba(5,14,23,.76);backdrop-filter:blur(14px);font-size:9px;color:#d5e1e9}
+    .radar-live-dot{color:#9ce9d1;font-size:8px;letter-spacing:.1em;font-weight:700}
+    .radar-mini-foot #radarMiniTime{flex:1;color:#aab9c8}
+    .radar-mini-foot button{background:transparent;color:#c7f0e4;font-size:9px}
+    #fullRadarMap{position:absolute;inset:0}
+    .leaflet-container{font:inherit;background:#091522}
+    .leaflet-control-attribution{background:rgba(5,13,22,.78)!important;color:#aab8c6!important;backdrop-filter:blur(12px);border:1px solid #ffffff16;border-radius:8px 0 0 0;padding:3px 6px!important}
+    .leaflet-control-attribution a{color:#b9e8da!important}
+    .radar-full .leaflet-top.leaflet-left{top:112px;left:15px}
+    .radar-full .leaflet-control-zoom a{background:rgba(8,20,31,.82);color:#e4f3f2;border-color:#ffffff2a}
+    .radar-full .leaflet-control-zoom a:hover{background:rgba(35,59,73,.92);color:white}
+    .radar-full-top{gap:14px}
+    .radar-top-actions{display:flex;gap:8px}
+    .radar-full .radar-controls{display:grid;grid-template-columns:34px minmax(100px,1fr) auto;gap:13px;align-items:center}
+    .radar-full .timeline{display:none}
+    .radar-slider{width:100%;accent-color:#9ce9d1}
+    .radar-full .radartime{min-width:88px}
+    .radar-legend{bottom:104px}
+    .radar-source{position:absolute;z-index:3;right:23px;bottom:101px;color:#b5c4d0;background:rgba(5,14,23,.68);border:1px solid #ffffff19;border-radius:10px;padding:8px 10px;font-size:9px;backdrop-filter:blur(12px)}
+    .radar-source a{color:#d1f2e7;text-decoration:none}
+    @media(max-width:520px){.radar-full .radar-controls{left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom, 0px) + 14px);grid-template-columns:32px minmax(70px,1fr) auto;gap:8px;padding:11px}.radar-full .radartime{min-width:74px;font-size:10px}.radar-legend{left:13px;bottom:84px}.radar-source{right:13px;bottom:84px;max-width:170px;font-size:8px}.radar-full-top{padding-top:calc(env(safe-area-inset-top, 0px) + 13px)}}
   </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/esri-leaflet@3.0.19/dist/esri-leaflet.js"></script>
 </head>
 <body>
   <main class="shell">
@@ -111,9 +138,8 @@
           <div class="chart"><svg viewBox="0 0 620 120" preserveAspectRatio="none" role="img" aria-label="Hourly temperature trend chart"><defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ddbc7" stop-opacity=".18"/><stop offset="1" stop-color="#8ddbc7" stop-opacity="0"/></linearGradient></defs><path class="chartgrid" d="M0 20H620M0 55H620M0 90H620"/><path class="rainbars" id="rainBars" d=""/><path class="chartfill" id="tempArea" d=""/><path class="chartline" id="tempTrendLine" d=""/><circle id="chartMarker" cx="0" cy="0" r="4" fill="#e6fff5" stroke="#65af9e" stroke-width="2"/></svg><span class="charttemp" id="chartCurrent">Loading forecast…</span></div><div class="chartlabels" id="chartLabels"><span>Loading hours…</span></div></article>
       </section>
       <aside class="sidecol">
-        <article class="panel radar" id="widget-radar"><div class="radar-head"><div><div class="heading">Radar preview</div><div class="subheading">Illustrative map · live radar setup next</div></div><button class="radar-open" id="openRadar" title="Open full-screen radar" aria-label="Open full-screen radar"><svg viewBox="0 0 24 24" fill="none"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
-          <svg class="map" id="radarMap" viewBox="0 0 480 300" preserveAspectRatio="xMidYMid slice" aria-label="Illustrative radar map preview"><defs><linearGradient id="mapbg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#193246"/><stop offset="1" stop-color="#0a1723"/></linearGradient><radialGradient id="rainA"><stop stop-color="#53b5a6" stop-opacity=".8"/><stop offset=".55" stop-color="#379d91" stop-opacity=".55"/><stop offset="1" stop-color="#398e92" stop-opacity="0"/></radialGradient><radialGradient id="rainB"><stop stop-color="#90cf79" stop-opacity=".75"/><stop offset=".5" stop-color="#47ac96" stop-opacity=".5"/><stop offset="1" stop-color="#47ac96" stop-opacity="0"/></radialGradient></defs><rect width="480" height="300" fill="url(#mapbg)"/><path d="M-20 66 74 47l42 22 42-5 37 36 40-5 29 29-19 27-49 7-31 49-59 5-30-31-50 10-35-25-45 1z" fill="#263b46" stroke="#647b7e" stroke-opacity=".4"/><path d="m-5 233 69-39 57 13 47-29 39 15 27 42 43-3 34 30-22 46H-10z" fill="#1e3541" stroke="#647b7e" stroke-opacity=".35"/><path d="M-18 162c57-27 88-6 132-20 49-15 78-36 126-24 51 12 78 41 133 34s81 0 119 22" fill="none" stroke="#aac4be" stroke-opacity=".22" stroke-width="1.4"/><path d="M39-5c12 68 5 106 39 143 24 27 47 35 72 76 22 36 14 56 21 95M256-15c-21 56-31 94-7 132 21 34 37 46 39 91 2 34 23 62 45 88M401-16c-20 41-47 65-43 115 3 37 29 63 27 102-2 39-22 68-13 112" fill="none" stroke="#aac4be" stroke-opacity=".16" stroke-width="1.2"/><path d="M0 112 109 90l34 18-15 14-94 23zm155 82 74-38 26 11-48 45-44 14zm89-112 75 12-24 19-58-6zm112 95 75-7 40 22-77 16-36-12z" fill="url(#rainA)"/><path d="M185 141c33-29 67-39 106-27 32 10 48 31 82 34 24 2 36 15 32 35-4 17-29 28-52 23-39-9-51-28-92-18-31 8-57 7-77-12-13-13-13-24 1-35Z" fill="url(#rainB)"/><path d="M263 86 88 247M215 38l217 193" stroke="#e4faf2" stroke-opacity=".18" stroke-dasharray="4 7"/><circle cx="249" cy="157" r="7" fill="#f5ffff" stroke="#95efdb" stroke-width="3"/><circle cx="249" cy="157" r="17" fill="none" stroke="#a0eedc" stroke-opacity=".5"/><circle cx="249" cy="157" r="31" fill="none" stroke="#a0eedc" stroke-opacity=".2"/></svg>
-          <div class="maplabels"><span style="left:12%;top:42%">Macon</span><span style="left:52%;top:56%">Warner Robins</span><span style="left:69%;top:75%">Perry</span><span style="left:76%;top:37%">Milledgeville</span></div><div class="radar-controls"><button class="play" id="playRadar" aria-label="Play radar animation"><svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M6 3.5v13l10-6.5z"/></svg></button><div class="timeline"></div><span class="radartime" id="radarTime">Now · 9:42 PM</span></div>
+        <article class="panel radar" id="widget-radar"><div class="radar-head"><div><div class="heading">Radar · NOAA/NWS</div><div class="subheading" id="radarMiniStatus">Connecting to live U.S. radar…</div></div><button class="radar-open" id="openRadar" title="Open full-screen radar" aria-label="Open full-screen radar"><svg viewBox="0 0 24 24" fill="none"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+          <div class="mini-radar-map" id="miniRadarMap" role="img" aria-label="Live NOAA precipitation radar preview"></div><div class="radar-mini-foot"><span class="radar-live-dot">NOAA RADAR</span><span id="radarMiniTime">Loading current radar…</span><button type="button" id="openRadarMini">Full map&nbsp;↗</button></div>
         </article>
         <article class="panel days" id="widget-days"><div class="panel-heading"><div><div class="heading">The next few days</div><div class="subheading" id="dailySubtitle">Consensus outlook · Warner Robins</div></div><button class="iconbtn" id="moreDays" aria-label="Show more days" style="width:31px;height:31px">···</button></div>
           <div id="dayRows"><div class="dayrow"><span class="dayname">Loading forecast…</span><span></span><span></span><span></span></div></div>
@@ -125,7 +151,16 @@
   </main>
   <div class="popover" id="sourcePopover" role="dialog" aria-label="Forecast source comparison"><div class="pop-title">Your forecast sources</div><div class="pop-desc">Weatherglass compares independent model forecasts, shows their range, and explains how the consensus is formed. Model accuracy weighting comes after forecast-versus-observation history.</div><div style="margin-top:12px"><div class="feed"><span>ECMWF IFS</span><em id="feed-ecmwf">Connecting…</em></div><div class="feed"><span>NOAA GFS / HRRR</span><em id="feed-gfs">Connecting…</em></div><div class="feed"><span>DWD ICON</span><em id="feed-icon">Connecting…</em></div></div><div class="pop-desc" id="sourceFootnote" style="margin-top:12px">Connecting live model feeds for this private prototype.</div></div>
   <div class="modal-backdrop" id="locationModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal"><h3 id="modalTitle">Choose a place</h3><p id="locationHelp">Search a city or ZIP code for live model forecasts. Saved places stay on this device.</p><input class="searchbox" id="locationInput" placeholder="City or ZIP code" /><div class="suggestions"><button data-city="Warner Robins, Georgia">Warner Robins, GA</button><button data-city="Atlanta, Georgia">Atlanta, GA</button><button data-city="Macon, Georgia">Macon, GA</button><button data-city="Tampa, Florida">Tampa, FL</button></div><div class="close-row"><button class="close" id="closeModal">Done</button></div></div></div>
-  <section class="radar-full" id="radarFull" role="dialog" aria-modal="true" aria-label="Full-screen radar"><div class="radar-full-top"><div><div class="radar-full-title">Radar · <span id="radarCity">Warner Robins</span></div><div class="radar-full-sub">Illustrative preview · live radar is a planned connection</div></div><button class="iconbtn" id="closeRadar" aria-label="Close radar">✕</button></div><div id="fullRadarMap"></div><div class="radar-legend">PRECIPITATION INTENSITY<div class="legend-dots"><i></i><i></i><i></i><i></i><i></i></div><div style="margin-top:5px;color:#8294a6">Light rain → heavy rain</div></div><div class="radar-controls"><button class="play" id="playFullRadar" aria-label="Play radar animation"><svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M6 3.5v13l10-6.5z"/></svg></button><div class="timeline"></div><span class="radartime" id="fullRadarTime">Now</span></div></section>
+  <section class="radar-full" id="radarFull" role="dialog" aria-modal="true" aria-label="Full-screen live radar">
+    <div class="radar-full-top">
+      <div><div class="radar-full-title">Radar · <span id="radarCity">Warner Robins</span></div><div class="radar-full-sub" id="fullRadarStatus">NOAA/NWS composite reflectivity · recent radar</div></div>
+      <div class="radar-top-actions"><button class="iconbtn" id="centerRadar" aria-label="Center map on selected location" title="Center on location">⌖</button><button class="iconbtn" id="closeRadar" aria-label="Close radar">✕</button></div>
+    </div>
+    <div id="fullRadarMap" aria-label="Interactive NOAA weather radar map"></div>
+    <div class="radar-legend">RADAR REFLECTIVITY<div class="legend-dots"><i></i><i></i><i></i><i></i><i></i></div><div style="margin-top:5px;color:#8294a6">Light → heavier precipitation</div></div>
+    <div class="radar-source">Radar: <a href="https://radar.weather.gov/" target="_blank" rel="noreferrer">NOAA / NWS MRMS</a></div>
+    <div class="radar-controls"><button class="play" id="playFullRadar" aria-label="Play radar animation"><svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M6 3.5v13l10-6.5z"/></svg></button><input class="radar-slider" id="radarScrubber" type="range" min="0" max="1" value="1" step="1" aria-label="Radar time, recent past to latest"><span class="radartime" id="fullRadarTime">Loading…</span></div>
+  </section>
   <div class="modal-backdrop" id="widgetBackdrop" role="dialog" aria-modal="true" aria-labelledby="widgetTitle"><div class="widget-modal"><div class="panel-heading"><div><div class="heading" id="widgetTitle">Weatherglass, at a glance</div><div class="subheading">Home Screen and Lock Screen widget concepts</div></div><button class="iconbtn" data-close="widgetBackdrop" aria-label="Close widgets">✕</button></div><p class="layout-edit-note">Native widgets come with the iOS and Android apps. These previews show current conditions, model spread, and the next weather change. Real OS widgets are a native-app milestone.</p><div class="widget-preview-grid"><div class="widget-preview"><div class="widget-kind">Small · current weather</div><div class="widget-big">72° <span style="font-size:14px">☾</span></div><div class="widget-small">Warner Robins · Partly cloudy</div></div><div class="widget-preview"><div class="widget-kind">Lock Screen · model spread</div><div class="widget-big">2 / 3</div><div class="widget-small">models within 3° · accuracy not yet calibrated</div></div><div class="widget-preview"><div class="widget-kind">Medium · next 6 hours</div><div class="widget-big">Next 6 hours</div><div class="widget-minirow"><span>Now 72°</span><span>+2h 76°</span><span>+6h 78°</span></div></div><div class="widget-preview"><div class="widget-kind">Medium · rain timing</div><div class="widget-big">Rain outlook</div><div class="widget-small">Model-average chance for your saved place</div></div></div><div class="close-row"><button class="close" data-close="widgetBackdrop">Done</button></div></div></div>
   <div class="modal-backdrop" id="layoutBackdrop" role="dialog" aria-modal="true" aria-labelledby="layoutTitle"><div class="modal"><div class="panel-heading"><div><h3 id="layoutTitle">Arrange your dashboard</h3><p class="layout-edit-note">Drag a card or use the arrows to choose what appears first. Your layout stays saved on this device.</p></div><button class="iconbtn" data-close="layoutBackdrop" aria-label="Close layout editor">✕</button></div><div class="layout-list" id="layoutList"></div><div class="close-row"><button class="close" data-close="layoutBackdrop">Save layout</button></div></div></div>
   <script>
@@ -136,7 +171,7 @@
     let favorites=readStored(FAVORITES_KEY,[]);
     if(!Array.isArray(favorites))favorites=[];
     favorites=favorites.filter(item=>typeof item==='string'&&item.trim());
-    let activeCity='Warner Robins, Georgia';
+    let activeCity='Warner Robins, Georgia';let activeCoordinates=[32.613, -83.624],activeCountry='US';
     try{activeCity=localStorage.getItem(ACTIVE_LOCATION_KEY)||activeCity}catch{}
     const now=new Date();
     const originalSunArtwork=document.querySelector('.sun-icon').innerHTML;
@@ -260,24 +295,74 @@
       else if(button.dataset.view==='details'){document.getElementById('locationDetails').classList.add('open');document.getElementById('locationDetails').scrollIntoView({behavior:'smooth',block:'start'})}
       else document.getElementById('locationDetails').classList.remove('open');
     }));
-    function openFullRadar(){
-      const full=document.getElementById('radarFull');
-      const map=document.getElementById('radarMap').cloneNode(true);map.removeAttribute('id');map.setAttribute('aria-label','Illustrative full-screen radar map');
-      const labels=document.querySelector('.radar .maplabels').cloneNode(true);
-      const host=document.getElementById('fullRadarMap');host.replaceChildren(map,labels);
-      document.getElementById('radarCity').textContent=activeCity.split(',')[0];
-      document.getElementById('fullRadarTime').textContent='Now · '+new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit'}).format(new Date());
-      full.classList.add('open');document.body.style.overflow='hidden';
+    const NOAA_RADAR_URL='https://mapservices.weather.noaa.gov/eventdriven/rest/services/radar/radar_base_reflectivity_time/ImageServer';
+    let miniRadarMap=null,fullRadarMap=null,miniRadarLayer=null,fullRadarLayer=null;
+    let miniRadarMarker=null,fullRadarMarker=null,radarFrames=[],radarFrameIndex=0,radarPlayTimer=null,radarCoverage=true;
+    function radarClock(time){return new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit'}).format(new Date(time))}
+    function mapBase(map){L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19,attribution:'&copy; OpenStreetMap contributors &copy; CARTO'}).addTo(map)}
+    function radarMapLayer(map){const layer=L.esri.imageMapLayer({url:NOAA_RADAR_URL,opacity:.82,useCors:true,attribution:'Radar: NOAA / NWS MRMS'});layer.on('load',()=>{const text=radarCoverage?'NOAA/NWS radar · recent composite':'NOAA radar coverage is currently limited to the U.S. and territories';document.getElementById('fullRadarStatus').textContent=text});layer.on('error',()=>{document.getElementById('fullRadarStatus').textContent='Radar is temporarily unavailable · try again shortly'});layer.addTo(map);return layer}
+    function radarMarker(map){return L.circleMarker(activeCoordinates,{radius:6,color:'#edfff9',weight:2,fillColor:'#98efd7',fillOpacity:.9}).addTo(map)}
+    function refreshRadarLocation(){
+      const center=activeCoordinates;
+      if(miniRadarMap){miniRadarMap.setView(center,6);if(miniRadarMarker)miniRadarMarker.setLatLng(center)}
+      if(fullRadarMap){fullRadarMap.setView(center,7);if(fullRadarMarker)fullRadarMarker.setLatLng(center)}
+      const title=activeCity.split(',')[0],place=document.getElementById('radarCity');if(place)place.textContent=title;
+      radarCoverage=activeCountry==='US';
+      if(!radarCoverage){if(miniRadarLayer)miniRadarLayer.setOpacity(0);if(fullRadarLayer)fullRadarLayer.setOpacity(0);document.getElementById('radarMiniStatus').textContent='U.S. radar coverage only · map still available';document.getElementById('fullRadarStatus').textContent='NOAA radar coverage is currently limited to the U.S. and territories'}
+      else{if(miniRadarLayer)miniRadarLayer.setOpacity(.82);if(fullRadarLayer)fullRadarLayer.setOpacity(.82);document.getElementById('radarMiniStatus').textContent='Live U.S. composite radar · NOAA/NWS'}
     }
-    function closeFullRadar(){document.getElementById('radarFull').classList.remove('open');document.body.style.overflow=''}
+    function updateRadarFrame(index){
+      if(!radarFrames.length)return;
+      radarFrameIndex=Math.max(0,Math.min(radarFrames.length-1,Number(index)||0));
+      const slider=document.getElementById('radarScrubber');slider.max=String(radarFrames.length-1);slider.value=String(radarFrameIndex);
+      const time=radarFrames[radarFrameIndex],latest=radarFrameIndex===radarFrames.length-1;
+      document.getElementById('fullRadarTime').textContent=(latest?'Latest · ':'')+radarClock(time);
+      document.getElementById('radarMiniTime').textContent=(latest?'Updated · ':'')+radarClock(time);
+      if(fullRadarLayer)fullRadarLayer.setTimeRange(new Date(time-150000),new Date(time+150000));
+      if(miniRadarLayer)miniRadarLayer.setTimeRange(new Date(time-150000),new Date(time+150000));
+    }
+    async function loadRadarTimeline(){
+      const fallbackEnd=Date.now()-5*60*1000,fallbackStart=fallbackEnd-4*60*60*1000;
+      try{const response=await fetch(NOAA_RADAR_URL+'?f=pjson',{cache:'no-store'});if(!response.ok)throw new Error('Metadata unavailable');const info=await response.json();const extent=info.timeInfo&&info.timeInfo.timeExtent;var start=extent&&Number(extent[0]),finish=extent&&Number(extent[1]);if(!Number.isFinite(start)||!Number.isFinite(finish))throw new Error('Radar timeline unavailable')}
+      catch(error){var start=fallbackStart,finish=fallbackEnd}
+      const count=Math.max(1,Math.floor((finish-start)/(5*60*1000)));
+      radarFrames=Array.from({length:count+1},(_,i)=>start+Math.round((finish-start)*i/count));
+      updateRadarFrame(radarFrames.length-1);
+    }
+    function initMiniRadar(){
+      if(!window.L||!L.esri){document.getElementById('radarMiniStatus').textContent='Interactive map could not load';return}
+      if(miniRadarMap)return;
+      miniRadarMap=L.map('miniRadarMap',{zoomControl:false,attributionControl:false,scrollWheelZoom:false,dragging:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false}).setView(activeCoordinates,6);
+      mapBase(miniRadarMap);miniRadarLayer=radarMapLayer(miniRadarMap);miniRadarMarker=radarMarker(miniRadarMap);
+      document.getElementById('openRadarMini').addEventListener('click',openFullRadar);
+      loadRadarTimeline();
+    }
+    function initFullRadar(){
+      if(fullRadarMap||!window.L||!L.esri)return;
+      fullRadarMap=L.map('fullRadarMap',{zoomControl:true,attributionControl:true,scrollWheelZoom:true}).setView(activeCoordinates,7);
+      mapBase(fullRadarMap);fullRadarLayer=radarMapLayer(fullRadarMap);fullRadarMarker=radarMarker(fullRadarMap);
+      if(radarFrames.length)updateRadarFrame(radarFrameIndex);
+    }
+    function openFullRadar(){
+      const full=document.getElementById('radarFull');full.classList.add('open');document.body.style.overflow='hidden';
+      document.getElementById('radarCity').textContent=activeCity.split(',')[0];
+      initFullRadar();window.setTimeout(()=>{if(fullRadarMap){fullRadarMap.invalidateSize(true);fullRadarMap.setView(activeCoordinates,7)}},80);
+      if(!window.L)document.getElementById('fullRadarStatus').textContent='Map library unavailable · refresh to try again';
+    }
+    function stopRadarPlayback(){if(radarPlayTimer){clearInterval(radarPlayTimer);radarPlayTimer=null}const button=document.getElementById('playFullRadar');button.dataset.playing='false';button.setAttribute('aria-label','Play radar animation');button.innerHTML='<svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M6 3.5v13l10-6.5z"/></svg>'}
+    function closeFullRadar(){stopRadarPlayback();document.getElementById('radarFull').classList.remove('open');document.body.style.overflow=''}
     document.getElementById('openRadar').addEventListener('click',openFullRadar);
     document.getElementById('closeRadar').addEventListener('click',closeFullRadar);
-    document.getElementById('playFullRadar').addEventListener('click',e=>{
-      const btn=e.currentTarget,playing=btn.dataset.playing==='true';btn.dataset.playing=String(!playing);
-      btn.innerHTML=playing?'<svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M6 3.5v13l10-6.5z"/></svg>':'<svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M5 4h4v12H5zm6 0h4v12h-4z"/></svg>';
-      document.getElementById('fullRadarTime').textContent=playing?'Now · sample loop':'Previewing sample loop…';
-      if(!playing)setTimeout(()=>{btn.dataset.playing='false';btn.innerHTML='<svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M6 3.5v13l10-6.5z"/></svg>';document.getElementById('fullRadarTime').textContent='Now · '+new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit'}).format(new Date())},3200);
+    document.getElementById('centerRadar').addEventListener('click',()=>{if(fullRadarMap)fullRadarMap.setView(activeCoordinates,7)});
+    document.getElementById('playFullRadar').addEventListener('click',event=>{
+      const button=event.currentTarget;
+      if(radarPlayTimer){stopRadarPlayback();return}
+      if(!radarFrames.length)return;
+      button.dataset.playing='true';button.setAttribute('aria-label','Pause radar animation');button.innerHTML='<svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M5 4h4v12H5zm6 0h4v12h-4z"/></svg>';
+      radarPlayTimer=setInterval(()=>updateRadarFrame((radarFrameIndex+1)%radarFrames.length),650);
     });
+    document.getElementById('radarScrubber').addEventListener('input',event=>{stopRadarPlayback();updateRadarFrame(event.target.value)});
+    document.querySelectorAll('[data-view="radar"]').forEach(button=>button.addEventListener('click',openFullRadar));
     document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeFullRadar();document.querySelectorAll('.modal-backdrop').forEach(m=>m.classList.remove('open'))}});
     // Day/night artwork follows the viewer's local time; night uses a crescent moon.
     const isNight=now.getHours()>=19||now.getHours()<6;
@@ -415,8 +500,7 @@
         const geo=await getJson(apiUrl('https://geocoding-api.open-meteo.com/v1/search',{name:query,count:5,language:'en',format:'json'}));
         if(requestId!==locationRequest)return;const results=(geo.results||[]).filter(r=>Number.isFinite(Number(r.latitude))&&Number.isFinite(Number(r.longitude)));
         if(!results.length)throw new Error('No matching city or postal code found');
-        const item=results.find(r=>r.country_code==='US')||results[0],label=niceLocation(item)||query;
-        activeCity=label;cityName.textContent=label;document.querySelector('.radar .subheading').textContent='Live model outlook · '+label.split(',')[0];
+        const item=results.find(r=>r.country_code==='US')||results[0],label=niceLocation(item)||query;activeCoordinates=[Number(item.latitude),Number(item.longitude)];activeCountry=item.country_code||'';activeCity=label;cityName.textContent=label;refreshRadarLocation();
         document.querySelector('.days .subheading').textContent='10-day model blend · '+label.split(',')[0];
         document.getElementById('detailLocationSub').textContent=label+' · live model blend snapshot';
         document.getElementById('dailySubtitle').textContent='Loading model outlook · '+label.split(',')[0];
@@ -434,6 +518,7 @@
     const previousSetCity=setCity;
     setCity=function(name){previousSetCity(name);document.getElementById('previewStatus').textContent='LOOKING UP FORECAST';loadLocation(name)};
     setCity(activeCity);
+    initMiniRadar();
     const oldMoreDays=document.getElementById('moreDays'),cleanMoreDays=oldMoreDays.cloneNode(true);oldMoreDays.replaceWith(cleanMoreDays);cleanMoreDays.addEventListener('click',()=>{showTenDays=!showTenDays;renderDaily()});
     document.querySelectorAll('.range button').forEach(oldButton=>{const b=oldButton.cloneNode(true);oldButton.replaceWith(b);b.addEventListener('click',()=>{document.querySelectorAll('.range button').forEach(x=>x.classList.toggle('selected',x===b));selectedRange=b.dataset.range;document.querySelector('.section .heading').textContent=selectedRange==='Today'?'Today, hour by hour':selectedRange==='Tomorrow'?'Tomorrow, hour by hour':'10-day temperature outlook';renderLiveChart()})});
   </script>
