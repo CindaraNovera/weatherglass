@@ -705,7 +705,7 @@
     const liveDaily='weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max';
     let activeModels=[],locationRequest=0,showTenDays=false;
     let selectedRange='Today';
-    async function getJson(url){const response=await fetch(url,{headers:{Accept:'application/json'}});if(!response.ok)throw new Error('Weather request failed ('+response.status+')');const data=await response.json();if(data.error)throw new Error(data.reason||'Weather provider error');return data}
+    async function getJson(url){const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),20000);try{const response=await fetch(url,{headers:{Accept:'application/json'},signal:controller.signal});if(!response.ok)throw new Error('Weather request failed ('+response.status+')');const data=await response.json();if(data.error)throw new Error(data.reason||'Weather provider error');return data}catch(error){if(error.name==='AbortError')throw new Error('Weather provider took too long to respond');throw error}finally{clearTimeout(timeout)}}
     function mean(values){const a=values.filter(v=>v!==null&&v!==undefined&&Number.isFinite(Number(v))).map(Number);return a.length?a.reduce((x,y)=>x+y,0)/a.length:null}
     function valueOf(obj,key,model){return obj?.[key+'_'+model]??obj?.[key]??null}
     function roundOrDash(value,digits=0){return Number.isFinite(value)?Number(value).toFixed(digits):'—'}
@@ -1038,7 +1038,7 @@
         if(!good.length)throw new Error('Forecast providers could not be reached');
         activeTimezone=good[0].data.timezone||activeTimezone;if(radarFrames.length)updateRadarFrame(radarFrameIndex);applyModels(good);applyAirQuality(airQuality);
         if(good.length<liveModels.length){document.getElementById('previewStatus').textContent='PARTIAL MODEL DATA';document.getElementById('consensusSubtitle').textContent=good.length+' of '+liveModels.length+' model feeds are available · blend uses available sources'}
-      }catch(error){if(requestId!==locationRequest)return;document.getElementById('forecastChanges').textContent='Forecast changes unavailable while live feeds cannot be reached.';document.getElementById('windContent').textContent='Wind forecast unavailable. Try another location or refresh.';document.getElementById('previewStatus').textContent='LIVE DATA UNAVAILABLE';document.getElementById('consensusSubtitle').textContent=error.message+' · showing sample values';document.getElementById('dataAttribution').textContent='Sample values · forecast feeds temporarily unavailable'}
+      }catch(error){if(requestId!==locationRequest)return;document.getElementById('briefText').textContent='Your daily brief is unavailable while forecast feeds cannot be reached. Please refresh to try again.';document.getElementById('briefMeta').textContent='Live forecast unavailable';document.getElementById('forecastChanges').textContent='Forecast changes unavailable while live feeds cannot be reached.';document.getElementById('windContent').textContent='Wind forecast unavailable. Try another location or refresh.';document.getElementById('previewStatus').textContent='LIVE DATA UNAVAILABLE';document.getElementById('consensusSubtitle').textContent=error.message+' · showing sample values';document.getElementById('dataAttribution').textContent='Sample values · forecast feeds temporarily unavailable'}
     }
 
     
