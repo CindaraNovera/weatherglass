@@ -158,6 +158,8 @@
     .radar .leaflet-top.leaflet-left{top:66px}
     .radar .leaflet-control-zoom a{background:#102839df;color:#fff;border-color:#ffffff30}
     @media(max-width:430px){.radar{min-height:320px}.radar-mini-foot{gap:6px;padding:8px}.radar-mini-foot #radarMiniTime{font-size:9px}.radar-live-dot{font-size:7px}}
+
+    .alerts-summary{font-size:16px;margin:16px 0 9px;font-weight:600}.alerts-note,.alert-meta{font-size:12px;color:var(--muted);line-height:1.6}.alert-item{margin-top:12px;border:1px solid #ffc87966;background:#ffc87910;border-radius:14px;padding:14px}.alert-item[data-severity="Severe"],.alert-item[data-severity="Extreme"]{border-color:#ff897b99;background:#ff897b14}.alert-item summary{font-size:15px;font-weight:650;cursor:pointer}.alert-item p{font-size:13px;line-height:1.65;white-space:pre-line}.alert-instruction{border-top:1px solid var(--line);padding-top:12px}.alert-badge{display:inline-block;padding:2px 5px;margin-left:5px;border-radius:6px;background:#ffc87924;color:#ffd394;font-size:10px}.wind-top{display:flex;align-items:center;gap:20px;margin-top:18px}.wind-compass{position:relative;width:82px;height:82px;flex:none;border:1px solid var(--line);border-radius:50%;background:#ffffff08;display:grid;place-items:center}.wind-compass:before{content:'N';position:absolute;top:5px;font-size:10px;color:var(--muted)}.wind-compass span{font-size:30px;color:var(--mint)}.wind-reading{font-size:30px;letter-spacing:-.04em}.wind-reading small{font-size:13px;color:var(--muted);letter-spacing:0}.wind-chart{width:100%;height:112px;margin-top:20px;display:block}.wind-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}.wind-hours{display:flex;gap:8px;overflow-x:auto;margin-top:15px;padding-bottom:5px;scrollbar-width:thin}.wind-hour{min-width:80px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#ffffff05;font-size:12px}.wind-hour strong,.wind-hour small{display:block;margin-top:6px}.wind-hour small{font-size:11px;color:var(--muted)}.wind-legend{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-top:12px}.wind-legend i{display:inline-block;width:16px;margin-right:5px;border-top:2px solid var(--mint);vertical-align:middle}.wind-legend .gust-key{border-color:var(--sun);border-top-style:dashed}body[data-day='true'] .alerts-note,body[data-day='true'] .alert-meta,body[data-day='true'] .wind-hour small{color:var(--muted)}
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -196,6 +198,9 @@
           <div class="chart"><svg viewBox="0 0 620 120" preserveAspectRatio="none" role="img" aria-label="Temperature line in degrees and precipitation probability bars in percent; shaded area shows model temperature range"><defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ddbc7" stop-opacity=".18"/><stop offset="1" stop-color="#8ddbc7" stop-opacity="0"/></linearGradient></defs><path class="chartgrid" d="M0 20H620M0 55H620M0 90H620"/><path class="rainbars" id="rainBars" d=""/><path class="chartfill" id="tempArea" d=""/><path id="modelRangeBand" fill="rgba(141,219,199,.22)" stroke="rgba(141,219,199,.52)" stroke-width="1" d=""/><path class="chartline" id="tempTrendLine" d=""/><circle id="chartMarker" cx="0" cy="0" r="4" fill="#e6fff5" stroke="#65af9e" stroke-width="2"/></svg><span class="charttemp" id="chartCurrent">Loading forecast…</span></div><div class="chartlabels" id="chartLabels"><span>Loading hours…</span></div><div class="chart-legend" aria-label="Chart legend"><span class="legend-item"><i class="legend-temp"></i>Temperature line (°)</span><span class="legend-item"><i class="legend-rain"></i>Rain chance bars (%)</span><span class="legend-item"><i class="legend-range"></i>Model temperature range</span></div></article>
       </section>
       <aside class="sidecol">
+        <article class="panel section" id="widget-alerts"><div class="panel-heading"><div><div class="heading">Official weather alerts</div><div class="subheading" id="alertsLocation">Checking your location</div></div><button class="textbtn" id="refreshAlerts">Refresh</button></div><div id="alertsContent" aria-live="polite"><div class="alerts-summary">Checking official alerts…</div></div><div class="alerts-note" id="alertsChecked"></div></article>
+        <article class="panel section" id="widget-wind"><div class="panel-heading"><div><div class="heading">Wind &amp; gusts</div><div class="subheading" id="windSubtitle">24-hour model forecast · mph</div></div></div><div id="windContent"><div class="alerts-summary">Connecting wind forecast…</div></div></article>
+
         <article class="panel radar" id="widget-radar"><div class="radar-head"><div><div class="heading">Radar · NOAA/NWS</div><div class="subheading" id="radarMiniStatus">Connecting to live U.S. radar…</div></div><button class="radar-open" id="openRadar" title="Open full-screen radar" aria-label="Open full-screen radar"><svg viewBox="0 0 24 24" fill="none"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
           <div class="mini-radar-map" id="miniRadarMap" role="img" aria-label="Live NOAA precipitation radar preview"></div><div class="mini-radar-timeline"><button type="button" id="playMiniRadar" aria-label="Play radar animation" data-playing="false">▶</button><input type="range" id="miniRadarScrubber" min="0" max="1" value="1" step="1" aria-label="Radar widget time"><button type="button" id="centerMiniRadar" aria-label="Recenter radar on selected location">⌖</button></div><div class="radar-mini-foot"><span class="radar-live-dot">NOAA RADAR</span><span id="radarMiniTime">Loading current radar…</span><div class="mini-map-mode" role="group" aria-label="Small radar map type"><button type="button" id="miniMapStreets" class="selected" aria-pressed="true">Map</button><button type="button" id="miniMapSatellite" aria-pressed="false">Sat</button></div><button type="button" id="openRadarMini">Full map&nbsp;↗</button></div>
         </article>
@@ -223,6 +228,7 @@
   <div class="modal-backdrop" id="widgetBackdrop" role="dialog" aria-modal="true" aria-labelledby="widgetTitle"><div class="widget-modal"><div class="panel-heading"><div><div class="heading" id="widgetTitle">Weatherglass, at a glance</div><div class="subheading">Home Screen and Lock Screen widget concepts</div></div><button class="iconbtn" data-close="widgetBackdrop" aria-label="Close widgets">✕</button></div><p class="layout-edit-note">Native widgets come with the iOS and Android apps. These previews show current conditions, model spread, and the next weather change. Real OS widgets are a native-app milestone.</p><div class="widget-preview-grid"><div class="widget-preview"><div class="widget-kind">Small · current weather</div><div class="widget-big">72° <span style="font-size:14px">☾</span></div><div class="widget-small">Warner Robins · Partly cloudy</div></div><div class="widget-preview"><div class="widget-kind">Lock Screen · model spread</div><div class="widget-big">2 / 3</div><div class="widget-small">models within 3° · accuracy not yet calibrated</div></div><div class="widget-preview"><div class="widget-kind">Medium · next 6 hours</div><div class="widget-big">Next 6 hours</div><div class="widget-minirow"><span>Now 72°</span><span>+2h 76°</span><span>+6h 78°</span></div></div><div class="widget-preview"><div class="widget-kind">Medium · rain timing</div><div class="widget-big">Rain outlook</div><div class="widget-small">Model-average chance for your saved place</div></div></div><div class="close-row"><button class="close" data-close="widgetBackdrop">Done</button></div></div></div>
   <div class="modal-backdrop" id="layoutBackdrop" role="dialog" aria-modal="true" aria-labelledby="layoutTitle"><div class="modal"><div class="panel-heading"><div><h3 id="layoutTitle">Arrange your dashboard</h3><p class="layout-edit-note">Drag a card or use the arrows to choose what appears first. Your layout stays saved on this device.</p></div><button class="iconbtn" data-close="layoutBackdrop" aria-label="Close layout editor">✕</button></div><div class="layout-list" id="layoutList"></div><div class="close-row"><button class="close" data-close="layoutBackdrop">Save layout</button></div></div></div>
   <script>
+    const alertCache=new Map(),alertPending=new Set();let alertsRequest=0;
     const FAVORITES_KEY='weatherglass-favorite-locations-v1';
     const ACTIVE_LOCATION_KEY='weatherglass-active-location-v1';
     const readStored=(key,fallback)=>{try{const value=localStorage.getItem(key);return value===null?fallback:JSON.parse(value)}catch{return fallback}};
@@ -274,6 +280,7 @@
     function addFavorite(name){if(!isFavorite(name)){favorites=[...favorites,name];writeStored(FAVORITES_KEY,favorites)}renderFavorites()}
     function setCity(name){activeCity=name;cityName.textContent=name;document.querySelector('.radar .subheading').textContent='Precipitation near '+name.split(',')[0];document.querySelector('.days .subheading').textContent='Consensus outlook · '+name.split(',')[0];try{localStorage.setItem(ACTIVE_LOCATION_KEY,name)}catch{};renderFavorites()}
     function renderFavorites(){
+      queueMicrotask(()=>syncFavoriteAlerts());
       favoriteBar.querySelectorAll('.favorite-chip').forEach(node=>node.remove());
       favoriteEmpty.hidden=favorites.length>0;
       favoriteBtn.classList.toggle('favorite',isFavorite(activeCity));
@@ -285,6 +292,7 @@
         const select=document.createElement('button');select.type='button';select.textContent=name;select.setAttribute('aria-label','Show weather for '+name);select.addEventListener('click',()=>setCity(name));
         const remove=document.createElement('button');remove.type='button';remove.className='remove-favorite';remove.textContent='×';remove.setAttribute('aria-label','Remove '+name+' from favorites');remove.addEventListener('click',()=>{favorites=favorites.filter(item=>cityKey(item)!==cityKey(name));writeStored(FAVORITES_KEY,favorites);renderFavorites()});
         chip.append(select,remove);favoriteBar.insertBefore(chip,document.getElementById('addFavoriteLocation'));
+        const status=alertCache.get(cityKey(name));if(status){const badge=document.createElement('span');badge.className='alert-badge';badge.textContent=status.state==='ok'?(status.alerts.length?'⚠ '+status.alerts.length:'✓'):'?';badge.title=status.state==='ok'?(status.alerts.length+' active NWS alerts'):'Alerts not checked';select.append(badge);select.setAttribute('aria-label','Show weather for '+name+' · '+badge.title)}
       });
     }
     setCity(activeCity);
@@ -311,12 +319,15 @@
       'widget-hourly':'Hourly outlook',
       'widget-radar':'Radar map',
       'widget-days':'10-day outlook',
-      'widget-insights':'What changed / model insight'
+      'widget-insights':'What changed / model insight',
+      'widget-alerts':'Official weather alerts',
+      'widget-wind':'Wind & gusts'
     };
     const widgetOrderKey='weatherglass-dashboard-order-v1';
     const defaultWidgetOrder=Object.keys(widgetTitles);
     let widgetOrder=readStored(widgetOrderKey,defaultWidgetOrder);
-    if(!Array.isArray(widgetOrder)||widgetOrder.length!==defaultWidgetOrder.length||defaultWidgetOrder.some(id=>!widgetOrder.includes(id)))widgetOrder=defaultWidgetOrder;
+    widgetOrder=Array.isArray(widgetOrder)?[...new Set(widgetOrder.filter(id=>defaultWidgetOrder.includes(id)))]:[];
+    defaultWidgetOrder.forEach(id=>{if(!widgetOrder.includes(id))widgetOrder.push(id)});
     const layoutList=document.getElementById('layoutList');
     const layoutBackdrop=document.getElementById('layoutBackdrop');
     function moveOrder(from,to){if(to<0||to>=widgetOrder.length)return;const [item]=widgetOrder.splice(from,1);widgetOrder.splice(to,0,item);renderLayoutList()}
@@ -581,16 +592,17 @@
       planTitle.textContent=rain<25?'A good window for your plans':'Rain may affect your plans';
       planCopy.textContent=rain<25?'Model-average rain chance peaks near '+roundOrDash(rain)+'% over the next 12 hours. Review source differences below before you head out.':'Model-average rain chance reaches '+roundOrDash(rain)+'% in the next 12 hours. Models do not always agree on timing; compare their hourly curves.';
       document.getElementById('sourceFootnote').textContent='Forecasts shown are independent provider model outputs blended equally for this private prototype. The blend is not yet calibrated against local forecast history.';
-      renderDaily();renderLiveChart();
+      renderDaily();renderLiveChart();renderWind();
     }
     async function loadLocation(query){
-      const requestId=++locationRequest;document.getElementById('previewStatus').textContent='LOOKING UP FORECAST';
+      const requestId=++locationRequest;++alertsRequest;document.getElementById('windContent').textContent='Loading wind forecast…';document.getElementById('alertsContent').textContent='Looking up location…';document.getElementById('previewStatus').textContent='LOOKING UP FORECAST';
       document.getElementById('consensusSubtitle').textContent='Searching location and connecting model feeds…';
       try{
         const geo=await getJson(apiUrl('https://geocoding-api.open-meteo.com/v1/search',{name:query,count:5,language:'en',format:'json'}));
         if(requestId!==locationRequest)return;const results=(geo.results||[]).filter(r=>Number.isFinite(Number(r.latitude))&&Number.isFinite(Number(r.longitude)));
         if(!results.length)throw new Error('No matching city or postal code found');
         const item=results.find(r=>r.country_code==='US')||results[0],label=niceLocation(item)||query;activeCoordinates=[Number(item.latitude),Number(item.longitude)];activeCountry=item.country_code||'';activeTimezone=item.timezone||activeTimezone;activeCity=label;cityName.textContent=label;refreshRadarLocation();
+        loadCurrentAlerts();
         document.querySelector('.days .subheading').textContent='10-day model blend · '+label.split(',')[0];
         document.getElementById('detailLocationSub').textContent=label+' · live model blend snapshot';
         document.getElementById('dailySubtitle').textContent='Loading model outlook · '+label.split(',')[0];
@@ -603,8 +615,57 @@
         if(!good.length)throw new Error('Forecast providers could not be reached');
         activeTimezone=good[0].data.timezone||activeTimezone;if(radarFrames.length)updateRadarFrame(radarFrameIndex);applyModels(good);applyAirQuality(airQuality);
         if(good.length<liveModels.length){document.getElementById('previewStatus').textContent='PARTIAL MODEL DATA';document.getElementById('consensusSubtitle').textContent=good.length+' of '+liveModels.length+' model feeds are available · blend uses available sources'}
-      }catch(error){if(requestId!==locationRequest)return;document.getElementById('previewStatus').textContent='LIVE DATA UNAVAILABLE';document.getElementById('consensusSubtitle').textContent=error.message+' · showing sample values';document.getElementById('dataAttribution').textContent='Sample values · forecast feeds temporarily unavailable'}
+      }catch(error){if(requestId!==locationRequest)return;document.getElementById('windContent').textContent='Wind forecast unavailable. Try another location or refresh.';document.getElementById('previewStatus').textContent='LIVE DATA UNAVAILABLE';document.getElementById('consensusSubtitle').textContent=error.message+' · showing sample values';document.getElementById('dataAttribution').textContent='Sample values · forecast feeds temporarily unavailable'}
     }
+
+    function finiteWind(v){return typeof v==='number'&&Number.isFinite(v)}
+    function renderWind(){
+      const source=activeModels.find(m=>m.data.hourly?.time);if(!source)return;
+      const times=source.data.hourly.time,start=nearestHourIndex(times,source.data.current?.time);
+      const samples=times.slice(start,start+24).map(time=>{
+        const fields=['wind_speed_10m','wind_gusts_10m'];const values=fields.map(field=>mean(activeModels.map(m=>{const i=m.data.hourly?.time?.indexOf(time);return i>=0?valueOf(m.data.hourly,field,m.id)?.[i]:null}).filter(finiteWind)));
+        const direction=valueOf(source.data.hourly,'wind_direction_10m',source.id)?.[times.indexOf(time)];return{time,speed:values[0],gust:values[1],direction};
+      });
+      const valid=samples.filter(x=>finiteWind(x.speed));const root=document.getElementById('windContent');root.replaceChildren();
+      if(!valid.length){root.textContent='Wind data is unavailable for this forecast.';return}
+      const current=valid[0],peak=Math.max(...samples.map(x=>x.gust).filter(finiteWind));
+      const top=document.createElement('div');top.className='wind-top';
+      top.innerHTML='<div class="wind-compass" aria-hidden="true"><span>↓</span></div><div><div class="wind-reading"></div><div class="alerts-note"></div></div>';
+      top.querySelector('.wind-reading').textContent=roundOrDash(current.speed)+' mph';top.querySelector('.alerts-note').textContent='From '+compass(current.direction)+' · Gusts '+roundOrDash(current.gust)+' mph';
+      top.querySelector('.wind-compass span').style.transform='rotate('+(finiteWind(current.direction)?current.direction:0)+'deg)';root.append(top);
+      const max=Math.max(10,...samples.flatMap(x=>[x.speed,x.gust]).filter(finiteWind)),x=i=>24+i*552/Math.max(1,samples.length-1),y=v=>92-v/max*74;
+      const path=key=>{let pen=false;return samples.map((v,i)=>{if(!finiteWind(v[key])){pen=false;return''}const command=pen?'L':'M';pen=true;return command+x(i).toFixed(1)+' '+y(v[key]).toFixed(1)}).join(' ')};
+      const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('wind-chart');svg.setAttribute('viewBox','0 0 600 112');svg.setAttribute('role','img');svg.setAttribute('aria-label','24-hour wind speed in mph, with sustained wind and gust curves. Detailed values below.');
+      svg.innerHTML='<path d="M24 18H576M24 55H576M24 92H576" stroke="currentColor" opacity=".12"/><text x="0" y="21" fill="currentColor" font-size="10">'+Math.round(max)+'</text><text x="0" y="95" fill="currentColor" font-size="10">0</text><path d="'+path('gust')+'" fill="none" stroke="var(--sun)" stroke-width="2" stroke-dasharray="5 4"/><path d="'+path('speed')+'" fill="none" stroke="var(--mint)" stroke-width="2.5"/>';root.append(svg);
+      const labels=document.createElement('div');labels.className='wind-labels';[0,6,12,18,23].filter(i=>samples[i]).forEach(i=>{const label=document.createElement('span');label.textContent=clockText(samples[i].time);labels.append(label)});root.append(labels);
+      const legend=document.createElement('div');legend.className='wind-legend';legend.innerHTML='<span><i></i>Sustained · mph</span><span><i class="gust-key"></i>Gusts · mph</span>';root.append(legend);
+      const hours=document.createElement('div');hours.className='wind-hours';samples.filter((_,i)=>i%3===0).forEach(v=>{const cell=document.createElement('div');cell.className='wind-hour';const time=document.createElement('span'),speed=document.createElement('strong'),gust=document.createElement('small');time.textContent=clockText(v.time);speed.textContent=roundOrDash(v.speed)+' mph '+compass(v.direction);gust.textContent='Gust '+roundOrDash(v.gust)+' mph';cell.append(time,speed,gust);hours.append(cell)});root.append(hours);
+      document.getElementById('windSubtitle').textContent='Next 24 hours · '+activeCity.split(',')[0];
+      const note=document.createElement('div');note.className='alerts-note';note.style.marginTop='10px';note.textContent='Peak mean gust '+roundOrDash(peak)+' mph · Available models blended equally; direction from '+source.label+'.';root.append(note);
+    }
+    function alertMessage(text){const el=document.createElement('div');el.className='alerts-summary';el.textContent=text;return el}
+    function renderAlerts(result){
+      const root=document.getElementById('alertsContent');root.replaceChildren();document.getElementById('alertsLocation').textContent=activeCity;
+      if(result.state!=='ok'){root.append(alertMessage(result.state==='unsupported'?'U.S. alerts only for now':'Official alerts unavailable'));document.getElementById('alertsChecked').textContent=result.state==='unsupported'?'International alert coverage will be added separately.':'Unable to verify active alerts. Refresh to try again.';return}
+      const alerts=result.alerts.filter(a=>!a.ends&&!a.expires||Date.parse(a.ends||a.expires)>Date.now());
+      root.append(alertMessage(alerts.length?alerts.length+' active alert'+(alerts.length===1?'':'s'):'No active NWS alerts'));
+      alerts.forEach(a=>{const item=document.createElement('details');item.className='alert-item';item.dataset.severity=a.severity||'Unknown';const summary=document.createElement('summary');summary.textContent=a.event||'Weather alert';const meta=document.createElement('div');meta.className='alert-meta';const date=a.ends||a.expires;meta.textContent=(a.severity||'Unknown')+' · '+(a.senderName||'NWS')+(date?' · Until '+new Intl.DateTimeFormat(undefined,{weekday:'short',hour:'numeric',minute:'2-digit',timeZone:activeTimezone}).format(new Date(date)):'');const headline=document.createElement('p');headline.textContent=a.headline||a.description||'';const area=document.createElement('p');area.className='alert-meta';area.textContent='Affected area: '+(a.areaDesc||activeCity);const body=document.createElement('p');body.textContent=a.description||'';const instructions=document.createElement('p');instructions.className='alert-instruction';instructions.textContent=a.instruction||'Follow updates and instructions from your local National Weather Service office.';item.append(summary,meta,headline,area,body,instructions);root.append(item)});
+      document.getElementById('alertsChecked').textContent='National Weather Service · Checked '+new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit',timeZone:activeTimezone}).format(new Date(result.checkedAt))+' · Updates every 5 minutes while this page is open. No push notifications yet.';
+    }
+    async function queryAlerts(coords){const data=await getJson('/api/alerts?lat='+coords[0]+'&lon='+coords[1]);if(!Array.isArray(data.alerts))throw new Error('Invalid alert response');return{...data,state:'ok',at:Date.now()}}
+    async function loadCurrentAlerts(){
+      const id=++alertsRequest,key=cityKey(activeCity),country=activeCountry,coords=[...activeCoordinates];document.getElementById('alertsLocation').textContent=activeCity;document.getElementById('alertsContent').replaceChildren(alertMessage('Checking official alerts…'));document.getElementById('alertsChecked').textContent='';
+      const result=country!=='US'?{state:'unsupported',at:Date.now()}:await queryAlerts(coords).catch(()=>({state:'error',at:Date.now()}));
+      if(id!==alertsRequest)return;alertCache.set(key,result);renderAlerts(result);renderFavorites();
+    }
+    async function syncFavoriteAlerts(){
+      for(const name of favorites){const key=cityKey(name);if(key===cityKey(activeCity)||alertPending.has(key)||Date.now()-(alertCache.get(key)?.at||0)<300000)continue;
+        alertPending.add(key);try{const geo=await getJson(apiUrl('https://geocoding-api.open-meteo.com/v1/search',{name,count:5,language:'en',format:'json'}));const list=geo.results||[],city=list.find(r=>r.country_code==='US')||list[0];if(!city)throw new Error('Location unavailable');alertCache.set(key,city.country_code==='US'?await queryAlerts([city.latitude,city.longitude]):{state:'unsupported',at:Date.now()})}catch{alertCache.set(key,{state:'error',at:Date.now()})}finally{alertPending.delete(key)}renderFavorites();
+      }
+    }
+    document.getElementById('refreshAlerts').addEventListener('click',loadCurrentAlerts);
+    setInterval(()=>{if(!document.hidden){loadCurrentAlerts();syncFavoriteAlerts()}},300000);
+
     const previousSetCity=setCity;
     setCity=function(name){previousSetCity(name);document.getElementById('previewStatus').textContent='LOOKING UP FORECAST';loadLocation(name)};
     setCity(activeCity);
@@ -614,3 +675,4 @@
   </script>
 </body>
 </html>
+
