@@ -103,7 +103,7 @@
     /* Weather-responsive atmosphere */
     body{transition:background-color .8s ease}
     body[data-period="day"]{--bg:#287ec1;--muted:#d2e5f4;--faint:#b8d1e4;--line:rgba(255,255,255,.22)}
-    body[data-period="day"]:before{background:radial-gradient(ellipse at 14% 0%,rgba(255,244,204,.78),transparent 27%),radial-gradient(ellipse at 80% 28%,rgba(166,222,255,.32),transparent 48%),linear-gradient(150deg,#468fcd 0%,#187cc7 40%,#489dce 100%)}
+    body[data-period="day"]:before{background:radial-gradient(ellipse at 14% 0%,rgba(255,244,204,.4),transparent 27%),radial-gradient(ellipse at 80% 28%,rgba(166,222,255,.32),transparent 48%),linear-gradient(150deg,#468fcd 0%,#187cc7 40%,#489dce 100%)}
     body[data-period="day"][data-weather="cloudy"]:before,body[data-period="day"][data-weather="fog"]:before{background:radial-gradient(ellipse at 20% 5%,#d8e5ee88,transparent 46%),linear-gradient(145deg,#628ca8,#426e90 65%,#668ca5)}
     body[data-period="day"][data-weather="rain"]:before,body[data-period="day"][data-weather="storm"]:before{background:radial-gradient(ellipse at 70% 5%,#9aaac544,transparent 42%),linear-gradient(145deg,#416b90,#294c73 65%,#416788)}
     body[data-period="day"][data-weather="snow"]:before{background:radial-gradient(ellipse at 15% 5%,#eefbff88,transparent 45%),linear-gradient(145deg,#79a5c3,#527ea5 65%,#7497b7)}
@@ -135,6 +135,19 @@
     @media(max-width:760px){.hero{min-height:270px}.hero-place{font-size:19px}.sun-icon{width:140px;height:140px;margin-right:0}.hero .temp{font-size:90px}.hero .condition{font-size:21px}}
     @media(max-width:430px){.hero-place{font-size:18px}.sun-icon{width:112px;height:112px}.hero .temp{font-size:84px}.hero-foot{flex-wrap:wrap;gap:12px}.hero .highlow{font-size:13px}}
     @media(prefers-reduced-motion:reduce){.sun-icon .weather-orb{animation:none}body{transition:none}}
+
+
+    body[data-period="day"] .tagline,body[data-period="day"] .updated,body[data-period="day"] .spreadlabels,body[data-period="day"] .plan-copy,body[data-period="day"] .alert-saved{color:#d2e5f4}
+    body[data-period="day"] .viewtabs{background:#104a733d;border-color:#ffffff38}
+    body[data-period="day"] .viewtabs button{color:#e0effa;font-size:12px}
+    body[data-period="day"] .viewtabs button.active{background:#ffffff24;color:#fff}
+    body[data-period="day"] .favorite-add,body[data-period="day"] .favorite-chip button{color:#eef7ff;border-color:#ffffff4d}
+    body[data-period="day"] .range button{color:#d5e7f4}
+    body[data-period="day"] .range button.selected{color:#fff;background:#ffffff24}
+    body[data-period="day"] .bottom-note{color:#edf6fd;font-size:11px;line-height:1.45;background:#16466855;padding:10px 12px;border-radius:14px;border:1px solid #ffffff20}
+    body[data-period="day"] .bottom-note a{color:#effffb}
+    body[data-period="day"] .prototype{color:#fff3d4;border-color:#fff0bd66;background:#144c7255}
+    body[data-period="day"] .brand{filter:drop-shadow(0 1px 5px #14517e44)}
 
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
