@@ -48,7 +48,7 @@
     .radar-full{position:fixed;inset:0;z-index:20;background:#07111c;display:none;overflow:hidden}
     .radar-full.open{display:block;animation:pop .2s ease}
     .radar-full .map{opacity:.92}
-    #fullRadarMap{position:absolute;inset:0}
+    #fullRadarMap{position:absolute;inset:0;z-index:2}
     .radar-full:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,#06101cd9,transparent 24%,transparent 66%,#06101ce8)}
     .radar-full-top{position:absolute;z-index:3;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 24px 20px;display:flex;align-items:flex-start;justify-content:space-between}
     .radar-full-title{font-size:17px;font-weight:600}.radar-full-sub{font-size:10px;color:#a5b6c5;margin-top:5px}
@@ -82,7 +82,7 @@
     .radar-live-dot{color:#9ce9d1;font-size:8px;letter-spacing:.1em;font-weight:700}
     .radar-mini-foot #radarMiniTime{flex:1;color:#aab9c8}
     .radar-mini-foot button{background:transparent;color:#c7f0e4;font-size:9px}
-    #fullRadarMap{position:absolute;inset:0}
+    #fullRadarMap{position:absolute;inset:0;z-index:2}
     .leaflet-container{font:inherit;background:#091522}
     .leaflet-control-attribution{background:rgba(5,13,22,.78)!important;color:#aab8c6!important;backdrop-filter:blur(12px);border:1px solid #ffffff16;border-radius:8px 0 0 0;padding:3px 6px!important}
     .leaflet-control-attribution a{color:#b9e8da!important}
