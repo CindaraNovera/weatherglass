@@ -631,7 +631,7 @@
     let miniRadarMap=null,fullRadarMap=null,miniRadarLayer=null,fullRadarLayer=null,miniBaseLayer=null,fullBaseLayer=null,miniLabelLayer=null,fullLabelLayer=null;
     let miniRadarMarker=null,fullRadarMarker=null,radarFrames=[],radarFrameIndex=0,radarPlayTimer=null,radarCoverage=true,basemapMode=readBasemapPreference(),radarOpacity=.82;
 
-    let radarProvider='noaa',radarProviderGeneration=0,xweatherConfigured=false,xweatherHadError=false;
+    let radarProvider='noaa',radarProviderGeneration=0,xweatherConfigured=false,xweatherHadError=false,xweatherMissingNote='';
     function xweatherFrames(now=Date.now()){const end=Math.floor((now-300000)/300000)*300000;return Array.from({length:13},(_,i)=>end-(12-i)*300000)}
     function xweatherTileURL(time){return '/api/radar/xweather/{z}/{x}/{y}/'+time+'.png'}
     function radarStatusText(){
@@ -646,7 +646,7 @@
       document.getElementById('miniRadarMap').setAttribute('aria-label',xw?'Xweather precipitation radar preview':'NOAA precipitation radar preview');
       document.getElementById('radarMiniStatus').textContent=radarStatusText();document.getElementById('fullRadarStatus').textContent=radarStatusText();
       const source=document.querySelector('.radar-source');source.replaceChildren();source.append(document.createTextNode('Radar: '));const link=document.createElement('a');link.href=xw?'https://www.xweather.com/':'https://radar.weather.gov/';link.target='_blank';link.rel='noreferrer';link.textContent=xw?'© Xweather':'NOAA / NWS MRMS';source.append(link);
-      document.getElementById('xweatherConnection').textContent=xweatherConfigured?'Xweather credentials found on server':'Xweather not connected · using NOAA';
+      document.getElementById('xweatherConnection').textContent=xweatherConfigured?'Xweather credentials found on server':(xweatherMissingNote||'Xweather not connected · using NOAA');
     }
     async function setRadarProvider(value){
       const selected=value==='xweather'&&xweatherConfigured?'xweather':'noaa',generation=++radarProviderGeneration;
@@ -666,7 +666,7 @@
       const note=document.getElementById('xweatherConnection');note.textContent='Checking Xweather connection…';
       try{
         const response=await fetch('/api/radar/status',{cache:'no-store',signal:AbortSignal.timeout(10000)});if(!response.ok)throw new Error('status');
-        const result=await response.json();xweatherConfigured=result.configured===true;renderRadarProvider();
+        const result=await response.json();xweatherConfigured=result.configured===true;xweatherMissingNote=!xweatherConfigured&&typeof result.clientIdPresent==='boolean'?'Missing '+[!result.clientIdPresent?'XWEATHER_CLIENT_ID':null,!result.clientSecretPresent?'XWEATHER_CLIENT_SECRET':null].filter(Boolean).join(' and '):'';renderRadarProvider();
         if(xweatherConfigured){const stored=readStored('weatherglass-radar-provider-v1',null);await setRadarProvider(stored==='noaa'?'noaa':'xweather')}
         else if(radarProvider==='xweather')await setRadarProvider('noaa');
       }catch{note.textContent='Unable to check Xweather · NOAA remains available'}
