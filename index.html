@@ -169,8 +169,8 @@
     const readStored=(key,fallback)=>{try{const value=localStorage.getItem(key);return value===null?fallback:JSON.parse(value)}catch{return fallback}};
     const writeStored=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value))}catch{}}
     const BASEMAP_PREFERENCE_KEY='weatherglass-radar-basemap-v1';
-    function readBasemapPreference(){const stored=readStored(BASEMAP_PREFERENCE_KEY,null);if(stored==='street'||stored==='satellite')return stored;try{return document.cookie.split('; ').find(part=>part.startsWith(BASEMAP_PREFERENCE_KEY+'='))?.split('=').slice(1).join('=')==='satellite'?'satellite':'street'}catch{return'street'}}
-    function saveBasemapPreference(mode){writeStored(BASEMAP_PREFERENCE_KEY,mode);try{document.cookie=BASEMAP_PREFERENCE_KEY+'='+mode+'; Max-Age=31536000; Path=/; SameSite=Lax'}catch{}}
+    function readBasemapPreference(){try{const fromUrl=new URL(location.href).searchParams.get('map');if(fromUrl==='street'||fromUrl==='satellite')return fromUrl}catch{}const stored=readStored(BASEMAP_PREFERENCE_KEY,null);if(stored==='street'||stored==='satellite')return stored;try{return document.cookie.split('; ').find(part=>part.startsWith(BASEMAP_PREFERENCE_KEY+'='))?.split('=').slice(1).join('=')==='satellite'?'satellite':'street'}catch{return'street'}}
+    function saveBasemapPreference(mode){writeStored(BASEMAP_PREFERENCE_KEY,mode);try{document.cookie=BASEMAP_PREFERENCE_KEY+'='+mode+'; Max-Age=31536000; Path=/; SameSite=Lax'}catch{}try{const url=new URL(location.href);url.searchParams.set('map',mode);history.replaceState(null,'',url.href)}catch{}}
     let favorites=readStored(FAVORITES_KEY,[]);
     if(!Array.isArray(favorites))favorites=[];
     favorites=favorites.filter(item=>typeof item==='string'&&item.trim());
