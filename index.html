@@ -167,7 +167,12 @@
     #widget-hourly .chartlabels span:first-child{transform:none;text-align:left}
     #widget-hourly .chartlabels span:last-child{transform:translateX(-100%);text-align:right}
     #widget-hourly .chartlabels strong{font-size:15px;font-weight:650;color:var(--ink)}
-    #temperaturePoints circle{cursor:help}
+    #temperaturePoints .temperature-point{cursor:pointer;outline:none}
+    #temperaturePoints .temperature-point:focus .temperature-dot,#temperaturePoints .temperature-point:hover .temperature-dot{stroke:var(--sun);stroke-width:3}
+    .chart-point-tooltip{position:absolute;z-index:4;padding:8px 10px;border-radius:10px;background:#102c40;color:#f4fcff;border:1px solid #ffffff50;box-shadow:0 6px 18px #0003;font-size:13px;white-space:nowrap;pointer-events:none;transform:translateX(-50%)}
+    .chart-point-tooltip[hidden]{display:none}
+    #widget-hourly{container-type:inline-size}
+    @container(max-width:360px){#widget-hourly .panel-heading{flex-wrap:wrap}#widget-hourly .charttemp{font-size:12px;width:100%}}
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -203,7 +208,7 @@
           <div class="source-strip"><div class="source-dots"><span class="dot e">E</span><span class="dot n">G</span><span class="dot i">I</span><span class="source-copy">ECMWF · NOAA GFS · DWD ICON</span></div><button class="textbtn" id="compareBtn">Compare sources&nbsp; ↗</button></div>
         </article>
         <article class="panel section" id="widget-hourly"><div class="panel-heading"><div><div class="heading">Today, hour by hour</div><div class="subheading">Temperature and rain probability</div></div><div class="range" role="tablist"><button class="selected" data-range="Today">Today</button><button data-range="Tomorrow">Tomorrow</button><button data-range="10 days">10 days</button></div></div>
-          <div class="chart"><svg viewBox="0 0 620 120" preserveAspectRatio="none" role="img" aria-label="Temperature line in degrees and precipitation probability bars in percent; shaded area shows model temperature range"><defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ddbc7" stop-opacity=".18"/><stop offset="1" stop-color="#8ddbc7" stop-opacity="0"/></linearGradient></defs><path class="chartgrid" d="M0 20H620M0 55H620M0 90H620"/><path class="rainbars" id="rainBars" d=""/><path class="chartfill" id="tempArea" d=""/><path id="modelRangeBand" fill="rgba(141,219,199,.22)" stroke="rgba(141,219,199,.52)" stroke-width="1" d=""/><path class="chartline" id="tempTrendLine" d=""/><circle id="chartMarker" cx="0" cy="0" r="4" fill="#e6fff5" stroke="#65af9e" stroke-width="2"/><g id="temperaturePoints"></g></svg></div><div class="charttemp" id="chartCurrent">Loading forecast…</div><div class="chartlabels" id="chartLabels"><span>Loading hours…</span></div><div class="chart-legend" aria-label="Chart legend"><span class="legend-item"><i class="legend-temp"></i>Temperature line (°)</span><span class="legend-item"><i class="legend-rain"></i>Rain chance bars (%)</span><span class="legend-item"><i class="legend-range"></i>Model temperature range</span></div></article>
+          <div class="chart"><svg viewBox="0 0 620 120" preserveAspectRatio="none" role="group" aria-label="Temperature line in degrees and precipitation probability bars in percent; shaded area shows model temperature range"><defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ddbc7" stop-opacity=".18"/><stop offset="1" stop-color="#8ddbc7" stop-opacity="0"/></linearGradient></defs><path class="chartgrid" d="M0 20H620M0 55H620M0 90H620"/><path class="rainbars" id="rainBars" d=""/><path class="chartfill" id="tempArea" d=""/><path id="modelRangeBand" fill="rgba(141,219,199,.22)" stroke="rgba(141,219,199,.52)" stroke-width="1" d=""/><path class="chartline" id="tempTrendLine" d=""/><circle id="chartMarker" cx="0" cy="0" r="4" fill="#e6fff5" stroke="#65af9e" stroke-width="2"/><g id="temperaturePoints"></g></svg><div class="chart-point-tooltip" id="chartPointTooltip" role="status" hidden></div></div><div class="charttemp" id="chartCurrent">Loading forecast…</div><div class="chartlabels" id="chartLabels"><span>Loading hours…</span></div><div class="chart-legend" aria-label="Chart legend"><span class="legend-item"><i class="legend-temp"></i>Temperature line (°)</span><span class="legend-item"><i class="legend-rain"></i>Rain chance bars (%)</span><span class="legend-item"><i class="legend-range"></i>Model temperature range</span></div></article>
       </section>
       <aside class="sidecol">
         <article class="panel section" id="widget-alerts"><div class="panel-heading"><div><div class="heading">Official weather alerts</div><div class="subheading" id="alertsLocation">Checking your location</div></div><button class="textbtn" id="refreshAlerts">Refresh</button></div><div id="alertsContent" aria-live="polite"><div class="alerts-summary">Checking official alerts…</div></div><div class="alerts-note" id="alertsChecked"></div></article>
@@ -542,11 +547,12 @@
       document.getElementById('tempTrendLine').setAttribute('d',path);document.getElementById('tempArea').setAttribute('d',path+' L 620 118 L 0 118 Z');
       document.getElementById('chartMarker').setAttribute('cx',x(0));document.getElementById('chartMarker').setAttribute('cy',y(values[0]));
       document.getElementById('rainBars').setAttribute('d',rain.map((v,i)=>{const h=Math.max(3,Math.min(54,(v||0)*.55));return`M${x(i)-8} 118v-${h}h16v${h}z`}).join(' '));
-      const step=Math.max(1,Math.ceil(labels.length/6)),indices=labels.map((_,i)=>i).filter(i=>i%step===0||i===labels.length-1);
-      document.getElementById('chartLabels').innerHTML=indices.map(i=>'<span style="left:'+(i/(labels.length-1)*100)+'%">'+labels[i]+'<strong>'+roundOrDash(values[i])+'°</strong></span>').join('');
+      chartReadings=values.map((value,i)=>({value,rain:rain[i],label:labels[i],x:x(i),y:y(value)}));
+      renderChartAxis();
       const available=values.map((v,i)=>({v,i})).filter(p=>Number.isFinite(p.v)),cold=available.reduce((a,b)=>b.v<a.v?b:a),warm=available.reduce((a,b)=>b.v>a.v?b:a);
       document.getElementById('chartCurrent').textContent=(daily?'Daily highs · ':'Model mean · ')+'Low '+roundOrDash(cold.v)+'° at '+labels[cold.i]+' · High '+roundOrDash(warm.v)+'° at '+labels[warm.i];
-      document.getElementById('temperaturePoints').innerHTML=available.map(p=>'<circle cx="'+x(p.i).toFixed(1)+'" cy="'+y(p.v).toFixed(1)+'" r="'+(p.i===cold.i||p.i===warm.i?4:3)+'" fill="#e6fff5" stroke="#388974" stroke-width="1.5"><title>'+labels[p.i]+': '+roundOrDash(p.v)+'°F model mean; rain chance '+roundOrDash(rain[p.i])+'%</title></circle>').join('');
+      document.getElementById('temperaturePoints').innerHTML=available.map(p=>'<g class="temperature-point" data-index="'+p.i+'" tabindex="0" role="button" aria-label="'+labels[p.i]+': '+roundOrDash(p.v)+' degrees Fahrenheit, rain chance '+roundOrDash(rain[p.i])+' percent"><circle cx="'+x(p.i).toFixed(1)+'" cy="'+y(p.v).toFixed(1)+'" r="14" fill="transparent"/><circle class="temperature-dot" cx="'+x(p.i).toFixed(1)+'" cy="'+y(p.v).toFixed(1)+'" r="'+(p.i===cold.i||p.i===warm.i?4:3)+'" fill="#e6fff5" stroke="#388974" stroke-width="1.5"/></g>').join('');
+      document.getElementById('chartPointTooltip').hidden=true;
     }
     function renderDaily(){
       if(!activeModels.length)return;const source=activeModels.find(m=>m.data.daily?.time);if(!source)return;const daily=source.data.daily,count=showTenDays?10:5;
@@ -680,6 +686,28 @@
     }
     document.getElementById('refreshAlerts').addEventListener('click',loadCurrentAlerts);
     setInterval(()=>{if(!document.hidden){loadCurrentAlerts();syncFavoriteAlerts()}},300000);
+
+    let chartReadings=[];
+    function renderChartAxis(){
+      const root=document.getElementById('chartLabels');if(!chartReadings.length)return;
+      const capacity=Math.max(2,Math.min(6,Math.floor(root.clientWidth/70))),count=Math.min(capacity,chartReadings.length);
+      const indices=Array.from({length:count},(_,i)=>Math.round(i*(chartReadings.length-1)/(count-1)));
+      root.innerHTML=indices.map(i=>'<span style="left:'+(i/(chartReadings.length-1)*100)+'%">'+chartReadings[i].label+'<strong>'+roundOrDash(chartReadings[i].value)+'°</strong></span>').join('');
+    }
+    function showChartReading(target){
+      const point=target.closest('.temperature-point');if(!point)return;
+      const reading=chartReadings[Number(point.dataset.index)];if(!reading)return;
+      const tooltip=document.getElementById('chartPointTooltip'),chart=tooltip.parentElement;
+      tooltip.textContent=reading.label+' · '+roundOrDash(reading.value)+'°F · Rain '+roundOrDash(reading.rain)+'%';tooltip.hidden=false;
+      const half=tooltip.offsetWidth/2+4,left=reading.x/620*chart.clientWidth;
+      tooltip.style.left=Math.max(half,Math.min(chart.clientWidth-half,left))+'px';
+      tooltip.style.top=Math.max(0,reading.y/120*chart.clientHeight-tooltip.offsetHeight-10)+'px';
+    }
+    const chartPoints=document.getElementById('temperaturePoints');
+    ['pointerover','focusin','click'].forEach(event=>chartPoints.addEventListener(event,e=>showChartReading(e.target)));
+    chartPoints.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showChartReading(e.target)}if(e.key==='Escape')document.getElementById('chartPointTooltip').hidden=true});
+    document.querySelector('#widget-hourly .chart').addEventListener('pointerleave',()=>{document.getElementById('chartPointTooltip').hidden=true});
+    new ResizeObserver(renderChartAxis).observe(document.getElementById('chartLabels'));
 
     const previousSetCity=setCity;
     setCity=function(name){previousSetCity(name);document.getElementById('previewStatus').textContent='LOOKING UP FORECAST';loadLocation(name)};
