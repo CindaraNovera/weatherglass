@@ -175,6 +175,9 @@
     @container(max-width:360px){#widget-hourly .panel-heading{flex-wrap:wrap}#widget-hourly .charttemp{font-size:12px;width:100%}}
 
     .event-plan-form{display:grid;gap:12px;margin-top:17px}.event-plan-form label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--ink)}.event-plan-form input,.event-plan-form select{font:inherit;font-size:14px;min-width:0;width:100%;padding:11px 12px;border:1px solid #ffffff30;border-radius:11px;background:#0b263b;color:#f4faff;color-scheme:dark}.event-plan-form input:focus,.event-plan-form select:focus{outline:2px solid var(--mint);outline-offset:2px}.event-time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.event-save{padding:12px;border-radius:11px;background:var(--mint);color:#123c3b;font-size:14px;font-weight:650}.event-save:disabled{opacity:.65;cursor:wait}#widget-insights .insight-copy{font-size:13px}#widget-insights .insight-title{font-size:14px}#widget-insights .alert-saved{font-size:12px;line-height:1.6;margin-top:12px}
+
+    .saved-plans-head{display:flex;justify-content:space-between;align-items:center;margin-top:15px;font-size:13px}.saved-event-plans{display:grid;gap:9px;margin-top:9px}.saved-event-plan{padding:12px;border:1px solid var(--line);border-radius:14px;background:#ffffff07;font-size:12px}.saved-event-plan strong{display:block;font-size:13px;margin-bottom:6px}.saved-event-plan small{display:block;color:var(--muted);font-size:11px;margin-top:7px}.saved-plan-actions{display:flex;gap:8px;margin-top:9px}.saved-plan-actions button{background:#ffffff12;border:1px solid var(--line);padding:7px 10px;border-radius:8px;font-size:12px}.saved-plan-actions button:last-child{color:#ffd0c7}#planUndo{font-size:12px;padding-top:8px}.floating-nav{display:none}
+    @media(max-width:760px){.shell{padding-bottom:calc(110px + env(safe-area-inset-bottom))}.floating-nav{display:flex;position:fixed;z-index:30;bottom:calc(14px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:440px;gap:4px;padding:8px;border-radius:25px;background:rgba(10,35,55,.78);border:1px solid #ffffff38;box-shadow:inset 0 1px 0 #ffffff30,0 12px 35px #001b3f55;backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px)}.floating-nav button{display:flex;flex:1;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-radius:17px;padding:8px 2px;background:transparent;color:#c2d5e4;font-size:10px}.floating-nav button[aria-current='page']{background:#c2ffee20;color:#c2ffee;box-shadow:inset 0 1px 0 #ffffff20}.floating-nav svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}#widget-hourly,#widget-insights,#locationDetails{scroll-margin-top:18px}.radar-full .radar-controls{bottom:calc(104px + env(safe-area-inset-bottom))}.radar-legend{bottom:170px}}
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -223,7 +226,7 @@
           <div id="dayRows"><div class="dayrow"><span class="dayname">Loading forecast…</span><span></span><span></span><span></span></div></div>
         </article>
         <article class="panel insights" id="widget-insights"><div class="panel-heading"><div><div class="heading">Plan around the weather</div><div class="subheading">Your place, your date, your time</div></div><span style="font-size:16px;color:#9ce4cd">✧</span></div>
-<form id="eventPlanForm" class="event-plan-form">
+<div class="saved-plans-head"><span>My plans</span><button type="button" class="textbtn" id="newEventPlan">＋ New plan</button></div><div id="savedEventPlans" class="saved-event-plans"></div><div id="planUndo" hidden><span>Plan removed.</span> <button type="button" class="textbtn" id="undoEventPlan">Undo</button></div><form id="eventPlanForm" class="event-plan-form">
 <label>Activity<select id="eventActivity"><option>Outdoor plans</option><option>Walk</option><option>Commute</option><option>Outdoor event</option><option>Travel</option></select></label>
 <label>Location<input id="eventLocation" list="eventPlaces" required placeholder="City or ZIP code" autocomplete="off"/><datalist id="eventPlaces"></datalist></label>
 <label>Date<input id="eventDate" type="date" required/></label>
@@ -236,6 +239,13 @@
       </aside>
     </div>
   </main>
+  <nav class="floating-nav" aria-label="Main navigation">
+  <button type="button" data-mobile-view="today" aria-current="page"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg><span>Today</span></button>
+  <button type="button" data-mobile-view="hourly"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg><span>Hourly</span></button>
+  <button type="button" data-mobile-view="radar"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m12 12 6-6"/></svg><span>Radar</span></button>
+  <button type="button" data-mobile-view="plans"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4m8-4v4M4 10h16m-11 6 2 2 4-4"/></svg><span>Plans</span></button>
+  <button type="button" data-mobile-view="more"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg><span>More</span></button>
+  </nav>
   <div class="popover" id="sourcePopover" role="dialog" aria-label="Forecast source comparison"><div class="pop-title">Your forecast sources</div><div class="pop-desc">Weatherglass compares independent model forecasts, shows their range, and explains how the consensus is formed. Model accuracy weighting comes after forecast-versus-observation history.</div><div style="margin-top:12px"><div class="feed"><span>ECMWF IFS</span><em id="feed-ecmwf">Connecting…</em></div><div class="feed"><span>NOAA GFS / HRRR</span><em id="feed-gfs">Connecting…</em></div><div class="feed"><span>DWD ICON</span><em id="feed-icon">Connecting…</em></div></div><div class="pop-desc" id="sourceFootnote" style="margin-top:12px">Connecting live model feeds for this private prototype.</div></div>
   <div class="modal-backdrop" id="locationModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal"><h3 id="modalTitle">Choose a place</h3><p id="locationHelp">Search a city or ZIP code for live model forecasts. Saved places stay on this device.</p><input class="searchbox" id="locationInput" placeholder="City or ZIP code" /><div class="suggestions"><button data-city="Warner Robins, Georgia">Warner Robins, GA</button><button data-city="Atlanta, Georgia">Atlanta, GA</button><button data-city="Macon, Georgia">Macon, GA</button><button data-city="Tampa, Florida">Tampa, FL</button></div><div class="close-row"><button class="close" id="closeModal">Done</button></div></div></div>
   <section class="radar-full" id="radarFull" role="dialog" aria-modal="true" aria-label="Full-screen live radar">
@@ -702,7 +712,10 @@
     new ResizeObserver(renderChartAxis).observe(document.getElementById('chartLabels'));
 
 
-    const EVENT_PLAN_KEY='weatherglass-event-plan-v1';let eventPlanRequest=0;
+    const EVENT_PLAN_KEY='weatherglass-event-plan-v1',EVENT_PLANS_KEY='weatherglass-event-plans-v1';let eventPlanRequest=0,editingEventPlanId=null,removedEventPlan=null;
+    const storedEventPlans=readStored(EVENT_PLANS_KEY,null),legacyEventPlan=readStored(EVENT_PLAN_KEY,null);
+    let eventPlans=Array.isArray(storedEventPlans)?storedEventPlans.filter(p=>p&&p.id&&p.date&&p.location):legacyEventPlan?[{...legacyEventPlan,id:crypto.randomUUID()}]:[];
+    if(!Array.isArray(storedEventPlans)&&eventPlans.length)writeStored(EVENT_PLANS_KEY,eventPlans);
     function localCalendarDate(timeZone){return new Intl.DateTimeFormat('sv-SE',{timeZone,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}
     function calendarDays(date,today){return Math.round((Date.parse(date+'T00:00:00Z')-Date.parse(today+'T00:00:00Z'))/86400000)}
     function planActivationDate(date){const d=new Date(date+'T00:00:00Z');d.setUTCDate(d.getUTCDate()-10);return d.toISOString().slice(0,10)}
@@ -720,7 +733,7 @@
         const matches=geo.results||[],place=matches.find(x=>x.country_code==='US')||matches[0];if(!place)throw new Error('That location could not be found. Try a city name.');
         const zone=place.timezone||'UTC',days=calendarDays(plan.date,localCalendarDate(zone));if(days<0)throw new Error('Choose today or a future date for this location.');
         if(days===0&&planTimeMinutes(plan.end)<=planTimeMinutes(new Intl.DateTimeFormat('en-GB',{timeZone:zone,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date())))throw new Error('That time window has already ended at this location.');
-        plan={...plan,location:niceLocation(place),timezone:zone};writeStored(EVENT_PLAN_KEY,plan);document.getElementById('eventLocation').value=plan.location;
+        plan={...plan,id:plan.id||editingEventPlanId||crypto.randomUUID(),location:niceLocation(place),timezone:zone};editingEventPlanId=plan.id;const existing=eventPlans.findIndex(p=>p.id===plan.id);if(existing<0)eventPlans.push(plan);else eventPlans[existing]=plan;writeStored(EVENT_PLANS_KEY,eventPlans);renderSavedEventPlans();document.getElementById('eventLocation').value=plan.location;
         status.textContent=(days>10?'Alert window opens '+planActivationDate(plan.date)+'.':'Inside the 10-day alert window.')+' Saved on this device. Background/push alerts are not connected yet.';
         if(days>10){title.textContent='Saved · waiting for your forecast';copy.textContent=plan.activity+' in '+plan.location+' on '+plan.date+', '+plan.start+'–'+plan.end+' (local time). Forecast checks start 10 days before your date.';return}
         const settled=await Promise.allSettled(liveModels.map(model=>fetchModel(place,model)));if(id!==eventPlanRequest)return;
@@ -736,11 +749,28 @@
       }catch(error){if(id!==eventPlanRequest)return;title.textContent='Plan needs attention';copy.textContent=error.message;status.textContent='Alerts are eligible only within 10 days of your date. No background notifications are being sent.'}
       finally{if(id===eventPlanRequest)button.disabled=false}
     }
-    const savedEventPlan=readStored(EVENT_PLAN_KEY,null);fillEventPlan(savedEventPlan||{});
+    function renderSavedEventPlans(){
+      const root=document.getElementById('savedEventPlans');root.replaceChildren();
+      if(!eventPlans.length){const empty=document.createElement('p');empty.className='alerts-note';empty.textContent='No saved plans yet. Add trips, events or everyday plans.';root.append(empty)}
+      eventPlans.forEach(plan=>{const card=document.createElement('div');card.className='saved-event-plan';const title=document.createElement('strong'),detail=document.createElement('div'),status=document.createElement('small'),actions=document.createElement('div');title.textContent=plan.activity+' · '+plan.location;detail.textContent=plan.date+' · '+plan.start+'–'+plan.end+' local time';const days=calendarDays(plan.date,localCalendarDate(plan.timezone||activeTimezone));status.textContent=days<0?'Past date':days>10?'Alert window opens '+planActivationDate(plan.date):'Within the 10-day alert window';actions.className='saved-plan-actions';const edit=document.createElement('button'),remove=document.createElement('button');edit.type=remove.type='button';edit.textContent='Edit / check';remove.textContent='Delete';edit.setAttribute('aria-label','Edit plan '+plan.location+' '+plan.date);remove.setAttribute('aria-label','Delete plan '+plan.location+' '+plan.date);
+      edit.addEventListener('click',()=>{editingEventPlanId=plan.id;fillEventPlan(plan);checkEventPlan(plan)});
+      remove.addEventListener('click',()=>{removedEventPlan=plan;eventPlans=eventPlans.filter(p=>p.id!==plan.id);writeStored(EVENT_PLANS_KEY,eventPlans);document.getElementById('planUndo').hidden=false;if(editingEventPlanId===plan.id)newEventPlan();renderSavedEventPlans()});actions.append(edit,remove);card.append(title,detail,status,actions);root.append(card)});
+    }
+    function newEventPlan(){++eventPlanRequest;editingEventPlanId=null;fillEventPlan({});document.getElementById('savePlanAlert').disabled=false;document.getElementById('planTitle').textContent='Create a new plan';document.getElementById('planCopy').textContent='Choose your location, date and time, then save and check.';document.getElementById('alertSaved').textContent='Each plan has its own 10-day alert window. Background notifications are not connected yet.'}
+    document.getElementById('newEventPlan').addEventListener('click',newEventPlan);
+    document.getElementById('undoEventPlan').addEventListener('click',()=>{if(removedEventPlan&&!eventPlans.some(p=>p.id===removedEventPlan.id)){eventPlans.push(removedEventPlan);writeStored(EVENT_PLANS_KEY,eventPlans)}removedEventPlan=null;document.getElementById('planUndo').hidden=true;renderSavedEventPlans()});
+    const savedEventPlan=eventPlans[0];editingEventPlanId=savedEventPlan?.id||null;fillEventPlan(savedEventPlan||{});renderSavedEventPlans();
     document.getElementById('eventPlanForm').addEventListener('submit',e=>{e.preventDefault();checkEventPlan({activity:document.getElementById('eventActivity').value,location:document.getElementById('eventLocation').value.trim(),date:document.getElementById('eventDate').value,start:document.getElementById('eventStart').value,end:document.getElementById('eventEnd').value,threshold:Number(document.getElementById('rainThreshold').value)})});
     document.getElementById('eventPlanForm').addEventListener('input',()=>{++eventPlanRequest;document.getElementById('savePlanAlert').disabled=false;document.getElementById('planTitle').textContent='Changes ready to check';document.getElementById('planCopy').textContent='Save and check to update the forecast for this location and window.';document.getElementById('alertSaved').textContent='Changes are not saved yet. Alerts become eligible 10 days before your date.'});
     if(savedEventPlan)checkEventPlan(savedEventPlan);
 
+    document.querySelectorAll('[data-mobile-view]').forEach(button=>button.addEventListener('click',()=>{
+      const view=button.dataset.mobileView;document.querySelectorAll('[data-mobile-view]').forEach(b=>{if(b===button)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+      if(view==='radar'){openFullRadar();return}closeFullRadar();
+      if(view==='more'){document.getElementById('locationDetails').classList.add('open');document.getElementById('locationDetails').scrollIntoView({behavior:'smooth',block:'start'});return}
+      document.getElementById(view==='hourly'?'widget-hourly':view==='plans'?'widget-insights':'widget-hero').scrollIntoView({behavior:'smooth',block:'start'});
+    }));
+    document.getElementById('closeRadar').addEventListener('click',()=>{document.querySelectorAll('[data-mobile-view]').forEach(b=>{if(b.dataset.mobileView==='today')b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')})});
     const previousSetCity=setCity;
     setCity=function(name){previousSetCity(name);document.getElementById('previewStatus').textContent='LOOKING UP FORECAST';loadLocation(name)};
     setCity(activeCity);
