@@ -362,18 +362,22 @@
     @media(max-width:600px){.daily-brief{padding:22px}.brief-message{font-size:20px}.brief-top h2{font-size:22px}}
 
 
-    .radar-provider-row{position:absolute;z-index:4;top:67px;left:55px;right:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;background:rgba(5,14,23,.86);border:1px solid #ffffff26;border-radius:12px;backdrop-filter:blur(14px);font-size:11px}
-    .radar-provider-row label,.full-radar-provider{display:flex;align-items:center;gap:8px}
-    .radar-provider-row select,.full-radar-provider select{border:1px solid #ffffff30;border-radius:9px;background:#193247;color:#eef8ff;font:inherit;padding:6px 9px}
-    .radar-provider-row select option,.full-radar-provider select option{background:#193247;color:#eef8ff}
-    #xweatherConnection{flex:1;font-size:10px;min-width:100px;line-height:1.4;overflow-wrap:anywhere}
-    #checkXweather{padding:6px 10px;border-radius:9px;background:#ffffff15;color:inherit;font:inherit}
-    .full-radar-provider{padding:8px 12px;border-radius:13px;background:#0a192bd9;color:#e5f5ff;font-size:12px}
     .xweather-legend-link{display:none;color:#c1f7ed;text-decoration:none;font-size:11px;line-height:2}
     body[data-radar-provider=xweather] .legend-dots,body[data-radar-provider=xweather] .legend-labels{display:none}
     body[data-radar-provider=xweather] .xweather-legend-link{display:block}
     .radar-map-tools{flex-wrap:wrap}
 
+
+.weather-layers{position:relative;color:#eff8ff;font-size:13px}
+.weather-layers summary{list-style:none;cursor:pointer;background:#10243be6;border:1px solid #ffffff30;padding:12px 16px;border-radius:14px;font-weight:700}
+.weather-layer-options{position:absolute;top:50px;left:0;width:min(310px,calc(100vw - 40px));padding:18px;border-radius:20px;background:#102338ed;backdrop-filter:blur(24px);border:1px solid #ffffff30;box-shadow:0 18px 50px #0007;max-height:calc(100dvh - 260px);overflow:auto}
+.weather-layer-options label{display:block;margin-top:16px;font-weight:650;cursor:pointer}
+.weather-layer-options input{accent-color:#75dfd2;margin-right:8px}
+.weather-layer-options small{display:block;margin:5px 0 0 26px;color:#b7cbdc;font-size:11px;font-weight:400}
+.weather-layer-options p{font-size:11px;line-height:1.6;color:#b7cbdc;margin:14px 0}
+.weather-layer-options a{font-size:12px;color:#90e7db}
+.layer-view-buttons{display:flex;gap:6px;flex-wrap:wrap;margin-top:18px}
+.layer-view-buttons button{padding:8px 10px;font-size:11px}
 </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -437,9 +441,9 @@
         <article class="panel section" id="widget-alerts"><div class="panel-heading"><div><div class="heading">Official weather alerts</div><div class="subheading" id="alertsLocation">Checking your location</div></div><button class="textbtn" id="refreshAlerts">Refresh</button></div><div id="alertsContent" aria-live="polite"><div class="alerts-summary">Checking official alerts…</div></div><div class="alerts-note" id="alertsChecked"></div></article>
         <article class="panel section" id="widget-wind"><div class="panel-heading"><div><div class="heading">Wind &amp; gusts</div><div class="subheading" id="windSubtitle">24-hour model forecast · mph</div></div></div><div id="windContent"><div class="alerts-summary">Connecting wind forecast…</div></div></article>
 
-        <article class="panel radar" id="widget-radar"><div class="radar-head"><div><div class="heading">Radar · NOAA/NWS</div><div class="subheading" id="radarMiniStatus">Connecting to live U.S. radar…</div></div><button class="radar-open" id="openRadar" title="Open full-screen radar" aria-label="Open full-screen radar"><svg viewBox="0 0 24 24" fill="none"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
-          <div class="radar-provider-row"><label>Radar source <select id="miniRadarProvider" aria-label="Small radar source"><option value="noaa">NOAA</option><option value="xweather" disabled>Xweather</option></select></label><span id="xweatherConnection" aria-live="polite">Checking Xweather…</span><button type="button" id="checkXweather">Check</button></div>
-          <div class="mini-radar-map" id="miniRadarMap" role="img" aria-label="Live NOAA precipitation radar preview"></div><div class="mini-radar-timeline"><button type="button" id="playMiniRadar" aria-label="Play radar animation" data-playing="false">▶</button><input type="range" id="miniRadarScrubber" min="0" max="1" value="1" step="1" aria-label="Radar widget time"><button type="button" id="centerMiniRadar" aria-label="Recenter radar on selected location">⌖</button></div><div class="radar-mini-foot"><span class="radar-live-dot">NOAA RADAR</span><span id="radarMiniTime">Loading current radar…</span><div class="mini-map-mode" role="group" aria-label="Small radar map type"><button type="button" id="miniMapStreets" class="selected" aria-pressed="true">Map</button><button type="button" id="miniMapSatellite" aria-pressed="false">Sat</button></div><button type="button" id="openRadarMini">Full map&nbsp;↗</button></div>
+        <article class="panel radar" id="widget-radar"><div class="radar-head"><div><div class="heading">Radar</div><div class="subheading" id="radarMiniStatus">Connecting to weather radar…</div></div><button class="radar-open" id="openRadar" title="Open full-screen radar" aria-label="Open full-screen radar"><svg viewBox="0 0 24 24" fill="none"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+
+          <div class="mini-radar-map" id="miniRadarMap" role="img" aria-label="Precipitation radar preview"></div><div class="mini-radar-timeline"><button type="button" id="playMiniRadar" aria-label="Play radar animation" data-playing="false">▶</button><input type="range" id="miniRadarScrubber" min="0" max="1" value="1" step="1" aria-label="Radar widget time"><button type="button" id="centerMiniRadar" aria-label="Recenter radar on selected location">⌖</button></div><div class="radar-mini-foot"><span class="radar-live-dot">WEATHER RADAR</span><span id="radarMiniTime">Loading current radar…</span><div class="mini-map-mode" role="group" aria-label="Small radar map type"><button type="button" id="miniMapStreets" class="selected" aria-pressed="true">Map</button><button type="button" id="miniMapSatellite" aria-pressed="false">Sat</button></div><button type="button" id="openRadarMini">Full map&nbsp;↗</button></div>
         </article>
         <article class="panel days" id="widget-days"><div class="panel-heading"><div><div class="heading">The next few days</div><div class="subheading" id="dailySubtitle">Consensus outlook · Warner Robins</div></div><button class="iconbtn" id="moreDays" aria-label="Show more days" style="width:31px;height:31px">···</button></div>
           <div id="dayRows"><div class="dayrow"><span class="dayname">Loading forecast…</span><span></span><span></span><span></span></div></div>
@@ -448,7 +452,7 @@
 
       </aside>
     </div>
-        <div class="bottom-note dashboard-footer"><span id="dataAttribution">Connecting forecast feeds…</span><span>Live NOAA/NWS radar · consensus is an equal-weight model blend</span><a href="#" id="whyLink">How consensus works</a></div>
+        <div class="bottom-note dashboard-footer"><span id="dataAttribution">Connecting forecast feeds…</span><span>Weather radar · consensus is an equal-weight model blend</span><a href="#" id="whyLink">How consensus works</a></div>
   </main>
   <nav class="floating-nav" aria-label="Main navigation">
   <button type="button" data-mobile-view="today" aria-current="page"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg><span>Today</span></button>
@@ -461,13 +465,13 @@
   <div class="modal-backdrop" id="locationModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal"><h3 id="modalTitle">Choose a place</h3><p id="locationHelp">Search a city or ZIP code for live model forecasts. Saved places stay on this device.</p><input class="searchbox" id="locationInput" placeholder="City or ZIP code" /><div class="suggestions"><button data-city="Warner Robins, Georgia">Warner Robins, GA</button><button data-city="Atlanta, Georgia">Atlanta, GA</button><button data-city="Macon, Georgia">Macon, GA</button><button data-city="Tampa, Florida">Tampa, FL</button></div><div class="close-row"><button class="close" id="closeModal">Done</button></div></div></div>
   <section class="radar-full" id="radarFull" role="dialog" aria-modal="true" aria-label="Full-screen live radar">
     <div class="radar-full-top">
-      <div><div class="radar-full-title">Radar · <span id="radarCity">Warner Robins</span></div><div class="radar-full-sub" id="fullRadarStatus">NOAA/NWS composite reflectivity · recent radar</div></div>
+      <div><div class="radar-full-title">Radar · <span id="radarCity">Warner Robins</span></div><div class="radar-full-sub" id="fullRadarStatus">Connecting to weather radar…</div></div>
       <div class="radar-top-actions"><button class="iconbtn" id="centerRadar" aria-label="Center map on selected location" title="Center on location">⌖</button><button class="iconbtn" id="closeRadar" aria-label="Close radar">✕</button></div>
     </div>
-    <div id="fullRadarMap" aria-label="Interactive NOAA weather radar map"></div>
-    <div class="radar-map-tools"><label class="full-radar-provider">Radar source <select id="fullRadarProvider" aria-label="Full radar source"><option value="noaa">NOAA</option><option value="xweather" disabled>Xweather</option></select></label><div class="radar-map-mode" role="group" aria-label="Map type"><button id="radarMapStreets" class="selected" aria-pressed="true">Map</button><button id="radarMapSatellite" aria-pressed="false">Satellite</button></div><label class="radar-opacity"><span><span>Precipitation opacity</span><output id="radarOpacityValue">82%</output></span><input id="radarOpacity" type="range" min="0" max="100" value="82" step="1" aria-label="Radar precipitation opacity"></label></div>
+    <div id="fullRadarMap" aria-label="Interactive weather radar map"></div>
+    <div class="radar-map-tools"><details class="weather-layers"><summary>Layers <span id="layerCount"></span></summary><div class="weather-layer-options"><strong>Explore the weather</strong><label><input type="checkbox" data-weather-layer="severe"> Severe alerts <small>Official watches and warnings</small></label><label><input type="checkbox" data-weather-layer="cells"> Storm cells <small>Radar-derived paths · United States</small></label><label><input type="checkbox" data-weather-layer="tropical"> Tropical cyclones <small>Positions, tracks and forecast cones</small></label><div class="layer-view-buttons"><button id="viewAtlantic">Atlantic</button><button id="viewPacific">Pacific</button><button id="viewLocal">My location</button></div><p id="weatherLayerStatus" aria-live="polite"></p><p>Overlays show current conditions while radar plays past frames. A cyclone cone describes uncertainty in its center track, not the full area of danger.</p><a href="https://www.xweather.com/docs/maps/reference/legends" target="_blank" rel="noreferrer">Layer colors &amp; symbols ↗</a></div></details><div class="radar-map-mode" role="group" aria-label="Map type"><button id="radarMapStreets" class="selected" aria-pressed="true">Map</button><button id="radarMapSatellite" aria-pressed="false">Satellite</button></div><label class="radar-opacity"><span><span>Precipitation opacity</span><output id="radarOpacityValue">82%</output></span><input id="radarOpacity" type="range" min="0" max="100" value="82" step="1" aria-label="Radar precipitation opacity"></label></div>
     <div class="radar-legend"><div>RADAR COLOR · REFLECTIVITY</div><div class="legend-dots"><i></i><i></i><i></i><i></i><i></i></div><a class="xweather-legend-link" href="https://www.xweather.com/docs/maps/reference/legends" target="_blank" rel="noreferrer">Xweather radar color legend ↗</a><div class="legend-labels"><span>Light</span><span>Moderate</span><span>Heavy</span><span>Intense</span></div><div class="radar-phase" id="radarPhase" data-kind="dry"><span>Forecast near location</span><strong id="radarPhaseType">Loading…</strong></div></div>
-    <div class="radar-source">Radar: <a href="https://radar.weather.gov/" target="_blank" rel="noreferrer">NOAA / NWS MRMS</a></div>
+    <div class="radar-source">Connecting radar…</div>
     <div class="radar-controls"><button class="play" id="playFullRadar" aria-label="Play radar animation"><svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M6 3.5v13l10-6.5z"/></svg></button><input class="radar-slider" id="radarScrubber" type="range" min="0" max="1" value="1" step="1" aria-label="Radar time, recent past to latest"><span class="radartime" id="fullRadarTime">Loading…</span></div>
   </section>
   <div class="modal-backdrop" id="widgetBackdrop" role="dialog" aria-modal="true" aria-labelledby="widgetTitle"><div class="widget-modal"><div class="panel-heading"><div><div class="heading" id="widgetTitle">Weatherglass, at a glance</div><div class="subheading">Home Screen and Lock Screen widget concepts</div></div><button class="iconbtn" data-close="widgetBackdrop" aria-label="Close widgets">✕</button></div><p class="layout-edit-note">Native widgets come with the iOS and Android apps. These previews show current conditions, model spread, and the next weather change. Real OS widgets are a native-app milestone.</p><div class="widget-preview-grid"><div class="widget-preview"><div class="widget-kind">Small · current weather</div><div class="widget-big">72° <span style="font-size:14px">☾</span></div><div class="widget-small">Warner Robins · Partly cloudy</div></div><div class="widget-preview"><div class="widget-kind">Lock Screen · model spread</div><div class="widget-big">2 / 3</div><div class="widget-small">models within 3° · accuracy not yet calibrated</div></div><div class="widget-preview"><div class="widget-kind">Medium · next 6 hours</div><div class="widget-big">Next 6 hours</div><div class="widget-minirow"><span>Now 72°</span><span>+2h 76°</span><span>+6h 78°</span></div></div><div class="widget-preview"><div class="widget-kind">Medium · rain timing</div><div class="widget-big">Rain outlook</div><div class="widget-small">Model-average chance for your saved place</div></div></div><div class="close-row"><button class="close" data-close="widgetBackdrop">Done</button></div></div></div>
@@ -635,18 +639,17 @@
     function xweatherFrames(now=Date.now()){const end=Math.floor((now-300000)/300000)*300000;return Array.from({length:13},(_,i)=>end-(12-i)*300000)}
     function xweatherTileURL(time){return '/api/radar/xweather/{z}/{x}/{y}/'+time+'.png'}
     function radarStatusText(){
-      return radarProvider==='xweather'?(xweatherHadError?'Xweather tiles unavailable · try NOAA or check Raster Maps access':'Xweather radar · requested frame time shown'):
+      return radarProvider==='xweather'?(xweatherHadError?'Radar images temporarily unavailable · refresh to retry':'Xweather radar · requested frame time shown'):
         radarCoverage?'Live U.S. composite radar · NOAA/NWS':'NOAA coverage is limited to the U.S. and territories';
     }
     function renderRadarProvider(){
       const xw=radarProvider==='xweather';document.body.dataset.radarProvider=radarProvider;
-      ['miniRadarProvider','fullRadarProvider'].forEach(id=>{document.getElementById(id).value=radarProvider;document.querySelector('#'+id+' option[value=xweather]').disabled=!xweatherConfigured});
       document.querySelector('#widget-radar .heading').textContent='Radar · '+(xw?'Xweather':'NOAA/NWS');
       document.querySelector('#widget-radar .radar-live-dot').textContent=xw?'XWEATHER RADAR':'NOAA RADAR';
       document.getElementById('miniRadarMap').setAttribute('aria-label',xw?'Xweather precipitation radar preview':'NOAA precipitation radar preview');
       document.getElementById('radarMiniStatus').textContent=radarStatusText();document.getElementById('fullRadarStatus').textContent=radarStatusText();
       const source=document.querySelector('.radar-source');source.replaceChildren();source.append(document.createTextNode('Radar: '));const link=document.createElement('a');link.href=xw?'https://www.xweather.com/':'https://radar.weather.gov/';link.target='_blank';link.rel='noreferrer';link.textContent=xw?'© Xweather':'NOAA / NWS MRMS';source.append(link);
-      document.getElementById('xweatherConnection').textContent=xweatherConfigured?'Xweather credentials found on server':(xweatherMissingNote||'Xweather not connected · using NOAA');
+      
     }
     async function setRadarProvider(value){
       const selected=value==='xweather'&&xweatherConfigured?'xweather':'noaa',generation=++radarProviderGeneration;
@@ -660,24 +663,60 @@
       if(fullRadarMap)fullRadarLayer=radarMapLayer(fullRadarMap);
       if(selected==='xweather')updateRadarFrame(radarFrames.length-1);
       else await loadRadarTimeline(generation);
-      if(generation===radarProviderGeneration)writeStored('weatherglass-radar-provider-v1',selected);
+
     }
     async function connectXweather(){
-      const note=document.getElementById('xweatherConnection');note.textContent='Checking Xweather connection…';
+      
       try{
         const response=await fetch('/api/radar/status',{cache:'no-store',signal:AbortSignal.timeout(10000)});if(!response.ok)throw new Error('status');
         const result=await response.json();xweatherConfigured=result.configured===true;xweatherMissingNote=!xweatherConfigured&&typeof result.clientIdPresent==='boolean'?'Missing '+[!result.clientIdPresent?'XWEATHER_CLIENT_ID':null,!result.clientSecretPresent?'XWEATHER_CLIENT_SECRET':null].filter(Boolean).join(' and '):'';renderRadarProvider();
-        if(xweatherConfigured){const stored=readStored('weatherglass-radar-provider-v1',null);await setRadarProvider(stored==='noaa'?'noaa':'xweather')}
+        if(xweatherConfigured){await setRadarProvider('xweather');syncWeatherOverlays()}
         else if(radarProvider==='xweather')await setRadarProvider('noaa');
-      }catch{note.textContent='Unable to check Xweather · NOAA remains available'}
+      }catch{document.getElementById('radarMiniStatus').textContent='Weather connection unavailable · using NOAA'}
     }
-    document.getElementById('miniRadarProvider').addEventListener('change',e=>setRadarProvider(e.target.value));
-    document.getElementById('fullRadarProvider').addEventListener('change',e=>setRadarProvider(e.target.value));
-    document.getElementById('checkXweather').addEventListener('click',connectXweather);
 
+
+
+    const weatherOverlayKinds=['severe','cells','tropical'];
+    const weatherOverlaySaved=readStored('weatherglass-weather-layers-v1',[]);
+    const weatherOverlaySelected=new Set(Array.isArray(weatherOverlaySaved)?weatherOverlaySaved.filter(v=>weatherOverlayKinds.includes(v)):[]);
+    const weatherOverlayInstances=new Map(),weatherOverlayErrors=new Set();
+    let weatherOverlayTime=Math.floor(Date.now()/300000)*300000;
+    function syncWeatherOverlays(){
+      document.querySelectorAll('[data-weather-layer]').forEach(el=>{el.checked=weatherOverlaySelected.has(el.dataset.weatherLayer);el.disabled=!xweatherConfigured});
+      document.getElementById('layerCount').textContent=weatherOverlaySelected.size?'· '+weatherOverlaySelected.size:'';
+      [miniRadarMap,fullRadarMap].filter(Boolean).forEach(map=>{
+        if(!map.getPane('weatherHazards')){map.createPane('weatherHazards');map.getPane('weatherHazards').style.zIndex='620';map.getPane('weatherHazards').style.pointerEvents='none'}
+        weatherOverlayKinds.forEach(kind=>{
+          const key=(map===miniRadarMap?'mini:':'full:')+kind,previous=weatherOverlayInstances.get(key);
+          if(!weatherOverlaySelected.has(kind)||!xweatherConfigured){if(previous)previous.remove();weatherOverlayInstances.delete(key);return}
+          const url='/api/radar/overlay/'+kind+'/{z}/{x}/{y}/'+weatherOverlayTime+'.png';
+          if(previous){previous.setUrl(url);return}
+          const layer=L.tileLayer(url,{pane:'weatherHazards',maxNativeZoom:12,maxZoom:19,opacity:kind==='severe'?.65:1,keepBuffer:1,updateWhenIdle:true,attribution:'Weather overlays © Xweather'});
+          weatherOverlayInstances.set(key,layer);
+          layer.on('tileerror',()=>{if(weatherOverlayInstances.get(key)!==layer)return;weatherOverlayErrors.add(kind);renderWeatherOverlayStatus()});
+          layer.addTo(map);
+        });
+      });renderWeatherOverlayStatus();
+    }
+    function renderWeatherOverlayStatus(){
+      const el=document.getElementById('weatherLayerStatus');
+      if(!xweatherConfigured){el.textContent='Weather overlays are temporarily unavailable.';return}
+      const failed=[...weatherOverlayErrors].filter(v=>weatherOverlaySelected.has(v));
+      el.textContent=failed.length?'Some overlay images could not load ('+failed.join(', ')+'). Radar remains available.':
+        weatherOverlaySelected.size?'Current overlays requested · '+radarClock(weatherOverlayTime)+'. Blank areas may have no active features or no coverage.':'Choose overlays to add to both radar views.';
+    }
+    document.querySelectorAll('[data-weather-layer]').forEach(el=>el.addEventListener('change',()=>{
+      if(el.checked)weatherOverlaySelected.add(el.dataset.weatherLayer);else weatherOverlaySelected.delete(el.dataset.weatherLayer);
+      weatherOverlayErrors.delete(el.dataset.weatherLayer);writeStored('weatherglass-weather-layers-v1',[...weatherOverlaySelected]);syncWeatherOverlays();
+    }));
+    document.getElementById('viewAtlantic').addEventListener('click',()=>fullRadarMap?.setView([25,-65],4));
+    document.getElementById('viewPacific').addEventListener('click',()=>fullRadarMap?.setView([20,-125],4));
+    document.getElementById('viewLocal').addEventListener('click',()=>refreshRadarLocation());
 
     function refreshXweatherFrames(){
       if(radarProvider!=='xweather')return;
+      weatherOverlayTime=Math.floor(Date.now()/300000)*300000;weatherOverlayErrors.clear();syncWeatherOverlays();
       const previous=radarFrames[radarFrameIndex],latest=radarFrameIndex===radarFrames.length-1;
       radarFrames=xweatherFrames();const index=latest?radarFrames.length-1:radarFrames.indexOf(previous);
       updateRadarFrame(index<0?0:index);
@@ -691,8 +730,8 @@
       if(radarProvider==='xweather'){
         const time=radarFrames[radarFrameIndex]||xweatherFrames().at(-1);
         const layer=L.tileLayer(xweatherTileURL(time),{maxNativeZoom:12,maxZoom:19,opacity:radarOpacity,attribution:'Radar &copy; <a href="https://www.xweather.com/" target="_blank" rel="noreferrer">Xweather</a>',keepBuffer:1,updateWhenIdle:true});
-        layer.on('tileload',()=>{if(radarProvider==='xweather'&&!xweatherHadError)document.getElementById('xweatherConnection').textContent='Xweather radar connected'});
-        layer.on('tileerror',()=>{if(radarProvider!=='xweather')return;xweatherHadError=true;document.getElementById('xweatherConnection').textContent='Xweather image request failed';stopRadarPlayback();document.getElementById('radarMiniStatus').textContent=radarStatusText();document.getElementById('fullRadarStatus').textContent=radarStatusText()});
+        
+        layer.on('tileerror',()=>{if(radarProvider!=='xweather')return;xweatherHadError=true;stopRadarPlayback();document.getElementById('radarMiniStatus').textContent=radarStatusText();document.getElementById('fullRadarStatus').textContent=radarStatusText()});
         layer.addTo(map);return layer;
       }
       if(!L.esri){document.getElementById('radarMiniStatus').textContent='NOAA map library unavailable · checking Xweather';return null}
@@ -753,7 +792,7 @@
     function openFullRadar(){
       const full=document.getElementById('radarFull');full.classList.add('open');document.body.style.overflow='hidden';
       document.getElementById('radarCity').textContent=activeCity.split(',')[0];
-      initFullRadar();window.setTimeout(()=>{if(fullRadarMap){fullRadarMap.invalidateSize(true);fullRadarMap.setView(activeCoordinates,11)}},80);
+      initFullRadar();syncWeatherOverlays();window.setTimeout(()=>{if(fullRadarMap){fullRadarMap.invalidateSize(true);fullRadarMap.setView(activeCoordinates,11)}},80);
       if(!window.L)document.getElementById('fullRadarStatus').textContent='Map library unavailable · refresh to try again';
     }
     function setRadarPlaybackState(playing){
