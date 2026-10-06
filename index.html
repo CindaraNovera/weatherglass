@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" type="image/svg+xml" href="/weatherglass-icon.svg" />
+  <link rel="icon" type="image/svg+xml" href="/weatherglass-brand.svg" />
   <meta name="theme-color" content="#09121f" />
   <title>Weatherglass — your transparent forecast</title>
   <meta name="description" content="Weatherglass brings forecasts together, shows where they agree, and makes the uncertainty visible." />
@@ -227,6 +227,24 @@
     .brand-name{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:-.045em;padding-right:5px;overflow:visible;filter:none;text-shadow:0 2px 8px #14395120}
     .brand-type .tagline{display:block;font-size:14px;letter-spacing:.02em;margin-top:5px;white-space:nowrap}
     .brand-type .tagline-copy{display:inline-block;white-space:nowrap}
+      .brandmark{padding:0;overflow:hidden;background:none;border:1px solid #ffffff50}
+    .brandmark img{display:block;width:100%;height:100%;object-fit:cover}
+    .daily-expanded{border-bottom:1px solid #ffffff18}
+    .daily-expanded:last-child{border:0}
+    .daily-expanded>summary{list-style:none;cursor:pointer;border:0;min-height:52px}
+    .daily-expanded>summary::-webkit-details-marker{display:none}
+    .daily-expanded>summary:focus-visible{outline:2px solid var(--mint);outline-offset:2px;border-radius:8px}
+    .day-expand-hint{font-size:11px;color:#d6e9f2;justify-self:end}
+    .daily-expanded[open] .day-expand-hint span{display:inline-block;transform:rotate(180deg)}
+    .daily-detail-body{padding:0 2px 18px}
+    .daily-caption{font-size:11px;line-height:1.55;color:#c0d4e4;margin:8px 0 12px}
+    .daily-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .daily-detail-grid>div{padding:12px;background:#102b4433;border:1px solid #ffffff15;border-radius:12px;min-width:0}
+    .daily-detail-grid span,.daily-detail-grid strong,.daily-detail-grid small{display:block}
+    .daily-detail-grid span{font-size:11px;color:#d2e2ee}
+    .daily-detail-grid strong{font-size:17px;font-weight:650;margin-top:7px}
+    .daily-detail-grid small{font-size:10px;color:#bbcedd;line-height:1.5;margin-top:7px}
+    @media(max-width:430px){.daily-detail-grid{gap:8px}.daily-detail-grid strong{font-size:15px}.day-expand-hint{font-size:10px}}
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -235,7 +253,7 @@
 <body>
   <main class="shell">
     <header class="topbar">
-      <div class="brand-wrap"><div class="brand"><span class="brandmark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><defs><linearGradient id="wgGlass" x1="14" y1="10" x2="52" y2="58" gradientUnits="userSpaceOnUse"><stop stop-color="#f2ffff" stop-opacity=".75"/><stop offset="1" stop-color="#73dded" stop-opacity=".12"/></linearGradient><linearGradient id="wgSun" x1="22" y1="20" x2="42" y2="40" gradientUnits="userSpaceOnUse"><stop stop-color="#fff1b5"/><stop offset="1" stop-color="#ffb25f"/></linearGradient></defs><path d="m32 18 23 14-23 14L9 32l23-14Z" fill="#63d6e0" fill-opacity=".16" stroke="#8dece7" stroke-opacity=".65" stroke-width="1.5"/><path d="m32 27 23 14-23 14L9 41l23-14Z" fill="#78c2ff" fill-opacity=".12" stroke="#b0dcff" stroke-opacity=".55" stroke-width="1.5"/><rect x="16" y="8" width="32" height="38" rx="12" fill="url(#wgGlass)" stroke="#efffff" stroke-width="1.6"/><circle cx="32" cy="24" r="8" fill="url(#wgSun)"/><path d="M20 34c7-5 17-5 24 0M20 39c7-5 17-5 24 0" stroke="#e4fffa" stroke-width="2" stroke-linecap="round"/><path d="M22 14h7" stroke="white" stroke-opacity=".8" stroke-width="2" stroke-linecap="round"/></svg></span><div class="brand-type"><span class="brand-name">weatherglass</span><div class="tagline"><span class="tagline-copy">your transparent forecast</span></div></div></div></div>
+      <div class="brand-wrap"><div class="brand"><span class="brandmark" aria-hidden="true"><img src="/weatherglass-brand.svg" alt="" width="52" height="52" /></span><div class="brand-type"><span class="brand-name">weatherglass</span><div class="tagline"><span class="tagline-copy">your transparent forecast</span></div></div></div></div>
       <div class="top-right"><span class="prototype" id="previewStatus">PROTOTYPE · SAMPLE DATA</span><div class="quicktools"><button class="iconbtn" id="layoutButton" title="Rearrange dashboard widgets"><span aria-hidden="true">⠿</span><span class="tool-label">Arrange</span></button><button class="iconbtn" id="widgetButton" title="Preview home screen widgets"><span aria-hidden="true">▦</span><span class="tool-label">Widgets</span></button></div><div class="avatar" aria-label="Profile">B</div></div>
     </header>
     <div class="locationline">
@@ -645,13 +663,36 @@
       document.getElementById('chartPointTooltip').hidden=true;
     }
     function renderDaily(){
-      if(!activeModels.length)return;const source=activeModels.find(m=>m.data.daily?.time);if(!source)return;const daily=source.data.daily,count=showTenDays?10:5;
-      document.getElementById('dayRows').innerHTML=Array.from({length:Math.min(count,daily.time.length)},(_,i)=>{
-        const highs=activeModels.map(m=>valueOf(m.data.daily,'temperature_2m_max',m.id)?.[i]).filter(Number.isFinite),lows=activeModels.map(m=>valueOf(m.data.daily,'temperature_2m_min',m.id)?.[i]).filter(Number.isFinite),rain=activeModels.map(m=>valueOf(m.data.daily,'precipitation_probability_max',m.id)?.[i]).filter(Number.isFinite),code=valueOf(daily,'weather_code',source.id)?.[i];
-        const date=new Date(daily.time[i]+'T12:00:00Z'),day=i===0?'Today':i===1?'Tomorrow':new Intl.DateTimeFormat(undefined,{weekday:'short',timeZone:source.data.timezone||'UTC'}).format(date);
-        return `<div class="dayrow"><span class="dayname"><span class="dayicon ${weatherGlyph(code)==='☂'?'rain':''}">${weatherGlyph(code)}</span>${day}</span><span class="daytemps">${roundOrDash(mean(highs))}° <span>${roundOrDash(mean(lows))}°</span></span><span class="daychance">☂ ${roundOrDash(mean(rain))}%</span><span class="dayconf">${highs.length} models</span></div>`;
-      }).join('');
-      document.getElementById('dailySubtitle').textContent='10-day model blend · '+activeCity.split(',')[0];
+      if(!activeModels.length)return;
+      const source=activeModels.find(m=>m.data.daily?.time);if(!source)return;
+      const daily=source.data.daily,count=showTenDays?10:5,root=document.getElementById('dayRows');root.replaceChildren();
+      const openDays=new Set(window.sessionStorage.getItem('weatherglass-open-days')?.split(',')||[]);
+      for(let i=0;i<Math.min(count,daily.time.length);i++){
+        const dateKey=daily.time[i],dailyValues=field=>activeModels.map(m=>valueOf(m.data.daily,field,m.id)?.[i]).filter(Number.isFinite);
+        const highs=dailyValues('temperature_2m_max'),lows=dailyValues('temperature_2m_min'),rain=dailyValues('precipitation_probability_max'),code=valueOf(daily,'weather_code',source.id)?.[i];
+        const date=new Date(dateKey+'T12:00:00Z'),day=i===0?'Today':i===1?'Tomorrow':new Intl.DateTimeFormat(undefined,{weekday:'short',timeZone:'UTC'}).format(date);
+        const item=document.createElement('details');item.className='daily-expanded';item.open=openDays.has(dateKey);
+        const summary=document.createElement('summary');summary.className='dayrow';
+        summary.innerHTML='<span class="dayname"><span class="dayicon">'+weatherGlyph(code)+'</span>'+day+'</span><span class="daytemps">'+roundOrDash(mean(highs))+'° <span>'+roundOrDash(mean(lows))+'°</span></span><span class="daychance">☂ '+roundOrDash(mean(rain))+'%</span><span class="day-expand-hint">Details <span aria-hidden="true">⌄</span></span>';
+        item.append(summary);
+        const body=document.createElement('div');body.className='daily-detail-body';
+        const caption=document.createElement('p');caption.className='daily-caption';caption.textContent=new Intl.DateTimeFormat(undefined,{weekday:'long',month:'short',day:'numeric',timeZone:'UTC'}).format(date)+' · '+weatherText(code)+' · '+highs.length+' model feeds';body.append(caption);
+        const samples=activeModels.flatMap(model=>(model.data.hourly?.time||[]).flatMap((time,j)=>time.slice(0,10)===dateKey?[{time,feels:valueOf(model.data.hourly,'apparent_temperature',model.id)?.[j],wind:valueOf(model.data.hourly,'wind_speed_10m',model.id)?.[j],gust:valueOf(model.data.hourly,'wind_gusts_10m',model.id)?.[j]}]:[]));
+        const hours=[...new Set(samples.map(x=>x.time))].map(time=>{const rows=samples.filter(x=>x.time===time);return {feels:mean(rows.map(x=>x.feels)),wind:mean(rows.map(x=>x.wind)),gust:mean(rows.map(x=>x.gust))}});
+        const values=key=>hours.map(h=>h[key]).filter(Number.isFinite),feels=values('feels'),winds=values('wind'),gusts=values('gust');
+        const grid=document.createElement('div');grid.className='daily-detail-grid';
+        const add=(label,value,note)=>{const cell=document.createElement('div'),title=document.createElement('span'),reading=document.createElement('strong'),help=document.createElement('small');title.textContent=label;reading.textContent=value;help.textContent=note;cell.append(title,reading,help);grid.append(cell)};
+        add('Feels like',feels.length?roundOrDash(Math.min(...feels))+'–'+roundOrDash(Math.max(...feels))+'°F':'Unavailable','Range of hourly model means');
+        add('Wind / gusts',winds.length?roundOrDash(Math.max(...winds))+' / '+roundOrDash(gusts.length?Math.max(...gusts):null)+' mph':'Unavailable','Peak hourly model means; peaks may occur at different times');
+        const uv=mean(dailyValues('uv_index_max'));add('Peak UV',Number.isFinite(uv)?roundOrDash(uv)+' · '+uvCategory(Math.round(uv))[0]:'Unavailable','Mean of daily model peaks');
+        add('Sunrise / sunset',daily.sunrise?.[i]&&daily.sunset?.[i]?clockText(daily.sunrise[i])+' / '+clockText(daily.sunset[i]):'Unavailable','Local time at this location');
+        add('High temperature spread',highs.length?roundOrDash(Math.min(...highs))+'–'+roundOrDash(Math.max(...highs))+'°F':'Unavailable','Range across contributing models');
+        add('Low temperature spread',lows.length?roundOrDash(Math.min(...lows))+'–'+roundOrDash(Math.max(...lows))+'°F':'Unavailable','Range across contributing models');
+        body.append(grid);const note=document.createElement('p');note.className='daily-caption';note.textContent='Rain % above is the mean of each model’s daily peak probability.'+(hours.length<24?' Hourly detail covers '+hours.length+' available hours; this day may be incomplete.':'')+' Model agreement is not a calibrated accuracy score.';body.append(note);item.append(body);
+        item.addEventListener('toggle',()=>{if(item.open)openDays.add(dateKey);else openDays.delete(dateKey);window.sessionStorage.setItem('weatherglass-open-days',[...openDays].join(','))});
+        root.append(item);
+      }
+      document.getElementById('dailySubtitle').textContent='10-day model blend · '+activeCity.split(',')[0]+' · Tap a day for details';
       document.getElementById('moreDays').setAttribute('aria-label',showTenDays?'Show fewer days':'Show all 10 days');
     }
     function applyModels(models){
