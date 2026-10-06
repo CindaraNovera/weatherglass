@@ -197,6 +197,23 @@
     .column-choice{max-width:75px;padding:7px 5px;border-radius:8px;background:#132d40;color:white;border:1px solid #ffffff30}
     .layout-label{min-width:0;font-size:12px;line-height:1.4}.move-btn{flex:none}
     @media(max-width:600px){#layoutList{grid-template-columns:1fr}.dashboard-footer{margin-top:28px}}
+      .detail-grid{gap:16px}
+    .detail-metric{padding:18px;min-width:0;border-top:3px solid var(--metric-color,#ffffff25)}
+    .detail-metric>span:first-child{font-size:12px;color:#d5e3ee}
+    .detail-metric strong{font-size:24px;font-weight:700;line-height:1.2;margin-top:9px}
+    .detail-metric small{font-size:12px;line-height:1.55;margin-top:10px;color:#c8dae8}
+    .detail-metric .metric-status{display:inline-block;font-size:11px;font-weight:650;color:#fff;background:var(--metric-dark,#284455);padding:5px 9px;border-radius:99px;margin-top:10px;line-height:1.35}
+    .detail-metric[data-tone="cold"]{--metric-color:#4388ff;--metric-dark:#173b8b}
+    .detail-metric[data-tone="blue"]{--metric-color:#73b6ff;--metric-dark:#205481}
+    .detail-metric[data-tone="cyan"]{--metric-color:#89e7ef;--metric-dark:#175563}
+    .detail-metric[data-tone="green"]{--metric-color:#84e6a4;--metric-dark:#205334}
+    .detail-metric[data-tone="yellow"]{--metric-color:#ffe17b;--metric-dark:#66530c}
+    .detail-metric[data-tone="orange"]{--metric-color:#ffb268;--metric-dark:#783e10}
+    .detail-metric[data-tone="red"]{--metric-color:#ff8a94;--metric-dark:#852936}
+    .detail-metric[data-tone="purple"]{--metric-color:#d6a8ff;--metric-dark:#613383}
+    .detail-metric[data-tone="maroon"]{--metric-color:#f39bb7;--metric-dark:#66182f}
+    #locationDetails>.panel-heading .heading{font-size:19px;font-weight:700}
+    @media(max-width:430px){.detail-metric strong{font-size:22px}.detail-metric{padding:14px}.detail-grid{gap:12px}}
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -217,7 +234,7 @@
     <section class="panel detail-card" id="locationDetails" aria-label="Detailed conditions for Warner Robins">
       <div class="panel-heading"><div><div class="heading">Conditions, beyond the temperature</div><div class="subheading" id="detailLocationSub">Warner Robins · model blend snapshot</div></div><span class="pill-note">Transparent · source-by-source</span></div>
       <div class="location-overview">A fuller picture of what the air feels like, how the sky is changing, and what to expect outdoors. Expanded measurements become live as forecast feeds are connected.</div>
-      <div class="detail-grid"><div class="detail-metric"><span>Feels like</span><strong id="detailFeels">73°</strong><small>temperature adjusted for wind and humidity</small></div><div class="detail-metric"><span>Dew point</span><strong>64°</strong><small>slightly humid</small></div><div class="detail-metric"><span>Humidity</span><strong>68%</strong><small>relative humidity</small></div><div class="detail-metric"><span>Wind</span><strong>5 mph</strong><small>SW · gusts 9 mph</small></div><div class="detail-metric"><span>Pressure</span><strong>30.08 in</strong><small>steady · sea-level adjusted</small></div><div class="detail-metric"><span>Visibility</span><strong>10 mi</strong><small>good</small></div><div class="detail-metric"><span>UV index</span><strong id="detailUv">0 · Low</strong><small>sun protection not needed now</small></div><div class="detail-metric"><span>Air quality</span><strong>Good</strong><small>Air data loading…</small></div></div>
+      <div class="detail-grid"><div class="detail-metric"><span>Feels like</span><strong id="detailFeels">73°</strong><small>temperature adjusted for wind and humidity</small></div><div class="detail-metric"><span>Dew point</span><strong>64°</strong><small>slightly humid</small></div><div class="detail-metric"><span>Humidity</span><strong>68%</strong><small>relative humidity</small></div><div class="detail-metric"><span>Wind</span><strong>5 mph</strong><small>SW · gusts 9 mph</small></div><div class="detail-metric"><span>Pressure</span><strong>30.08 in</strong><small>steady · sea-level adjusted</small></div><div class="detail-metric"><span>Visibility</span><strong>10 mi</strong><small>good</small></div><div class="detail-metric"><span>UV index</span><strong id="detailUv">0 · Low</strong><small>UV exposure risk depends on the current index.</small></div><div class="detail-metric"><span>Air quality</span><strong>Good</strong><small>Air data loading…</small></div></div>
       <div class="sunmoon-row"><div class="sunmoon"><span>Sunrise / sunset</span><strong>7:32 AM · 7:14 PM</strong></div><div class="sunmoon"><span>Moon · waxing crescent</span><strong>☾ &nbsp; 28% illuminated</strong></div></div>
     </section>
     <section id="plansView" hidden aria-label="Weather plans"><article class="panel insights" id="widget-insights"><div class="panel-heading"><div><div class="heading">Plan around the weather</div><div class="subheading">Your place, your date, your time</div></div><span style="font-size:16px;color:#9ce4cd">✧</span></div>
@@ -565,7 +582,20 @@
     function compass(degrees){if(!Number.isFinite(Number(degrees)))return'—';return['N','NE','E','SE','S','SW','W','NW'][Math.round(Number(degrees)/45)%8]}
     function clockText(iso){const parts=String(iso||'').slice(11,16).split(':').map(Number);if(parts.length!==2||!Number.isFinite(parts[0]))return'—';return(parts[0]%12||12)+':'+String(parts[1]).padStart(2,'0')+(parts[0]<12?' AM':' PM')}
     function moonDescription(date=new Date()){const synodic=29.530588853,reference=Date.UTC(2000,0,6,18,14),phase=((date.getTime()-reference)/86400000%synodic+synodic)%synodic/synodic,illum=(1-Math.cos(phase*2*Math.PI))/2,labels=['New moon','Waxing crescent','First quarter','Waxing gibbous','Full moon','Waning gibbous','Last quarter','Waning crescent'],label=labels[Math.round(phase*8)%8];return{label,illumination:Math.round(illum*100)}}
-    function applyAirQuality(current){if(!current||!Number.isFinite(Number(current.us_aqi)))return;const aqi=Number(current.us_aqi),name=aqi<=50?'Good':aqi<=100?'Moderate':aqi<=150?'Sensitive groups':aqi<=200?'Unhealthy':'Very unhealthy';document.querySelectorAll('.detail-metric')[7].querySelector('strong').textContent=aqi+' · '+name;document.querySelectorAll('.detail-metric')[7].querySelector('small').textContent='US AQI · PM2.5 '+roundOrDash(Number(current.pm2_5),1)+' μg/m³'}
+    function metricState(index,label,tone,description){
+      const card=document.querySelectorAll('.detail-metric')[index];card.dataset.tone=tone||'neutral';
+      let badge=card.querySelector('.metric-status');if(!badge){badge=document.createElement('span');badge.className='metric-status';card.querySelector('strong').after(badge)}
+      badge.textContent=label;card.querySelector('small').textContent=description;
+    }
+    function aqiCategory(value){return value<=50?['Good','green']:value<=100?['Moderate','yellow']:value<=150?['Unhealthy for sensitive groups','orange']:value<=200?['Unhealthy','red']:value<=300?['Very unhealthy','purple']:['Hazardous','maroon']}
+    function uvCategory(value){return value<3?['Low','green']:value<6?['Moderate','yellow']:value<8?['High','orange']:value<11?['Very high','red']:['Extreme','purple']}
+    function temperatureCategory(value){return value<=32?['Freezing','cold']:value<50?['Cold','blue']:value<65?['Cool','cyan']:value<75?['Mild','green']:value<90?['Warm','orange']:['Hot','red']}
+    function applyAirQuality(current){
+      const value=current?.us_aqi,aqi=typeof value==='number'&&Number.isFinite(value)?Math.round(value):null,card=document.querySelectorAll('.detail-metric')[7];
+      if(aqi===null){card.querySelector('strong').textContent='—';metricState(7,'Unavailable','neutral','Air quality could not be verified for this location.');return}
+      const [name,tone]=aqiCategory(aqi);card.querySelector('strong').textContent=aqi+' US AQI';
+      metricState(7,name,tone,aqi<=50?'Air pollution is low.':aqi<=100?'Acceptable for most people; unusually sensitive people may be affected.':aqi<=150?'Sensitive groups should reduce prolonged or heavy outdoor exertion.':aqi<=200?'Everyone should reduce prolonged or heavy outdoor exertion.':aqi<=300?'Health alert: limit outdoor exertion.':'Health warning: avoid outdoor exertion.');
+    }
     function niceLocation(item){return [item.name,item.admin1].filter((v,i,a)=>v&&a.indexOf(v)===i).join(', ')}
     function apiUrl(endpoint,params){const u=new URL(endpoint);Object.entries(params).forEach(([k,v])=>u.searchParams.set(k,v));return u.toString()}
     async function fetchModel(coords,model){
@@ -640,13 +670,28 @@
       const widgetCards=document.querySelectorAll('.widget-preview');
       if(widgetCards.length===4){widgetCards[0].querySelector('.widget-big').textContent=roundOrDash(temp)+'°';widgetCards[0].querySelector('.widget-small').textContent=activeCity+' · '+weatherText(code);widgetCards[1].querySelector('.widget-big').textContent=aligned+' / '+models.length;widgetCards[1].querySelector('.widget-small').textContent='models within 3° · accuracy not yet calibrated';widgetCards[2].querySelector('.widget-big').textContent='Next 6 hours';widgetCards[2].querySelector('.widget-minirow').innerHTML=Array.from({length:3},(_,i)=>{const at=start+i*2,vs=models.map(m=>valueOf(m.data.hourly,'temperature_2m',m.id)?.[at]).filter(Number.isFinite);return'<span>+'+(i*2)+'h '+roundOrDash(mean(vs))+'°</span>'}).join('');widgetCards[3].querySelector('.widget-big').textContent=roundOrDash(rain)+'% peak';widgetCards[3].querySelector('.widget-small').textContent='Model-average rain chance · next 12 hours'}
       applyWeatherAppearance(code,Number(current[0].is_day)!==0);
-      const c0=current[0],mi=roundOrDash(Number(c0.visibility)/1609);document.getElementById('detailFeels').textContent=roundOrDash(mean(current.map(c=>Number(c.apparent_temperature))))+'°';
-      document.querySelectorAll('.detail-metric')[1].querySelector('strong').textContent=roundOrDash(mean(models.map(m=>valueOf(m.data.hourly,'dew_point_2m',m.id)?.[start])))+'°';
-      document.querySelectorAll('.detail-metric')[2].querySelector('strong').textContent=roundOrDash(humidity)+'%';
-      document.querySelectorAll('.detail-metric')[3].querySelector('strong').textContent=roundOrDash(wind)+' mph '+compass(direction);
-      document.querySelectorAll('.detail-metric')[4].querySelector('strong').textContent=roundOrDash(mean(current.map(c=>Number(c.pressure_msl)))*0.02953,2)+' inHg';
-      document.querySelectorAll('.detail-metric')[5].querySelector('strong').textContent=Number.isFinite(Number(mi))?mi+' mi':'—';
-      const uv=mean(current.map(c=>Number(c.uv_index)));document.getElementById('detailUv').textContent=Number.isFinite(uv)?roundOrDash(uv)+' · '+(uv<3?'Low':uv<6?'Moderate':uv<8?'High':'Very high'):'—';
+      const cards=document.querySelectorAll('.detail-metric'),numeric=v=>typeof v==='number'&&Number.isFinite(v)?v:null;
+      const feels=mean(current.map(c=>numeric(c.apparent_temperature)));
+      cards[0].querySelector('strong').textContent=roundOrDash(feels)+'°F';
+      const [tempLabel,tempTone]=Number.isFinite(feels)?temperatureCategory(feels):['Unavailable','neutral'];
+      metricState(0,tempLabel,tempTone,'How the air feels after wind and humidity. Color describes warmth, not an official warning.');
+      const dew=mean(models.map(m=>numeric(valueOf(m.data.hourly,'dew_point_2m',m.id)?.[start])));
+      cards[1].querySelector('strong').textContent=roundOrDash(dew)+'°F';
+      metricState(1,Number.isFinite(dew)?dew<55?'Dry air':dew<65?'Slightly humid':dew<70?'Muggy':'Very muggy':'Unavailable',Number.isFinite(dew)?dew<55?'cyan':dew<65?'green':dew<70?'yellow':'orange':'neutral','Dew point describes moisture in the air; higher values usually feel stickier.');
+      cards[2].querySelector('strong').textContent=roundOrDash(humidity)+'%';
+      metricState(2,Number.isFinite(humidity)?humidity<30?'Low humidity':humidity<60?'Moderate humidity':'High humidity':'Unavailable',Number.isFinite(humidity)?humidity<30?'yellow':humidity<60?'green':'cyan':'neutral','How close the air is to saturation. Check dew point for how humid it feels.');
+      cards[3].querySelector('strong').textContent=roundOrDash(wind)+' mph '+compass(direction);
+      cards[3].querySelector('small').textContent='Direction the wind comes from. See Wind & gusts for changes through the day.';
+      const pressure=mean(current.map(c=>numeric(c.pressure_msl)));
+      cards[4].querySelector('strong').textContent=Number.isFinite(pressure)?roundOrDash(pressure*0.02953,2)+' inHg':'—';
+      cards[4].querySelector('small').textContent='Air pressure helps track weather changes. Falling pressure can signal an approaching system; rising pressure often accompanies clearing. Trend is not measured here.';
+      const visibility=mean(current.map(c=>numeric(c.visibility)));
+      cards[5].querySelector('strong').textContent=Number.isFinite(visibility)?roundOrDash(visibility/1609,1)+' mi':'—';
+      cards[5].querySelector('small').textContent=Number.isFinite(visibility)?'How far you can see. Fog, rain and haze can reduce visibility.':'Visibility is unavailable from the current feeds.';
+      const uv=mean(current.map(c=>numeric(c.uv_index))),uvRounded=Number.isFinite(uv)?Math.round(uv):null;
+      document.getElementById('detailUv').textContent=uvRounded===null?'—':String(uvRounded);
+      const [uvLabel,uvTone]=uvRounded===null?['Unavailable','neutral']:uvCategory(uvRounded);
+      metricState(6,uvLabel,uvTone,uvRounded===null?'UV data is unavailable.':uvRounded<3?'Low UV exposure risk now.':uvRounded<8?'Sun protection needed: use shade, protective clothing and sunscreen.':'Extra sun protection needed; minimize midday exposure.');
       if(dailySource?.sunrise?.[0]&&dailySource?.sunset?.[0])document.querySelector('.sunmoon-row .sunmoon:first-child strong').textContent=clockText(dailySource.sunrise[0])+' · '+clockText(dailySource.sunset[0]);
       const lunar=moonDescription();document.querySelector('.sunmoon-row .sunmoon:last-child span').textContent='Moon · '+lunar.label;document.querySelector('.sunmoon-row .sunmoon:last-child strong').textContent='☾  '+lunar.illumination+'% illuminated';
       const tz=models[0].data.timezone||undefined;document.getElementById('localDate').textContent=new Intl.DateTimeFormat(undefined,{weekday:'long',month:'long',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:tz}).format(new Date());
