@@ -309,8 +309,8 @@
     document.getElementById('radarOpacity').addEventListener('input',event=>setRadarOpacity(event.target.value));
     function refreshRadarLocation(){
       const center=activeCoordinates;
-      if(miniRadarMap){miniRadarMap.setView(center,8);if(miniRadarMarker)miniRadarMarker.setLatLng(center)}
-      if(fullRadarMap){fullRadarMap.setView(center,9);if(fullRadarMarker)fullRadarMarker.setLatLng(center)}
+      if(miniRadarMap){miniRadarMap.setView(center,9);if(miniRadarMarker)miniRadarMarker.setLatLng(center)}
+      if(fullRadarMap){fullRadarMap.setView(center,11);if(fullRadarMarker)fullRadarMarker.setLatLng(center)}
       const title=activeCity.split(',')[0],place=document.getElementById('radarCity');if(place)place.textContent=title;
       radarCoverage=activeCountry==='US';
       if(!radarCoverage){if(miniRadarLayer)miniRadarLayer.setOpacity(0);if(fullRadarLayer)fullRadarLayer.setOpacity(0);document.getElementById('radarMiniStatus').textContent='U.S. radar coverage only · map still available';document.getElementById('fullRadarStatus').textContent='NOAA radar coverage is currently limited to the U.S. and territories'}
@@ -337,7 +337,7 @@
     function initMiniRadar(){
       if(!window.L||!L.esri){document.getElementById('radarMiniStatus').textContent='Interactive map could not load';return}
       if(miniRadarMap)return;
-      miniRadarMap=L.map('miniRadarMap',{zoomControl:false,scrollWheelZoom:false,dragging:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false}).setView(activeCoordinates,8);
+      miniRadarMap=L.map('miniRadarMap',{zoomControl:false,scrollWheelZoom:false,dragging:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false}).setView(activeCoordinates,11);
       miniBaseLayer=mapBase(miniRadarMap);miniRadarLayer=radarMapLayer(miniRadarMap);miniRadarMarker=radarMarker(miniRadarMap);
       document.getElementById('openRadarMini').addEventListener('click',openFullRadar);
       loadRadarTimeline();
@@ -358,7 +358,7 @@
     function closeFullRadar(){stopRadarPlayback();document.getElementById('radarFull').classList.remove('open');document.body.style.overflow=''}
     document.getElementById('openRadar').addEventListener('click',openFullRadar);
     document.getElementById('closeRadar').addEventListener('click',closeFullRadar);
-    document.getElementById('centerRadar').addEventListener('click',()=>{if(fullRadarMap)fullRadarMap.setView(activeCoordinates,7)});
+    document.getElementById('centerRadar').addEventListener('click',()=>{if(fullRadarMap)fullRadarMap.setView(activeCoordinates,11)});
     document.getElementById('playFullRadar').addEventListener('click',event=>{
       const button=event.currentTarget;
       if(radarPlayTimer){stopRadarPlayback();return}
