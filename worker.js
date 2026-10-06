@@ -47,7 +47,7 @@ export async function xweatherRadar(request, env, ctx) {
   const origin = request.headers.get('Origin');
   if ((origin && origin !== url.origin) || request.headers.get('Sec-Fetch-Site') === 'cross-site') return radarError('Use radar through WeatherGlass.', 403);
   if (url.pathname === '/api/radar/status') {
-    return Response.json({ configured: Boolean(env.XWEATHER_CLIENT_ID && env.XWEATHER_CLIENT_SECRET), provider: 'Xweather Raster Maps' }, { headers: { 'Cache-Control': 'no-store' } });
+    return Response.json({ configured: Boolean(env.XWEATHER_CLIENT_ID && env.XWEATHER_CLIENT_SECRET), clientIdPresent: Boolean(env.XWEATHER_CLIENT_ID), clientSecretPresent: Boolean(env.XWEATHER_CLIENT_SECRET), provider: 'Xweather Raster Maps' }, { headers: { 'Cache-Control': 'no-store' } });
   }
   const tile = parseRadarTile(url.pathname);
   if (!tile || url.search) return radarError('Unsupported radar tile request.', 400);
