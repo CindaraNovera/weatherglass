@@ -675,6 +675,16 @@
     document.getElementById('fullRadarProvider').addEventListener('change',e=>setRadarProvider(e.target.value));
     document.getElementById('checkXweather').addEventListener('click',connectXweather);
 
+
+    function refreshXweatherFrames(){
+      if(radarProvider!=='xweather')return;
+      const previous=radarFrames[radarFrameIndex],latest=radarFrameIndex===radarFrames.length-1;
+      radarFrames=xweatherFrames();const index=latest?radarFrames.length-1:radarFrames.indexOf(previous);
+      updateRadarFrame(index<0?0:index);
+    }
+    setInterval(()=>{if(!document.hidden)refreshXweatherFrames()},300000);
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)stopRadarPlayback();else refreshXweatherFrames()});
+
     function radarClock(time){return new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit',timeZone:activeTimezone}).format(new Date(time))}
     function mapBase(map){const satellite=basemapMode==='satellite',base=L.tileLayer(satellite?'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}':'https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:satellite?'Tiles &copy; Esri · Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community':'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'});base.addTo(map);if(map===miniRadarMap)miniLabelLayer=null;if(map===fullRadarMap)fullLabelLayer=null;if(satellite){if(!map.getPane('placeLabels')){map.createPane('placeLabels');map.getPane('placeLabels').style.zIndex='650';map.getPane('placeLabels').style.pointerEvents='none'}const labels=L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,pane:'placeLabels',attribution:'Place labels &copy; Esri'}).addTo(map);if(map===miniRadarMap)miniLabelLayer=labels;if(map===fullRadarMap)fullLabelLayer=labels}return base}
     function radarMapLayer(map){
