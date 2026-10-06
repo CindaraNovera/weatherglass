@@ -1125,7 +1125,7 @@
     document.getElementById('briefTone').value=briefPreferences.tone;
     document.getElementById('briefName').value=briefPreferences.name;
     document.getElementById('briefTone').addEventListener('change',saveBriefPreferences);
-    document.getElementById('briefName').addEventListener('change',saveBriefPreferences);
+    document.getElementById('briefName').addEventListener('input',saveBriefPreferences);
     document.getElementById('briefAnother').addEventListener('click',()=>{briefVariation++;renderDailyBrief()});
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderDailyBrief()});
     setInterval(()=>{if(!document.hidden&&briefModels)renderDailyBrief()},60000);
