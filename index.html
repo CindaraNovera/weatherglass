@@ -214,6 +214,7 @@
     .detail-metric[data-tone="maroon"]{--metric-color:#f39bb7;--metric-dark:#66182f}
     #locationDetails>.panel-heading .heading{font-size:19px;font-weight:700}
     @media(max-width:430px){.detail-metric strong{font-size:22px}.detail-metric{padding:14px}.detail-grid{gap:12px}}
+      #widget-radar{min-height:0;flex-shrink:0}
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -791,6 +792,12 @@
     chartPoints.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showChartReading(e.target)}if(e.key==='Escape')document.getElementById('chartPointTooltip').hidden=true});
     document.querySelector('#widget-hourly .chart').addEventListener('pointerleave',()=>{document.getElementById('chartPointTooltip').hidden=true});
     new ResizeObserver(renderChartAxis).observe(document.getElementById('chartLabels'));
+    const heroSizeObserver=new ResizeObserver(entries=>{
+      const height=entries[0].target.getBoundingClientRect().height;
+      if(height>0)document.getElementById('widget-radar').style.height=height+'px';
+    });
+    heroSizeObserver.observe(document.getElementById('widget-hero'));
+    new ResizeObserver(()=>{if(miniRadarMap)miniRadarMap.invalidateSize({pan:false})}).observe(document.getElementById('widget-radar'));
 
 
     const EVENT_PLAN_KEY='weatherglass-event-plan-v1',EVENT_PLANS_KEY='weatherglass-event-plans-v1';let eventPlanRequest=0,editingEventPlanId=null,removedEventPlan=null;
