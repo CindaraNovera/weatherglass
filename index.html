@@ -223,6 +223,10 @@
     .brand-name{display:block;font-size:32px;font-weight:750;letter-spacing:-.065em;line-height:1.12;background:linear-gradient(120deg,#ffffff 12%,#ddfff8 55%,#bae5ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 3px #173e6640)}
     .brand-type .tagline{display:flex;justify-content:space-between;gap:7px;width:100%;font-size:10px;font-weight:500;letter-spacing:.035em;line-height:1.5;color:#e3f2fa;margin:5px 0 0}
     @media(max-width:600px){.topbar{flex-wrap:wrap;gap:16px}.brand-name{font-size:29px}.brandmark{width:46px;height:46px}.brandmark svg{width:40px;height:40px}.top-right{gap:8px;flex-wrap:wrap}.brand-type .tagline{font-size:9px}}
+      .brand-type{min-width:0}
+    .brand-name{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:-.045em;padding-right:5px;overflow:visible;filter:none;text-shadow:0 2px 8px #14395120}
+    .brand-type .tagline{display:block;font-size:14px;letter-spacing:.02em;margin-top:5px;white-space:nowrap}
+    .brand-type .tagline-copy{display:inline-block;white-space:nowrap}
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -231,7 +235,7 @@
 <body>
   <main class="shell">
     <header class="topbar">
-      <div class="brand-wrap"><div class="brand"><span class="brandmark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><defs><linearGradient id="wgGlass" x1="14" y1="10" x2="52" y2="58" gradientUnits="userSpaceOnUse"><stop stop-color="#f2ffff" stop-opacity=".75"/><stop offset="1" stop-color="#73dded" stop-opacity=".12"/></linearGradient><linearGradient id="wgSun" x1="22" y1="20" x2="42" y2="40" gradientUnits="userSpaceOnUse"><stop stop-color="#fff1b5"/><stop offset="1" stop-color="#ffb25f"/></linearGradient></defs><path d="m32 18 23 14-23 14L9 32l23-14Z" fill="#63d6e0" fill-opacity=".16" stroke="#8dece7" stroke-opacity=".65" stroke-width="1.5"/><path d="m32 27 23 14-23 14L9 41l23-14Z" fill="#78c2ff" fill-opacity=".12" stroke="#b0dcff" stroke-opacity=".55" stroke-width="1.5"/><rect x="16" y="8" width="32" height="38" rx="12" fill="url(#wgGlass)" stroke="#efffff" stroke-width="1.6"/><circle cx="32" cy="24" r="8" fill="url(#wgSun)"/><path d="M20 34c7-5 17-5 24 0M20 39c7-5 17-5 24 0" stroke="#e4fffa" stroke-width="2" stroke-linecap="round"/><path d="M22 14h7" stroke="white" stroke-opacity=".8" stroke-width="2" stroke-linecap="round"/></svg></span><div class="brand-type"><span class="brand-name">weatherglass</span><div class="tagline" aria-label="your transparent forecast"><span>your</span><span>transparent</span><span>forecast</span></div></div></div></div>
+      <div class="brand-wrap"><div class="brand"><span class="brandmark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><defs><linearGradient id="wgGlass" x1="14" y1="10" x2="52" y2="58" gradientUnits="userSpaceOnUse"><stop stop-color="#f2ffff" stop-opacity=".75"/><stop offset="1" stop-color="#73dded" stop-opacity=".12"/></linearGradient><linearGradient id="wgSun" x1="22" y1="20" x2="42" y2="40" gradientUnits="userSpaceOnUse"><stop stop-color="#fff1b5"/><stop offset="1" stop-color="#ffb25f"/></linearGradient></defs><path d="m32 18 23 14-23 14L9 32l23-14Z" fill="#63d6e0" fill-opacity=".16" stroke="#8dece7" stroke-opacity=".65" stroke-width="1.5"/><path d="m32 27 23 14-23 14L9 41l23-14Z" fill="#78c2ff" fill-opacity=".12" stroke="#b0dcff" stroke-opacity=".55" stroke-width="1.5"/><rect x="16" y="8" width="32" height="38" rx="12" fill="url(#wgGlass)" stroke="#efffff" stroke-width="1.6"/><circle cx="32" cy="24" r="8" fill="url(#wgSun)"/><path d="M20 34c7-5 17-5 24 0M20 39c7-5 17-5 24 0" stroke="#e4fffa" stroke-width="2" stroke-linecap="round"/><path d="M22 14h7" stroke="white" stroke-opacity=".8" stroke-width="2" stroke-linecap="round"/></svg></span><div class="brand-type"><span class="brand-name">weatherglass</span><div class="tagline"><span class="tagline-copy">your transparent forecast</span></div></div></div></div>
       <div class="top-right"><span class="prototype" id="previewStatus">PROTOTYPE · SAMPLE DATA</span><div class="quicktools"><button class="iconbtn" id="layoutButton" title="Rearrange dashboard widgets"><span aria-hidden="true">⠿</span><span class="tool-label">Arrange</span></button><button class="iconbtn" id="widgetButton" title="Preview home screen widgets"><span aria-hidden="true">▦</span><span class="tool-label">Widgets</span></button></div><div class="avatar" aria-label="Profile">B</div></div>
     </header>
     <div class="locationline">
@@ -871,6 +875,15 @@
     setCity=function(name){previousSetCity(name);document.getElementById('previewStatus').textContent='LOOKING UP FORECAST';loadLocation(name)};
     setCity(activeCity);
     initMiniRadar();
+    function fitBrandTagline(){
+      const name=document.querySelector('.brand-name'),copy=document.querySelector('.tagline-copy');
+      copy.style.fontSize='14px';
+      const width=copy.getBoundingClientRect().width,target=name.getBoundingClientRect().width-5;
+      if(width>0&&target>0)copy.style.fontSize=(14*target/width)+'px';
+    }
+    new ResizeObserver(fitBrandTagline).observe(document.querySelector('.brand-name'));
+    document.fonts.ready.then(fitBrandTagline);
+
     const oldMoreDays=document.getElementById('moreDays'),cleanMoreDays=oldMoreDays.cloneNode(true);oldMoreDays.replaceWith(cleanMoreDays);cleanMoreDays.addEventListener('click',()=>{showTenDays=!showTenDays;renderDaily()});
     document.querySelectorAll('.range button').forEach(oldButton=>{const b=oldButton.cloneNode(true);oldButton.replaceWith(b);b.addEventListener('click',()=>{document.querySelectorAll('.range button').forEach(x=>x.classList.toggle('selected',x===b));selectedRange=b.dataset.range;document.querySelector('.section .heading').textContent=selectedRange==='Today'?'Today, hour by hour':selectedRange==='Tomorrow'?'Tomorrow, hour by hour':'10-day temperature outlook';renderLiveChart()})});
   </script>
