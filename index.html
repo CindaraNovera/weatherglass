@@ -331,7 +331,7 @@
     function initMiniRadar(){
       if(!window.L||!L.esri){document.getElementById('radarMiniStatus').textContent='Interactive map could not load';return}
       if(miniRadarMap)return;
-      miniRadarMap=L.map('miniRadarMap',{zoomControl:false,attributionControl:false,scrollWheelZoom:false,dragging:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false}).setView(activeCoordinates,6);
+      miniRadarMap=L.map('miniRadarMap',{zoomControl:false,scrollWheelZoom:false,dragging:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false}).setView(activeCoordinates,6);
       mapBase(miniRadarMap);miniRadarLayer=radarMapLayer(miniRadarMap);miniRadarMarker=radarMarker(miniRadarMap);
       document.getElementById('openRadarMini').addEventListener('click',openFullRadar);
       loadRadarTimeline();
