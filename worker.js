@@ -28,6 +28,13 @@ export async function locationAlerts(lat, lon) {
   return { alerts: [...byId.values()].sort((a, b) => (order[a.severity] ?? 4) - (order[b.severity] ?? 4)), checkedAt: new Date().toISOString(), source: 'National Weather Service', zones };
 }
 
+const OVERLAY_LAYERS = Object.freeze({ severe: 'alerts-severe', cells: 'stormcells', tropical: 'tropical-cyclones' });
+export function parseOverlayTile(path, now = Date.now()) {
+  const match = path.match(/^\/api\/radar\/overlay\/(severe|cells|tropical)\/(\d{1,2})\/(\d{1,5})\/(\d{1,5})\/(\d{13})\.png$/);
+  if (!match) return null;
+  const tile = parseRadarTile('/api/radar/xweather/' + match.slice(2).join('/') + '.png', now);
+  return tile ? { ...tile, layer: OVERLAY_LAYERS[match[1]] } : null;
+}
 const RADAR_TILE_PREFIX = '/api/radar/xweather/';
 function radarError(message, status) {
   return Response.json({ error: message }, { status, headers: { 'Cache-Control': 'no-store' } });
@@ -49,7 +56,7 @@ export async function xweatherRadar(request, env, ctx) {
   if (url.pathname === '/api/radar/status') {
     return Response.json({ configured: Boolean(env.XWEATHER_CLIENT_ID && env.XWEATHER_CLIENT_SECRET), clientIdPresent: Boolean(env.XWEATHER_CLIENT_ID), clientSecretPresent: Boolean(env.XWEATHER_CLIENT_SECRET), provider: 'Xweather Raster Maps' }, { headers: { 'Cache-Control': 'no-store' } });
   }
-  const tile = parseRadarTile(url.pathname);
+  const tile = parseRadarTile(url.pathname) || parseOverlayTile(url.pathname);
   if (!tile || url.search) return radarError('Unsupported radar tile request.', 400);
   if (!env.XWEATHER_CLIENT_ID || !env.XWEATHER_CLIENT_SECRET) return radarError('Xweather credentials have not been configured.', 503);
   const cacheKey = new Request(url.origin + url.pathname);
@@ -59,7 +66,7 @@ export async function xweatherRadar(request, env, ctx) {
   const stamp = new Date(tile.time).toISOString().replace(/[-:T]/g, '').slice(0, 14);
   const credentials = encodeURIComponent(env.XWEATHER_CLIENT_ID) + '_' + encodeURIComponent(env.XWEATHER_CLIENT_SECRET);
   try {
-    const upstream = await fetch('https://maps.api.xweather.com/' + credentials + '/radar/' + tile.z + '/' + tile.x + '/' + tile.y + '/' + stamp + '.png', {
+    const upstream = await fetch('https://maps.api.xweather.com/' + credentials + '/' + (tile.layer || 'radar') + '/' + tile.z + '/' + tile.x + '/' + tile.y + '/' + stamp + '.png', {
       signal: AbortSignal.timeout(10000),
       headers: { Accept: 'image/png' },
     });
@@ -78,7 +85,7 @@ export async function xweatherRadar(request, env, ctx) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    if (url.pathname === '/api/radar/status' || url.pathname.startsWith(RADAR_TILE_PREFIX)) return xweatherRadar(request, env, ctx);
+    if (url.pathname === '/api/radar/status' || url.pathname.startsWith(RADAR_TILE_PREFIX) || url.pathname.startsWith('/api/radar/overlay/')) return xweatherRadar(request, env, ctx);
     if (url.pathname !== '/api/alerts') return env.ASSETS.fetch(request);
     if (request.method !== 'GET') return new Response('Method not allowed', { status: 405, headers: { Allow: 'GET' } });
     const latText = url.searchParams.get('lat'), lonText = url.searchParams.get('lon');
