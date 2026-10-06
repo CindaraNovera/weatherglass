@@ -173,6 +173,8 @@
     .chart-point-tooltip[hidden]{display:none}
     #widget-hourly{container-type:inline-size}
     @container(max-width:360px){#widget-hourly .panel-heading{flex-wrap:wrap}#widget-hourly .charttemp{font-size:12px;width:100%}}
+
+    .event-plan-form{display:grid;gap:12px;margin-top:17px}.event-plan-form label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--ink)}.event-plan-form input,.event-plan-form select{font:inherit;font-size:14px;min-width:0;width:100%;padding:11px 12px;border:1px solid #ffffff30;border-radius:11px;background:#0b263b;color:#f4faff;color-scheme:dark}.event-plan-form input:focus,.event-plan-form select:focus{outline:2px solid var(--mint);outline-offset:2px}.event-time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.event-save{padding:12px;border-radius:11px;background:var(--mint);color:#123c3b;font-size:14px;font-weight:650}.event-save:disabled{opacity:.65;cursor:wait}#widget-insights .insight-copy{font-size:13px}#widget-insights .insight-title{font-size:14px}#widget-insights .alert-saved{font-size:12px;line-height:1.6;margin-top:12px}
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -220,7 +222,16 @@
         <article class="panel days" id="widget-days"><div class="panel-heading"><div><div class="heading">The next few days</div><div class="subheading" id="dailySubtitle">Consensus outlook · Warner Robins</div></div><button class="iconbtn" id="moreDays" aria-label="Show more days" style="width:31px;height:31px">···</button></div>
           <div id="dayRows"><div class="dayrow"><span class="dayname">Loading forecast…</span><span></span><span></span><span></span></div></div>
         </article>
-        <article class="panel insights" id="widget-insights"><div class="panel-heading"><div><div class="heading">Plan around the weather</div><div class="subheading">Turn a forecast into a useful decision</div></div><span style="font-size:16px;color:#9ce4cd">✧</span></div><div class="insight"><span class="insight-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18m-7-9h14M5.6 5.6l12.8 12.8m0-12.8L5.6 18.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><div><div class="insight-title" id="planTitle">A good window for a walk</div><div class="insight-copy" id="planCopy">Late morning looks driest in this sample outlook. <strong>Rain timing varies by model after 4 PM.</strong> We’ll show why the blend lands where it does.</div></div></div><div style="margin-top:15px"><div class="metriclabel" style="margin-bottom:9px">What are you planning?</div><div class="suggestions plan-choices"><button class="selected" data-plan="Walk">Walk</button><button data-plan="Commute">Commute</button><button data-plan="Outdoor plans">Outdoor plans</button></div></div><div class="plan-alert"><label for="rainThreshold">Alert me if rain chance rises above</label><div><select id="rainThreshold" aria-label="Rain chance alert threshold"><option value="30">30%</option><option value="40" selected>40%</option><option value="50">50%</option><option value="60">60%</option></select><button class="textbtn" id="savePlanAlert">Save preference</button></div></div><div class="alert-saved" id="alertSaved" aria-live="polite">Rule preview saves on this device; push notifications come with the mobile app.</div></article>
+        <article class="panel insights" id="widget-insights"><div class="panel-heading"><div><div class="heading">Plan around the weather</div><div class="subheading">Your place, your date, your time</div></div><span style="font-size:16px;color:#9ce4cd">✧</span></div>
+<form id="eventPlanForm" class="event-plan-form">
+<label>Activity<select id="eventActivity"><option>Outdoor plans</option><option>Walk</option><option>Commute</option><option>Outdoor event</option><option>Travel</option></select></label>
+<label>Location<input id="eventLocation" list="eventPlaces" required placeholder="City or ZIP code" autocomplete="off"/><datalist id="eventPlaces"></datalist></label>
+<label>Date<input id="eventDate" type="date" required/></label>
+<div class="event-time-row"><label>From<input id="eventStart" type="time" value="09:00" required/></label><label>Until<input id="eventEnd" type="time" value="12:00" required/></label></div>
+<label>Rain chance threshold<select id="rainThreshold"><option value="30">30%</option><option value="40" selected>40%</option><option value="50">50%</option><option value="60">60%</option></select></label>
+<button class="event-save" id="savePlanAlert" type="submit">Save &amp; check plan</button>
+</form>
+<div class="insight"><span class="insight-icon" aria-hidden="true">✧</span><div><div class="insight-title" id="planTitle">Choose a place and time</div><div class="insight-copy" id="planCopy">Save a plan to check the forecast for your chosen window.</div></div></div><div class="alert-saved" id="alertSaved" aria-live="polite">Plan alerts become eligible 10 days before your date. Background notifications are not connected yet.</div></article>
         <div class="bottom-note"><span id="dataAttribution">Connecting forecast feeds…</span><span>Live NOAA/NWS radar · consensus is an equal-weight model blend</span><a href="#" id="whyLink">How consensus works</a></div>
       </aside>
     </div>
@@ -459,16 +470,6 @@
     const baseSetCity=setCity;
     setCity=function(name){baseSetCity(name);document.getElementById('detailLocationSub').textContent=name+' · local conditions snapshot';document.getElementById('locationDetails').setAttribute('aria-label','Detailed conditions for '+name);document.getElementById('radarCity').textContent=name.split(',')[0]};
     setCity(activeCity);
-    const planCopyByType={Walk:['A good window for a walk','Late morning looks driest in this sample outlook. Rain timing varies by model after 4 PM.'],Commute:['A calmer commute window','The sample outlook stays mild through late morning. Check the radar again before leaving if rain timing shifts.'],'Outdoor plans':['A flexible outdoor window','Late morning has the lowest sample rain risk. The models spread out later in the afternoon, so keep a backup plan.']};
-    document.querySelectorAll('.plan-choices button').forEach(button=>button.addEventListener('click',()=>{
-      document.querySelectorAll('.plan-choices button').forEach(b=>b.classList.toggle('selected',b===button));
-      const copy=planCopyByType[button.dataset.plan];document.getElementById('planTitle').textContent=copy[0];document.getElementById('planCopy').textContent=copy[1];
-    }));
-    document.getElementById('savePlanAlert').addEventListener('click',()=>{
-      const value={location:activeCity,plan:document.querySelector('.plan-choices .selected')?.dataset.plan||'Walk',rainChance:Number(document.getElementById('rainThreshold').value)};
-      writeStored('weatherglass-alert-preference-v1',value);
-      document.getElementById('alertSaved').textContent='Preference saved on this device · notifications arrive in the mobile app.';
-    });
     // Live private-beta connection: Open-Meteo city lookup plus independent model selections.
     // The free endpoints are suitable for a private prototype; commercial launch needs a licensed service plan.
     const liveModels=[
@@ -603,15 +604,7 @@
       if(dailySource?.sunrise?.[0]&&dailySource?.sunset?.[0])document.querySelector('.sunmoon-row .sunmoon:first-child strong').textContent=clockText(dailySource.sunrise[0])+' · '+clockText(dailySource.sunset[0]);
       const lunar=moonDescription();document.querySelector('.sunmoon-row .sunmoon:last-child span').textContent='Moon · '+lunar.label;document.querySelector('.sunmoon-row .sunmoon:last-child strong').textContent='☾  '+lunar.illumination+'% illuminated';
       const tz=models[0].data.timezone||undefined;document.getElementById('localDate').textContent=new Intl.DateTimeFormat(undefined,{weekday:'long',month:'long',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:tz}).format(new Date());
-      const firstHourly=models.find(m=>m.data.hourly?.time),hourIndex=firstHourly?nearestHourIndex(firstHourly.data.hourly.time,firstHourly.data.current?.time):0;
-      const nowRain=mean(models.map(m=>Number(valueOf(m.data.hourly,'precipitation_probability',m.id)?.[hourIndex+4])));
-      const planTitle=document.getElementById('planTitle'),planCopy=document.getElementById('planCopy');
-      planTitle.textContent=rain<25?'A good window for your plans':'Rain may affect your plans';
-      planCopy.textContent=rain<25?'Model-average rain chance peaks near '+roundOrDash(rain)+'% over the next 12 hours. Review source differences below before you head out.':'Model-average rain chance reaches '+roundOrDash(rain)+'% in the next 12 hours. Models do not always agree on timing; compare their hourly curves.';
       document.getElementById('sourceFootnote').textContent='Forecasts shown are independent provider model outputs blended equally for this private prototype. The blend is not yet calibrated against local forecast history.';
-      if(Number.isFinite(temp)&&temp>=90){planTitle.textContent='Heat may affect outdoor plans';planCopy.textContent='Model-average temperature is '+roundOrDash(temp)+'°F. Review feels-like temperature, UV and official alerts before choosing a time outdoors.'}
-      else if(Number.isFinite(wind)&&wind>=20){planTitle.textContent='Wind may affect outdoor plans';planCopy.textContent='Sustained model-average wind is '+roundOrDash(wind)+' mph. Check the wind card for gusts and quieter periods.'}
-      applyAlertPlanningNotice();
       renderDaily();renderLiveChart();renderWind();
     }
     async function loadLocation(query){
@@ -663,7 +656,6 @@
       document.getElementById('windSubtitle').textContent='Next 24 hours · '+activeCity.split(',')[0];
       const note=document.createElement('div');note.className='alerts-note';note.style.marginTop='10px';note.textContent='Peak mean gust '+roundOrDash(peak)+' mph · Available models blended equally; direction from '+source.label+'.';root.append(note);
     }
-    function applyAlertPlanningNotice(){const result=alertCache.get(cityKey(activeCity));if(result?.state!=='ok')return;const alert=result.alerts.find(a=>['Severe','Extreme'].includes(a.severity)&&(!a.ends&&!a.expires||Date.parse(a.ends||a.expires)>Date.now()));if(alert){document.getElementById('planTitle').textContent='Official alert may affect your plans';document.getElementById('planCopy').textContent=(alert.event||'Weather warning')+' is active for this location or its county/forecast zone. Review the affected area and official instructions in the alerts card.'}}
     function alertMessage(text){const el=document.createElement('div');el.className='alerts-summary';el.textContent=text;return el}
     function renderAlerts(result){
       const root=document.getElementById('alertsContent');root.replaceChildren();document.getElementById('alertsLocation').textContent=activeCity;
@@ -677,7 +669,7 @@
     async function loadCurrentAlerts(){
       const id=++alertsRequest,key=cityKey(activeCity),country=activeCountry,coords=[...activeCoordinates];document.getElementById('alertsLocation').textContent=activeCity;document.getElementById('alertsContent').replaceChildren(alertMessage('Checking official alerts…'));document.getElementById('alertsChecked').textContent='';
       const result=country!=='US'?{state:'unsupported',at:Date.now()}:await queryAlerts(coords).catch(()=>({state:'error',at:Date.now()}));
-      if(id!==alertsRequest)return;alertCache.set(key,result);renderAlerts(result);applyAlertPlanningNotice();renderFavorites();
+      if(id!==alertsRequest)return;alertCache.set(key,result);renderAlerts(result);renderFavorites();
     }
     async function syncFavoriteAlerts(){
       for(const name of favorites){const key=cityKey(name);if(key===cityKey(activeCity)||alertPending.has(key)||Date.now()-(alertCache.get(key)?.at||0)<300000)continue;
@@ -708,6 +700,46 @@
     chartPoints.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showChartReading(e.target)}if(e.key==='Escape')document.getElementById('chartPointTooltip').hidden=true});
     document.querySelector('#widget-hourly .chart').addEventListener('pointerleave',()=>{document.getElementById('chartPointTooltip').hidden=true});
     new ResizeObserver(renderChartAxis).observe(document.getElementById('chartLabels'));
+
+
+    const EVENT_PLAN_KEY='weatherglass-event-plan-v1';let eventPlanRequest=0;
+    function localCalendarDate(timeZone){return new Intl.DateTimeFormat('sv-SE',{timeZone,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}
+    function calendarDays(date,today){return Math.round((Date.parse(date+'T00:00:00Z')-Date.parse(today+'T00:00:00Z'))/86400000)}
+    function planActivationDate(date){const d=new Date(date+'T00:00:00Z');d.setUTCDate(d.getUTCDate()-10);return d.toISOString().slice(0,10)}
+    function planTimeMinutes(time){const [hour,minute]=time.split(':').map(Number);return hour*60+minute}
+    function fillEventPlan(plan){
+      document.getElementById('eventActivity').value=plan.activity||'Outdoor plans';document.getElementById('eventLocation').value=plan.location||activeCity;document.getElementById('eventDate').value=plan.date||localCalendarDate(activeTimezone);document.getElementById('eventStart').value=plan.start||'09:00';document.getElementById('eventEnd').value=plan.end||'12:00';document.getElementById('rainThreshold').value=String(plan.threshold||40);
+      const places=document.getElementById('eventPlaces');places.replaceChildren();[...new Set([activeCity,...favorites])].forEach(name=>{const option=document.createElement('option');option.value=name;places.append(option)});
+    }
+    async function checkEventPlan(plan){
+      const id=++eventPlanRequest,button=document.getElementById('savePlanAlert'),title=document.getElementById('planTitle'),copy=document.getElementById('planCopy'),status=document.getElementById('alertSaved');
+      button.disabled=true;title.textContent='Checking your plan…';copy.textContent=plan.location+' · '+plan.date+' · '+plan.start+'–'+plan.end;
+      try{
+        if(plan.end<=plan.start)throw new Error('Choose an end time after the start time. This window uses one calendar date.');
+        const geo=await getJson(apiUrl('https://geocoding-api.open-meteo.com/v1/search',{name:plan.location,count:5,language:'en',format:'json'}));if(id!==eventPlanRequest)return;
+        const matches=geo.results||[],place=matches.find(x=>x.country_code==='US')||matches[0];if(!place)throw new Error('That location could not be found. Try a city name.');
+        const zone=place.timezone||'UTC',days=calendarDays(plan.date,localCalendarDate(zone));if(days<0)throw new Error('Choose today or a future date for this location.');
+        if(days===0&&planTimeMinutes(plan.end)<=planTimeMinutes(new Intl.DateTimeFormat('en-GB',{timeZone:zone,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date())))throw new Error('That time window has already ended at this location.');
+        plan={...plan,location:niceLocation(place),timezone:zone};writeStored(EVENT_PLAN_KEY,plan);document.getElementById('eventLocation').value=plan.location;
+        status.textContent=(days>10?'Alert window opens '+planActivationDate(plan.date)+'.':'Inside the 10-day alert window.')+' Saved on this device. Background/push alerts are not connected yet.';
+        if(days>10){title.textContent='Saved · waiting for your forecast';copy.textContent=plan.activity+' in '+plan.location+' on '+plan.date+', '+plan.start+'–'+plan.end+' (local time). Forecast checks start 10 days before your date.';return}
+        const settled=await Promise.allSettled(liveModels.map(model=>fetchModel(place,model)));if(id!==eventPlanRequest)return;
+        const models=settled.filter(r=>r.status==='fulfilled').map(r=>r.value);if(!models.length)throw new Error('Forecast services are unavailable. Your plan is saved; check again shortly.');
+        const startMinutes=planTimeMinutes(plan.start),endMinutes=planTimeMinutes(plan.end);
+        const samples=models.flatMap(model=>(model.data.hourly?.time||[]).flatMap((time,i)=>{if(time.slice(0,10)!==plan.date)return[];const minutes=planTimeMinutes(time.slice(11,16));if(minutes>=endMinutes||minutes+60<=startMinutes)return[];const field=key=>valueOf(model.data.hourly,key,model.id)?.[i];return[{time,temp:field('temperature_2m'),rain:field('precipitation_probability'),gust:field('wind_gusts_10m')}]}));
+        if(!samples.length){title.textContent='Saved · forecast not available yet';copy.textContent='Your '+plan.date+' time window is beyond the available hourly forecast. Check back as the date gets closer.';return}
+        const byTime=[...new Set(samples.map(x=>x.time))].map(time=>{const rows=samples.filter(x=>x.time===time);return{time,temp:mean(rows.map(x=>x.temp)),rain:mean(rows.map(x=>x.rain)),gust:mean(rows.map(x=>x.gust))}});
+        const finite=key=>byTime.map(x=>x[key]).filter(x=>typeof x==='number'&&Number.isFinite(x)),temps=finite('temp'),rains=finite('rain'),gusts=finite('gust');
+        const peakRain=rains.length?Math.max(...rains):null,peakGust=gusts.length?Math.max(...gusts):null,hot=temps.length?Math.max(...temps):null;
+        title.textContent=peakRain!==null&&peakRain>=plan.threshold?'Rain may affect your plan':hot!==null&&hot>=90?'Heat may affect your plan':peakGust!==null&&peakGust>=25?'Gusts may affect your plan':'Forecast for your selected window';
+        copy.textContent=plan.location+' · '+plan.date+' · '+plan.start+'–'+plan.end+' local time. '+(temps.length?roundOrDash(Math.min(...temps))+'–'+roundOrDash(Math.max(...temps))+'°F. ':'')+(peakRain!==null?'Peak model-mean rain chance '+roundOrDash(peakRain)+'%. ':'Rain probability unavailable. ')+(peakGust!==null?'Peak mean gust '+roundOrDash(peakGust)+' mph. ':'')+models.length+' model feeds. Hourly values overlap your chosen window; forecasts can change.';
+      }catch(error){if(id!==eventPlanRequest)return;title.textContent='Plan needs attention';copy.textContent=error.message;status.textContent='Alerts are eligible only within 10 days of your date. No background notifications are being sent.'}
+      finally{if(id===eventPlanRequest)button.disabled=false}
+    }
+    const savedEventPlan=readStored(EVENT_PLAN_KEY,null);fillEventPlan(savedEventPlan||{});
+    document.getElementById('eventPlanForm').addEventListener('submit',e=>{e.preventDefault();checkEventPlan({activity:document.getElementById('eventActivity').value,location:document.getElementById('eventLocation').value.trim(),date:document.getElementById('eventDate').value,start:document.getElementById('eventStart').value,end:document.getElementById('eventEnd').value,threshold:Number(document.getElementById('rainThreshold').value)})});
+    document.getElementById('eventPlanForm').addEventListener('input',()=>{++eventPlanRequest;document.getElementById('savePlanAlert').disabled=false;document.getElementById('planTitle').textContent='Changes ready to check';document.getElementById('planCopy').textContent='Save and check to update the forecast for this location and window.';document.getElementById('alertSaved').textContent='Changes are not saved yet. Alerts become eligible 10 days before your date.'});
+    if(savedEventPlan)checkEventPlan(savedEventPlan);
 
     const previousSetCity=setCity;
     setCity=function(name){previousSetCity(name);document.getElementById('previewStatus').textContent='LOOKING UP FORECAST';loadLocation(name)};
