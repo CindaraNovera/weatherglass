@@ -149,6 +149,15 @@
     body[data-period="day"] .prototype{color:#fff3d4;border-color:#fff0bd66;background:#144c7255}
     body[data-period="day"] .brand{filter:drop-shadow(0 1px 5px #14517e44)}
 
+
+    .radar{min-height:320px}
+    .mini-radar-timeline{position:absolute;z-index:3;left:13px;right:13px;bottom:62px;display:flex;align-items:center;gap:10px;padding:6px 9px;border:1px solid #ffffff30;border-radius:10px;background:#05131dc9;backdrop-filter:blur(14px)}
+    .mini-radar-timeline button{width:25px;height:25px;display:grid;place-items:center;background:#ffffff16;border-radius:7px;color:#d4f9ec;flex:none}
+    .mini-radar-timeline input{width:100%;min-width:0;accent-color:#98efd7}
+    .radar .leaflet-control-attribution{bottom:101px}
+    .radar .leaflet-top.leaflet-left{top:66px}
+    .radar .leaflet-control-zoom a{background:#102839df;color:#fff;border-color:#ffffff30}
+    @media(max-width:430px){.radar{min-height:320px}.radar-mini-foot{gap:6px;padding:8px}.radar-mini-foot #radarMiniTime{font-size:9px}.radar-live-dot{font-size:7px}}
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -188,7 +197,7 @@
       </section>
       <aside class="sidecol">
         <article class="panel radar" id="widget-radar"><div class="radar-head"><div><div class="heading">Radar · NOAA/NWS</div><div class="subheading" id="radarMiniStatus">Connecting to live U.S. radar…</div></div><button class="radar-open" id="openRadar" title="Open full-screen radar" aria-label="Open full-screen radar"><svg viewBox="0 0 24 24" fill="none"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
-          <div class="mini-radar-map" id="miniRadarMap" role="img" aria-label="Live NOAA precipitation radar preview"></div><div class="radar-mini-foot"><span class="radar-live-dot">NOAA RADAR</span><span id="radarMiniTime">Loading current radar…</span><div class="mini-map-mode" role="group" aria-label="Small radar map type"><button type="button" id="miniMapStreets" class="selected" aria-pressed="true">Map</button><button type="button" id="miniMapSatellite" aria-pressed="false">Sat</button></div><button type="button" id="openRadarMini">Full map&nbsp;↗</button></div>
+          <div class="mini-radar-map" id="miniRadarMap" role="img" aria-label="Live NOAA precipitation radar preview"></div><div class="mini-radar-timeline"><button type="button" id="playMiniRadar" aria-label="Play radar animation" data-playing="false">▶</button><input type="range" id="miniRadarScrubber" min="0" max="1" value="1" step="1" aria-label="Radar widget time"><button type="button" id="centerMiniRadar" aria-label="Recenter radar on selected location">⌖</button></div><div class="radar-mini-foot"><span class="radar-live-dot">NOAA RADAR</span><span id="radarMiniTime">Loading current radar…</span><div class="mini-map-mode" role="group" aria-label="Small radar map type"><button type="button" id="miniMapStreets" class="selected" aria-pressed="true">Map</button><button type="button" id="miniMapSatellite" aria-pressed="false">Sat</button></div><button type="button" id="openRadarMini">Full map&nbsp;↗</button></div>
         </article>
         <article class="panel days" id="widget-days"><div class="panel-heading"><div><div class="heading">The next few days</div><div class="subheading" id="dailySubtitle">Consensus outlook · Warner Robins</div></div><button class="iconbtn" id="moreDays" aria-label="Show more days" style="width:31px;height:31px">···</button></div>
           <div id="dayRows"><div class="dayrow"><span class="dayname">Loading forecast…</span><span></span><span></span><span></span></div></div>
@@ -371,7 +380,7 @@
     function updateRadarFrame(index){
       if(!radarFrames.length)return;
       radarFrameIndex=Math.max(0,Math.min(radarFrames.length-1,Number(index)||0));
-      const slider=document.getElementById('radarScrubber');slider.max=String(radarFrames.length-1);slider.value=String(radarFrameIndex);
+      const slider=document.getElementById('radarScrubber');slider.max=String(radarFrames.length-1);slider.value=String(radarFrameIndex);const miniSlider=document.getElementById('miniRadarScrubber');miniSlider.max=slider.max;miniSlider.value=slider.value;
       const time=radarFrames[radarFrameIndex],latest=radarFrameIndex===radarFrames.length-1;
       document.getElementById('fullRadarTime').textContent=(latest?'Latest · ':'')+radarClock(time);
       document.getElementById('radarMiniTime').textContent=(latest?'Updated · ':'')+radarClock(time);
@@ -389,7 +398,7 @@
     function initMiniRadar(){
       if(!window.L||!L.esri){document.getElementById('radarMiniStatus').textContent='Interactive map could not load';return}
       if(miniRadarMap)return;
-      miniRadarMap=L.map('miniRadarMap',{zoomControl:false,scrollWheelZoom:false,dragging:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false}).setView(activeCoordinates,9);
+      miniRadarMap=L.map('miniRadarMap',{zoomControl:true,scrollWheelZoom:true,dragging:true,doubleClickZoom:true,boxZoom:true,keyboard:true,touchZoom:true}).setView(activeCoordinates,9);
       miniBaseLayer=mapBase(miniRadarMap);miniRadarLayer=radarMapLayer(miniRadarMap);miniRadarMarker=radarMarker(miniRadarMap);
       document.getElementById('openRadarMini').addEventListener('click',openFullRadar);
       loadRadarTimeline();
@@ -406,18 +415,19 @@
       initFullRadar();window.setTimeout(()=>{if(fullRadarMap){fullRadarMap.invalidateSize(true);fullRadarMap.setView(activeCoordinates,11)}},80);
       if(!window.L)document.getElementById('fullRadarStatus').textContent='Map library unavailable · refresh to try again';
     }
-    function stopRadarPlayback(){if(radarPlayTimer){clearInterval(radarPlayTimer);radarPlayTimer=null}const button=document.getElementById('playFullRadar');button.dataset.playing='false';button.setAttribute('aria-label','Play radar animation');button.innerHTML='<svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M6 3.5v13l10-6.5z"/></svg>'}
+    function setRadarPlaybackState(playing){
+      ['playFullRadar','playMiniRadar'].forEach(id=>{const button=document.getElementById(id);button.dataset.playing=String(playing);button.setAttribute('aria-label',playing?'Pause radar animation':'Play radar animation');button.innerHTML=playing?'<svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M5 4h4v12H5zm6 0h4v12h-4z"/></svg>':'<svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M6 3.5v13l10-6.5z"/></svg>'});
+    }
+    function stopRadarPlayback(){if(radarPlayTimer){clearInterval(radarPlayTimer);radarPlayTimer=null}setRadarPlaybackState(false)}
+    function toggleRadarPlayback(){if(radarPlayTimer){stopRadarPlayback();return}if(!radarFrames.length)return;setRadarPlaybackState(true);radarPlayTimer=setInterval(()=>updateRadarFrame((radarFrameIndex+1)%radarFrames.length),650)}
     function closeFullRadar(){stopRadarPlayback();document.getElementById('radarFull').classList.remove('open');document.body.style.overflow=''}
     document.getElementById('openRadar').addEventListener('click',openFullRadar);
     document.getElementById('closeRadar').addEventListener('click',closeFullRadar);
     document.getElementById('centerRadar').addEventListener('click',()=>{if(fullRadarMap)fullRadarMap.setView(activeCoordinates,11)});
-    document.getElementById('playFullRadar').addEventListener('click',event=>{
-      const button=event.currentTarget;
-      if(radarPlayTimer){stopRadarPlayback();return}
-      if(!radarFrames.length)return;
-      button.dataset.playing='true';button.setAttribute('aria-label','Pause radar animation');button.innerHTML='<svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M5 4h4v12H5zm6 0h4v12h-4z"/></svg>';
-      radarPlayTimer=setInterval(()=>updateRadarFrame((radarFrameIndex+1)%radarFrames.length),650);
-    });
+    document.getElementById('playFullRadar').addEventListener('click',toggleRadarPlayback);
+    document.getElementById('playMiniRadar').addEventListener('click',toggleRadarPlayback);
+    document.getElementById('centerMiniRadar').addEventListener('click',()=>{if(miniRadarMap)miniRadarMap.setView(activeCoordinates,9)});
+    document.getElementById('miniRadarScrubber').addEventListener('input',event=>{stopRadarPlayback();updateRadarFrame(event.target.value)});
     document.getElementById('radarScrubber').addEventListener('input',event=>{stopRadarPlayback();updateRadarFrame(event.target.value)});
     document.querySelectorAll('[data-view="radar"]').forEach(button=>button.addEventListener('click',openFullRadar));
     document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeFullRadar();document.querySelectorAll('.modal-backdrop').forEach(m=>m.classList.remove('open'))}});
