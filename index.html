@@ -337,21 +337,21 @@
     function initMiniRadar(){
       if(!window.L||!L.esri){document.getElementById('radarMiniStatus').textContent='Interactive map could not load';return}
       if(miniRadarMap)return;
-      miniRadarMap=L.map('miniRadarMap',{zoomControl:false,scrollWheelZoom:false,dragging:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false}).setView(activeCoordinates,11);
+      miniRadarMap=L.map('miniRadarMap',{zoomControl:false,scrollWheelZoom:false,dragging:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false}).setView(activeCoordinates,9);
       miniBaseLayer=mapBase(miniRadarMap);miniRadarLayer=radarMapLayer(miniRadarMap);miniRadarMarker=radarMarker(miniRadarMap);
       document.getElementById('openRadarMini').addEventListener('click',openFullRadar);
       loadRadarTimeline();
     }
     function initFullRadar(){
       if(fullRadarMap||!window.L||!L.esri)return;
-      fullRadarMap=L.map('fullRadarMap',{zoomControl:true,attributionControl:true,scrollWheelZoom:true}).setView(activeCoordinates,9);
+      fullRadarMap=L.map('fullRadarMap',{zoomControl:true,attributionControl:true,scrollWheelZoom:true}).setView(activeCoordinates,11);
       fullBaseLayer=mapBase(fullRadarMap);fullRadarLayer=radarMapLayer(fullRadarMap);fullRadarMarker=radarMarker(fullRadarMap);
       if(radarFrames.length)updateRadarFrame(radarFrameIndex);
     }
     function openFullRadar(){
       const full=document.getElementById('radarFull');full.classList.add('open');document.body.style.overflow='hidden';
       document.getElementById('radarCity').textContent=activeCity.split(',')[0];
-      initFullRadar();window.setTimeout(()=>{if(fullRadarMap){fullRadarMap.invalidateSize(true);fullRadarMap.setView(activeCoordinates,9)}},80);
+      initFullRadar();window.setTimeout(()=>{if(fullRadarMap){fullRadarMap.invalidateSize(true);fullRadarMap.setView(activeCoordinates,11)}},80);
       if(!window.L)document.getElementById('fullRadarStatus').textContent='Map library unavailable · refresh to try again';
     }
     function stopRadarPlayback(){if(radarPlayTimer){clearInterval(radarPlayTimer);radarPlayTimer=null}const button=document.getElementById('playFullRadar');button.dataset.playing='false';button.setAttribute('aria-label','Play radar animation');button.innerHTML='<svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M6 3.5v13l10-6.5z"/></svg>'}
