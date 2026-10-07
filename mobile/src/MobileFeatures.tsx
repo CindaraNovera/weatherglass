@@ -49,16 +49,18 @@ function radarHtml(place: Place) {
 <div class="bottom"><div class="timeline"><button class="play" id="playBtn">▶</button><input id="frame" type="range" min="0" max="12" value="12"><span id="time"></span></div><div class="status"><span>Xweather precipitation radar</span><span id="mode">LIVE</span></div></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>
 const lat=${lat},lon=${lon}, map=L.map('map',{zoomControl:true,attributionControl:true}).setView([lat,lon],10);
+map.createPane('radarPane');map.getPane('radarPane').style.zIndex='450';map.getPane('radarPane').style.pointerEvents='none';
+map.createPane('labelPane');map.getPane('labelPane').style.zIndex='500';map.getPane('labelPane').style.pointerEvents='none';
 const streets=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
 const imagery=L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles © Esri'});let labels=null,base=streets,satellite=false;
 const marker=L.circleMarker([lat,lon],{radius:6,color:'#ffffff',weight:2,fillColor:'#98efd7',fillOpacity:1}).addTo(map);
 const frames=Array.from({length:13},(_,i)=>Math.floor((Date.now()-300000)/300000)*300000-(12-i)*300000);
-const radar=L.tileLayer('',{maxNativeZoom:12,maxZoom:19,opacity:.82,attribution:'Radar © Xweather',keepBuffer:1}).addTo(map);
+const radar=L.tileLayer('',{pane:'radarPane',maxNativeZoom:12,maxZoom:19,opacity:.82,attribution:'Radar © Xweather',keepBuffer:1}).addTo(map);
 const range=document.getElementById('frame'),time=document.getElementById('time'),play=document.getElementById('playBtn'),mode=document.getElementById('mode');let index=12,timer=null;
 radar.on('tileerror',()=>{mode.textContent='RADAR TILE ERROR'});radar.on('tileload',()=>{if(mode.textContent==='RADAR TILE ERROR')mode.textContent=index===12?'LATEST':'PAST FRAME'});
 function render(){index=Number(range.value);radar.setUrl('/api/radar/xweather/{z}/{x}/{y}/'+frames[index]+'.png');time.textContent=new Date(frames[index]).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});mode.textContent=index===12?'LATEST':'PAST FRAME'}
 range.addEventListener('input',render);play.addEventListener('click',()=>{if(timer){clearInterval(timer);timer=null;play.textContent='▶';return}play.textContent='Ⅱ';if(index>=12){index=0;range.value='0';render()}timer=setInterval(()=>{index=(index+1)%13;range.value=String(index);render()},700)});
-function setBase(sat){satellite=sat;if(base)map.removeLayer(base);if(labels){map.removeLayer(labels);labels=null}base=(sat?imagery:streets).addTo(map);if(sat)labels=L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Place labels © Esri'}).addTo(map);document.getElementById('mapBtn').className='pill'+(sat?'':' active');document.getElementById('satBtn').className='pill'+(sat?' active':'')}
+function setBase(sat){satellite=sat;if(base)map.removeLayer(base);if(labels){map.removeLayer(labels);labels=null}base=(sat?imagery:streets).addTo(map);if(sat)labels=L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{pane:'labelPane',maxZoom:19,attribution:'Place labels © Esri'}).addTo(map);document.getElementById('mapBtn').className='pill'+(sat?'':' active');document.getElementById('satBtn').className='pill'+(sat?' active':'')}
 document.getElementById('mapBtn').onclick=()=>setBase(false);document.getElementById('satBtn').onclick=()=>setBase(true);document.getElementById('centerBtn').onclick=()=>{map.setView([lat,lon],10);marker.openPopup?.()};render();
 </script></body></html>`;
 }
