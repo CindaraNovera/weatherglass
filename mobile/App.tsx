@@ -130,8 +130,8 @@ function ForecastHome({
             <View key={time} style={styles.hour}>
               <Text style={styles.hourTime}>{index === 0 ? "NOW" : time.slice(11, 16)}</Text>
               <Text style={styles.hourGlyph}>◌</Text>
-              <Text style={styles.hourTemp}>{rounded(hourly?.temperature_2m?.[index])}°</Text>
-              <Text style={styles.hourRain}>{rounded(hourly?.precipitation_probability?.[index])}%</Text>
+              <Text style={styles.hourTemp}>{rounded(average(models.map((model) => model.hourly.temperature_2m?.[index])))}°</Text>
+              <Text style={styles.hourRain}>{rounded(average(models.map((model) => model.hourly.precipitation_probability?.[index])))}%</Text>
             </View>
           ))}
           {!hourly?.time?.length && <Text style={styles.muted}>Hourly forecast appears when data loads.</Text>}
@@ -183,6 +183,9 @@ export default function App() {
   const [data, setData] = useState<ForecastConsensus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const appWeatherCode = data?.models[0]?.current.weather_code;
+  const appIsDay = data?.models[0]?.current.is_day !== 0;
+  const appIsWet = ["Rain", "Drizzle", "Snow", "Thunderstorms"].includes(conditionLabel(appWeatherCode));
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -203,7 +206,7 @@ export default function App() {
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="light-content" />
-      <View style={[styles.backgroundGlow, isWet && styles.rainGlow, !isDay && styles.nightGlow]} />
+      <View style={[styles.backgroundGlow, appIsWet && styles.rainGlow, !appIsDay && styles.nightGlow]} />
       <View style={styles.header}>
         <View style={styles.brandIcon}><Text style={styles.brandIconText}>◒</Text></View>
         <View>
