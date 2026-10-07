@@ -27,11 +27,22 @@ function average(values: Array<number | undefined>): number | undefined {
   return usable.reduce((sum, value) => sum + value, 0) / usable.length;
 }
 
+function weatherGlyph(code?: number, isDay = true): string {
+  if (code === undefined) return "◌";
+  if (code === 0) return isDay ? "☀" : "☾";
+  if (code === 1 || code === 2) return isDay ? "⛅" : "☁";
+  if (code === 3 || code === 45 || code === 48) return "☁";
+  if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return "☂";
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return "❄";
+  if ([95, 96, 99].includes(code)) return "ϟ";
+  return "◌";
+}
+
 function rounded(value?: number): string {
   return typeof value === "number" ? String(Math.round(value)) : "—";
 }
 
-function GlassCard({ children, style }: { children: React.ReactNode; style?: object }) {
+function GlassCard({ children, style }: { children: React.ReactNode; style?: import("react-native").StyleProp<import("react-native").ViewStyle> }) {
   return <View style={[styles.card, style]}>{children}</View>;
 }
 
@@ -51,8 +62,16 @@ function ForecastHome({
   const feelsLike = average(models.map((model) => model.current.apparent_temperature));
   const high = average(models.map((model) => model.daily.temperature_2m_max?.[0]));
   const low = average(models.map((model) => model.daily.temperature_2m_min?.[0]));
-  const code = models[0]?.current.weather_code;
+  const codeCounts = new Map<number, number>();
+  for (const model of models) {
+    const value = model.current.weather_code;
+    if (typeof value === "number") codeCounts.set(value, (codeCounts.get(value) ?? 0) + 1);
+  }
+  const code = [...codeCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+  const isDay = models[0]?.current.is_day !== 0;
   const hourly = models[0]?.hourly;
+  const condition = conditionLabel(code);
+  const isWet = ["Rain", "Drizzle", "Snow", "Thunderstorms"].includes(condition);
 
   return (
     <ScrollView
@@ -70,7 +89,7 @@ function ForecastHome({
       </View>
 
       <GlassCard style={styles.hero}>
-        <Text style={styles.kicker}>MODEL CONSENSUS · {models.length || 3} FEEDS</Text>
+        <Text style={styles.kicker}>MODEL CONSENSUS · {models.length ? models.length + " FEEDS" : loading ? "CHECKING MODELS" : "NO FEEDS"}</Text>
         {loading && !data ? (
           <View style={styles.loading}>
             <ActivityIndicator color="#a9f0dc" />
@@ -81,8 +100,8 @@ function ForecastHome({
             <View style={styles.heroLine}>
               <Text style={styles.temperature}>{rounded(current)}°</Text>
               <View style={styles.conditionBlock}>
-                <Text style={styles.weatherGlyph}>☀</Text>
-                <Text style={styles.condition}>{conditionLabel(code)}</Text>
+                <Text style={styles.weatherGlyph}>{weatherGlyph(code, isDay)}</Text>
+                <Text style={styles.condition}>{condition}</Text>
               </View>
             </View>
             <Text style={styles.feels}>Feels like {rounded(feelsLike)}°</Text>
@@ -184,7 +203,7 @@ export default function App() {
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="light-content" />
-      <View style={styles.backgroundGlow} />
+      <View style={[styles.backgroundGlow, isWet && styles.rainGlow, !isDay && styles.nightGlow]} />
       <View style={styles.header}>
         <View style={styles.brandIcon}><Text style={styles.brandIconText}>◒</Text></View>
         <View>
@@ -223,6 +242,8 @@ const styles = StyleSheet.create({
     position: "absolute", top: -100, left: -60, width: 360, height: 330, borderRadius: 220,
     backgroundColor: "#123c4a", opacity: 0.55,
   },
+  rainGlow: { backgroundColor: "#17435a" },
+  nightGlow: { backgroundColor: "#1b2747", opacity: 0.46 },
   header: { height: 76, paddingHorizontal: 22, flexDirection: "row", alignItems: "center", gap: 12 },
   brandIcon: {
     width: 38, height: 38, borderRadius: 14, backgroundColor: "rgba(190,235,241,0.12)",
@@ -256,7 +277,7 @@ const styles = StyleSheet.create({
   muted: { color: "#9eacbd", fontSize: 12, lineHeight: 18 },
   error: { color: "#ffc2b8", fontSize: 12, marginTop: 12 },
   sectionHeader: { marginTop: 18, marginBottom: 9, flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", gap: 8 },
-  sectionTitle: { color: "#f4f7fb", fontSize: 16, fontWeight: "650", letterSpacing: -0.2 },
+  sectionTitle: { color: "#f4f7fb", fontSize: 16, fontWeight: "600", letterSpacing: -0.2 },
   sectionAction: { color: "#91a3b8", fontSize: 10 },
   hourlyRow: { gap: 19, paddingVertical: 3 },
   hour: { alignItems: "center", minWidth: 38 },
