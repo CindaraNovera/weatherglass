@@ -13,6 +13,7 @@ export type ModelForecast = {
     relative_humidity_2m?: number;
     wind_speed_10m?: number;
     weather_code?: number;
+    is_day?: number;
   };
   daily: {
     time?: string[];
@@ -46,7 +47,7 @@ async function fetchModel(
     longitude: String(longitude),
     models: model.id,
     current:
-      "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m",
+      "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,is_day",
     hourly: "temperature_2m,precipitation_probability,weather_code",
     daily:
       "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
