@@ -28,9 +28,9 @@ export async function locationAlerts(lat, lon) {
   return { alerts: [...byId.values()].sort((a, b) => (order[a.severity] ?? 4) - (order[b.severity] ?? 4)), checkedAt: new Date().toISOString(), source: 'National Weather Service', zones };
 }
 
-const OVERLAY_LAYERS = Object.freeze({ severe: 'alerts-severe', cells: 'stormcells', tropical: 'tropical-cyclones' });
+const OVERLAY_LAYERS = Object.freeze({ severe: 'alerts-severe', cells: 'stormcells', tropical: 'tropical-cyclones', lightning: 'lightning-flash', wind: 'wind-speeds,wind-gusts', outlook: 'convective' });
 export function parseOverlayTile(path, now = Date.now()) {
-  const match = path.match(/^\/api\/radar\/overlay\/(severe|cells|tropical)\/(\d{1,2})\/(\d{1,5})\/(\d{1,5})\/(\d{13})\.png$/);
+  const match = path.match(/^\/api\/radar\/overlay\/(severe|cells|tropical|lightning|wind|outlook)\/(\d{1,2})\/(\d{1,5})\/(\d{1,5})\/(\d{13})\.png$/);
   if (!match) return null;
   const tile = parseRadarTile('/api/radar/xweather/' + match.slice(2).join('/') + '.png', now);
   return tile ? { ...tile, layer: OVERLAY_LAYERS[match[1]] } : null;
