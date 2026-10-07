@@ -55,7 +55,7 @@ const marker=L.circleMarker([lat,lon],{radius:6,color:'#ffffff',weight:2,fillCol
 const frames=Array.from({length:13},(_,i)=>Math.floor((Date.now()-300000)/300000)*300000-(12-i)*300000);
 const radar=L.tileLayer('',{maxNativeZoom:12,maxZoom:19,opacity:.82,attribution:'Radar © Xweather',keepBuffer:1}).addTo(map);
 const range=document.getElementById('frame'),time=document.getElementById('time'),play=document.getElementById('playBtn'),mode=document.getElementById('mode');let index=12,timer=null;
-function render(){index=Number(range.value);radar.setUrl('${WORKER}/api/radar/xweather/{z}/{x}/{y}/'+frames[index]+'.png');time.textContent=new Date(frames[index]).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});mode.textContent=index===12?'LATEST':'PAST FRAME'}
+radar.on('tileerror',()=>{mode.textContent='RADAR TILE ERROR'});radar.on('tileload',()=>{if(mode.textContent==='RADAR TILE ERROR')mode.textContent=index===12?'LATEST':'PAST FRAME'});\nfunction render(){index=Number(range.value);radar.setUrl('/api/radar/xweather/{z}/{x}/{y}/'+frames[index]+'.png');time.textContent=new Date(frames[index]).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});mode.textContent=index===12?'LATEST':'PAST FRAME'}
 range.addEventListener('input',render);play.addEventListener('click',()=>{if(timer){clearInterval(timer);timer=null;play.textContent='▶';return}play.textContent='Ⅱ';if(index>=12){index=0;range.value='0';render()}timer=setInterval(()=>{index=(index+1)%13;range.value=String(index);render()},700)});
 function setBase(sat){satellite=sat;if(base)map.removeLayer(base);if(labels){map.removeLayer(labels);labels=null}base=(sat?imagery:streets).addTo(map);if(sat)labels=L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Place labels © Esri'}).addTo(map);document.getElementById('mapBtn').className='pill'+(sat?'':' active');document.getElementById('satBtn').className='pill'+(sat?' active':'')}
 document.getElementById('mapBtn').onclick=()=>setBase(false);document.getElementById('satBtn').onclick=()=>setBase(true);document.getElementById('centerBtn').onclick=()=>{map.setView([lat,lon],10);marker.openPopup?.()};render();
@@ -64,7 +64,7 @@ document.getElementById('mapBtn').onclick=()=>setBase(false);document.getElement
 
 export function RadarScreen({ place }: { place: Place }) {
   const html = useMemo(() => radarHtml(place), [place.latitude, place.longitude, place.name]);
-  return <View style={s.radar}><Text style={s.radarTitle}>Radar · {place.name}</Text><WebView source={{ html }} originWhitelist={["*"]} javaScriptEnabled domStorageEnabled style={s.webview} /></View>;
+  return <View style={s.radar}><Text style={s.radarTitle}>Radar · {place.name}</Text><WebView source={{ html, baseUrl: WORKER + "/" }} originWhitelist={["*"]} javaScriptEnabled domStorageEnabled style={s.webview} /></View>;
 }
 
 export function PlansScreen({ place, plans, onAdd, onRemove }: { place: Place; plans: WeatherPlan[]; onAdd: (plan: WeatherPlan) => void; onRemove: (id: string) => void }) {
