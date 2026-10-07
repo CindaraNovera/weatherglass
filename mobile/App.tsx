@@ -69,9 +69,10 @@ export default function App(){
  const windSpeed=average(data?.models.map(model=>model.current.wind_speed_10m)??[]);
  const windy=typeof windSpeed==="number"&&windSpeed>=20;
  const atmosphereKind=storm||rain?"rain":snow?"snow":windy?"wind":"none";
- const backgroundColor=storm?"#111521":snow?"#142431":rain?"#101c2a":cloudy?"#182432":night?"#090f20":"#0b2435";
- const glowColor=storm?"#55394f":snow?"#4b8190":rain?"#245a78":cloudy?"#435363":windy?"#1d6c73":night?"#183c59":"#8a7138";
- return <SafeAreaView style={[styles.safe,{backgroundColor}]}><StatusBar barStyle="light-content"/><View style={[styles.glow,{backgroundColor:glowColor}]}/><WeatherAtmosphere kind={atmosphereKind}/>
+ const sunny=!night&&(condition==="Clear"||condition==="Mostly clear");
+ const backgroundColor=night?(storm?"#111521":snow?"#101b29":rain?"#0a1b2a":cloudy?"#111d2b":"#091426"):storm?"#17192d":snow?"#1b3947":rain?"#15354a":cloudy?"#263744":sunny?"#17465b":"#15384c";
+ const glowColor=storm?"#6b4663":snow?"#74aeb7":rain?"#3f8ab1":cloudy?"#687b89":windy?"#35a2a1":night?"#183c59":sunny?"#e5a94e":"#7592a0";
+ return <SafeAreaView style={[styles.safe,{backgroundColor}]}><StatusBar barStyle="light-content"/><View style={[styles.glow,{backgroundColor:glowColor,opacity:sunny?0.55:night?0.25:0.42}]}/><WeatherAtmosphere kind={atmosphereKind}/>
   <View style={styles.header}><View style={styles.brandIcon}><Text style={styles.brandIconText}>◒</Text></View><View><Text style={styles.brand}>WeatherGlass</Text><Text style={styles.tagline}>YOUR TRANSPARENT FORECAST</Text></View></View>
   <View style={styles.screen}>{screen}</View>
   <View style={styles.tabBar}>{(["Forecast","Radar","Details","Plans","Favorites"] as Tab[]).map(item=><Pressable key={item} accessibilityRole="tab" accessibilityState={{selected:tab===item}} onPress={()=>setTab(item)} style={[styles.tabButton,tab===item&&styles.tabActive]}><Text style={[styles.tabGlyph,tab===item&&styles.tabSelectedGlyph]}>{({Forecast:"◉",Radar:"◈",Details:"⌖",Plans:"▤",Favorites:"☆"} as Record<Tab,string>)[item]}</Text><Text style={[styles.tabLabel,tab===item&&styles.tabSelectedLabel]}>{item}</Text></Pressable>)}</View>
