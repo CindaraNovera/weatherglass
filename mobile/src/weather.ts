@@ -1,10 +1,12 @@
 const API = "https://api.open-meteo.com/v1/forecast";
+const GEOCODING_API = "https://geocoding-api.open-meteo.com/v1/search";
 const MODELS = [
   { id: "ecmwf_ifs025", label: "ECMWF IFS" },
   { id: "gfs_seamless", label: "NOAA GFS / HRRR" },
   { id: "icon_seamless", label: "DWD ICON" },
 ] as const;
 
+export type Place = { name: string; region?: string; country?: string; latitude: number; longitude: number };
 export type ModelForecast = {
   label: string;
   current: {
@@ -29,7 +31,6 @@ export type ModelForecast = {
     weather_code?: number[];
   };
 };
-
 export type ForecastConsensus = {
   models: ModelForecast[];
   currentTemperature: number;
@@ -37,25 +38,13 @@ export type ForecastConsensus = {
   modelSpread: number;
 };
 
-async function fetchModel(
-  latitude: number,
-  longitude: number,
-  model: (typeof MODELS)[number],
-): Promise<ModelForecast> {
+async function fetchModel(latitude: number, longitude: number, model: (typeof MODELS)[number]): Promise<ModelForecast> {
   const params = new URLSearchParams({
-    latitude: String(latitude),
-    longitude: String(longitude),
-    models: model.id,
-    current:
-      "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,is_day",
+    latitude: String(latitude), longitude: String(longitude), models: model.id,
+    current: "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,is_day",
     hourly: "temperature_2m,precipitation_probability,weather_code",
-    daily:
-      "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
-    timezone: "auto",
-    forecast_days: "10",
-    temperature_unit: "fahrenheit",
-    wind_speed_unit: "mph",
-    precipitation_unit: "inch",
+    daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
+    timezone: "auto", forecast_days: "10", temperature_unit: "fahrenheit", wind_speed_unit: "mph", precipitation_unit: "inch",
   });
   const response = await fetch(API + "?" + params.toString());
   if (!response.ok) throw new Error(model.label + " forecast unavailable");
@@ -64,31 +53,28 @@ async function fetchModel(
   return { label: model.label, current: data.current ?? {}, daily: data.daily ?? {}, hourly: data.hourly ?? {} };
 }
 
-export async function loadConsensus(
-  latitude: number,
-  longitude: number,
-): Promise<ForecastConsensus> {
-  const settled = await Promise.allSettled(
-    MODELS.map((model) => fetchModel(latitude, longitude, model)),
-  );
-  const models = settled.flatMap((result) =>
-    result.status === "fulfilled" ? [result.value] : [],
-  );
-  if (models.length === 0) throw new Error("Forecasts are temporarily unavailable.");
+export async function loadConsensus(latitude: number, longitude: number): Promise<ForecastConsensus> {
+  const settled = await Promise.allSettled(MODELS.map((model) => fetchModel(latitude, longitude, model)));
+  const models = settled.flatMap((result) => result.status === "fulfilled" ? [result.value] : []);
+  if (!models.length) throw new Error("Forecasts are temporarily unavailable.");
+  const values = models.map((model) => model.current.temperature_2m).filter((value): value is number => typeof value === "number");
+  if (!values.length) throw new Error("No current temperature was returned.");
+  const low = Math.min(...values), high = Math.max(...values);
+  return { models, currentTemperature: values.reduce((sum, value) => sum + value, 0) / values.length, temperatureRange: [low, high], modelSpread: high - low };
+}
 
-  const values = models
-    .map((model) => model.current.temperature_2m)
-    .filter((value): value is number => typeof value === "number");
-  if (values.length === 0) throw new Error("No current temperature was returned.");
+export async function searchLocations(query: string): Promise<Place[]> {
+  const params = new URLSearchParams({ name: query.trim(), count: "8", language: "en", format: "json" });
+  const response = await fetch(GEOCODING_API + "?" + params.toString());
+  if (!response.ok) throw new Error("Location search is temporarily unavailable.");
+  const data = await response.json();
+  return (data.results ?? []).map((item: { name: string; admin1?: string; country?: string; latitude: number; longitude: number }) => ({
+    name: item.name, region: item.admin1, country: item.country, latitude: item.latitude, longitude: item.longitude,
+  }));
+}
 
-  const low = Math.min(...values);
-  const high = Math.max(...values);
-  return {
-    models,
-    currentTemperature: values.reduce((sum, value) => sum + value, 0) / values.length,
-    temperatureRange: [low, high],
-    modelSpread: high - low,
-  };
+export function placeLabel(place: Place): string {
+  return [place.name, place.region, place.country].filter(Boolean).join(", ");
 }
 
 export function conditionLabel(code?: number): string {
