@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "WeatherGlass Preview",
+    "slug": "weatherglass-preview",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cindaranovera.weatherglasspreview"
+    },
+    "android": {
+      "package": "com.cindaranovera.weatherglasspreview"
+    }
+  }
+}
