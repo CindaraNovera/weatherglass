@@ -725,17 +725,18 @@
     document.addEventListener('visibilitychange',()=>{if(document.hidden)stopRadarPlayback();else refreshXweatherFrames()});
 
     function radarClock(time){return new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit',timeZone:activeTimezone}).format(new Date(time))}
-    function mapBase(map){const satellite=basemapMode==='satellite',base=L.tileLayer(satellite?'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}':'https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:satellite?'Tiles &copy; Esri · Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community':'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'});base.addTo(map);if(map===miniRadarMap)miniLabelLayer=null;if(map===fullRadarMap)fullLabelLayer=null;if(satellite){if(!map.getPane('placeLabels')){map.createPane('placeLabels');map.getPane('placeLabels').style.zIndex='650';map.getPane('placeLabels').style.pointerEvents='none'}const labels=L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,pane:'placeLabels',attribution:'Place labels &copy; Esri'}).addTo(map);if(map===miniRadarMap)miniLabelLayer=labels;if(map===fullRadarMap)fullLabelLayer=labels}return base}
+    function ensureWeatherMapPanes(map){if(!map.getPane('basemapTiles')){map.createPane('basemapTiles');map.getPane('basemapTiles').style.zIndex='200'}if(!map.getPane('radarTiles')){map.createPane('radarTiles');map.getPane('radarTiles').style.zIndex='350'}}
+    function mapBase(map){ensureWeatherMapPanes(map);const satellite=basemapMode==='satellite',base=L.tileLayer(satellite?'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}':'https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,pane:'basemapTiles',attribution:satellite?'Tiles &copy; Esri · Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community':'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'});base.addTo(map);if(map===miniRadarMap)miniLabelLayer=null;if(map===fullRadarMap)fullLabelLayer=null;if(satellite){if(!map.getPane('placeLabels')){map.createPane('placeLabels');map.getPane('placeLabels').style.zIndex='650';map.getPane('placeLabels').style.pointerEvents='none'}const labels=L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,pane:'placeLabels',attribution:'Place labels &copy; Esri'}).addTo(map);if(map===miniRadarMap)miniLabelLayer=labels;if(map===fullRadarMap)fullLabelLayer=labels}return base}
     function radarMapLayer(map){
+      ensureWeatherMapPanes(map);
       if(radarProvider==='xweather'){
         const time=radarFrames[radarFrameIndex]||xweatherFrames().at(-1);
-        const layer=L.tileLayer(xweatherTileURL(time),{maxNativeZoom:12,maxZoom:19,opacity:radarOpacity,attribution:'Radar &copy; <a href="https://www.xweather.com/" target="_blank" rel="noreferrer">Xweather</a>',keepBuffer:1,updateWhenIdle:true});
-        
+        const layer=L.tileLayer(xweatherTileURL(time),{maxNativeZoom:12,maxZoom:19,pane:'radarTiles',opacity:radarOpacity,attribution:'Radar &copy; <a href="https://www.xweather.com/" target="_blank" rel="noreferrer">Xweather</a>',keepBuffer:1,updateWhenIdle:true});
         layer.on('tileerror',()=>{if(radarProvider!=='xweather')return;xweatherHadError=true;stopRadarPlayback();document.getElementById('radarMiniStatus').textContent=radarStatusText();document.getElementById('fullRadarStatus').textContent=radarStatusText()});
         layer.addTo(map);return layer;
       }
       if(!L.esri){document.getElementById('radarMiniStatus').textContent='NOAA map library unavailable · checking Xweather';return null}
-      const layer=L.esri.imageMapLayer({url:NOAA_RADAR_URL,opacity:radarCoverage?radarOpacity:0,useCors:true,attribution:'Radar: NOAA / NWS MRMS'});
+      const layer=L.esri.imageMapLayer({url:NOAA_RADAR_URL,opacity:radarCoverage?radarOpacity:0,useCors:true,pane:'radarTiles',attribution:'Radar: NOAA / NWS MRMS'});
       layer.on('load',()=>{if(radarProvider==='noaa')document.getElementById('fullRadarStatus').textContent=radarStatusText()});
       layer.on('error',()=>{if(radarProvider==='noaa')document.getElementById('fullRadarStatus').textContent='NOAA radar is temporarily unavailable'});layer.addTo(map);return layer;
     }
