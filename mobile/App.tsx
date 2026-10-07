@@ -185,7 +185,9 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const appWeatherCode = data?.models[0]?.current.weather_code;
   const appIsDay = data?.models[0]?.current.is_day !== 0;
-  const appIsWet = ["Rain", "Drizzle", "Snow", "Thunderstorms"].includes(conditionLabel(appWeatherCode));
+  const appCondition = conditionLabel(appWeatherCode);
+  const appIsWet = ["Rain", "Drizzle", "Snow", "Thunderstorms"].includes(appCondition);
+  const appIsSunny = appIsDay && ["Clear", "Mostly clear"].includes(appCondition);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -206,7 +208,7 @@ export default function App() {
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="light-content" />
-      <View style={[styles.backgroundGlow, appIsWet && styles.rainGlow, !appIsDay && styles.nightGlow]} />
+      <View style={[styles.backgroundGlow, appIsWet && styles.rainGlow, appIsSunny && styles.sunGlow, !appIsDay && styles.nightGlow]} />
       <View style={styles.header}>
         <View style={styles.brandIcon}><Text style={styles.brandIconText}>◒</Text></View>
         <View>
@@ -247,6 +249,7 @@ const styles = StyleSheet.create({
   },
   rainGlow: { backgroundColor: "#17435a" },
   nightGlow: { backgroundColor: "#1b2747", opacity: 0.46 },
+  sunGlow: { backgroundColor: "#735437", opacity: 0.36 },
   header: { height: 76, paddingHorizontal: 22, flexDirection: "row", alignItems: "center", gap: 12 },
   brandIcon: {
     width: 38, height: 38, borderRadius: 14, backgroundColor: "rgba(190,235,241,0.12)",
